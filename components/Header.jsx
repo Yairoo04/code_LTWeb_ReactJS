@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
-import ContainerFluid from './container-fluid';
+import ContainerFluid from './container-fluid.jsx';
 
 export default function Header() {
   const router = useRouter();

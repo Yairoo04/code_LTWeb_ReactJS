@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import ProductCard from './ProductCard';
+import ProductCard from './ProductCard.jsx';
 
 export default function ProductSlider({ products }) {
   const [productIndex, setProductIndex] = useState(0);

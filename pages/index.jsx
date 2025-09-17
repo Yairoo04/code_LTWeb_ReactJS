@@ -1,12 +1,12 @@
 import Head from 'next/head';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Slider from '../components/Slider';
-import SubBanner from '../components/SubBanner';
-import RecentView from '../components/RecentView';
-import FlashSale from '../components/FlashSale';
-import MidBanner from '../components/MidBanner';
-import SectionCollection from '../components/SectionCollection';
+import Header from '../components/Header.jsx';
+import Footer from '../components/Footer.jsx';
+import Slider from '../components/Slider.jsx';
+import SubBanner from '../components/SubBanner.jsx';
+import RecentView from '../components/RecentView.jsx';
+import FlashSale from '../components/FlashSale.jsx';
+import MidBanner from '../components/MidBanner.jsx';
+import SectionCollection from '../components/SectionCollection.jsx';
 
 export default function Home() {
   return (

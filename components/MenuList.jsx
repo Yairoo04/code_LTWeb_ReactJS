@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import ContainerFluid from './container-fluid';
+import ContainerFluid from './container-fluid.jsx';
 
 export default function MenuList() {
   const router = useRouter();
