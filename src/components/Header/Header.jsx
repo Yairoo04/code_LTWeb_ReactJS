@@ -4,16 +4,19 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPhone, faStore, faTruck, faShoppingCart, faSearch } from '@fortawesome/free-solid-svg-icons';
 import ContainerFluid from '../../pages/main_Page/container-fluid.jsx';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
+import styles from './Header.module.scss';
 
 export default function Header() {
     const pathname = usePathname();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
         document.querySelectorAll('#menu-list-showroom li a').forEach((link) => {
@@ -21,6 +24,16 @@ export default function Header() {
             link.parentElement.classList.toggle('active', pathname === linkPath);
         });
     }, [pathname]);
+
+    const handleLoginSuccess = () => {
+        // Giả lập login thành công
+        setUser({ name: 'Trần Thị Ánh Nguyệt' });
+        setIsLoginOpen(false);
+    };
+
+    const handleLogout = () => {
+        setUser(null);
+    };
 
     return (
         <header className="main-header">
@@ -80,9 +93,29 @@ export default function Header() {
                         </div>
 
                         <nav className="nav">
-                            <button onClick={() => setIsLoginOpen(true)} className="login">
-                                Đăng nhập
-                            </button>
+                            {!user ? (
+                                <button onClick={() => setIsLoginOpen(true)} className="login">
+                                    Đăng nhập
+                                </button>
+                            ) : (
+                                <div
+                                    className={styles.userMenu}
+                                    onMouseEnter={() => setDropdownOpen(true)}
+                                    onMouseLeave={() => setDropdownOpen(false)}
+                                >
+                                    <span className={styles.userName}>Xin chào, {user.name}</span>
+                                    {dropdownOpen && (
+                                        <div className={styles.dropdown}>
+                                            <p className={styles.dropdownItem}>Tài khoản</p>
+                                            <p className={styles.dropdownItem}>Đơn hàng của tôi</p>
+                                            <p className={styles.dropdownItem}>Đã xem gần đây</p>
+                                            <p className={styles.dropdownItem} onClick={handleLogout}>
+                                                Đăng xuất
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </nav>
 
                         <LoginModal
@@ -92,6 +125,7 @@ export default function Header() {
                                 setIsLoginOpen(false);
                                 setIsRegisterOpen(true);
                             }}
+                            onLoginSuccess={(userData) => setUser(userData)}
                         />
 
                         <RegisterModal
