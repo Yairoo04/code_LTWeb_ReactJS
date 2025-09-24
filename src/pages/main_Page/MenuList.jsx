@@ -2,11 +2,12 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { usePathname } from "next/navigation";
 import ContainerFluid from './container-fluid.jsx';
+import './main_Page.module.scss';
 
 export default function MenuList() {
-  const router = useRouter();
+  const pathname = usePathname();
 
   const menuItems = [
     {
@@ -150,21 +151,20 @@ export default function MenuList() {
   ];
 
   useEffect(() => {
-    const currentPath = router.pathname;
-    document.querySelectorAll('.megamenu-nav-main li').forEach(item => {
-      const link = item.querySelector('a');
+    document.querySelectorAll(".megamenu-nav-main li").forEach((item) => {
+      const link = item.querySelector("a");
       if (link) {
         const linkPath = new URL(link.href, window.location.origin).pathname;
-        item.classList.toggle('active', currentPath === linkPath);
+        item.classList.toggle("active", pathname === linkPath);
       }
     });
-  }, [router.pathname]);
+  }, [pathname]);
 
   return (
     <ContainerFluid>
       <div className="megamenu-nav">
         <ul className="megamenu-nav-main">
-          {menuItems.map(item => (
+          {menuItems.map((item) => (
             <li key={item.id} className={`megamenu-nav-${item.id}`}>
               <i className={`bx ${item.icon}`}></i>
               <Link href={`/${item.id}`}>
@@ -175,7 +175,7 @@ export default function MenuList() {
                 {item.columns.map((column, index) => (
                   <div key={index} className="megamenu-column">
                     <h4>{column.title}</h4>
-                    {column.links.map(link => (
+                    {column.links.map((link) => (
                       <Link key={link.href} href={link.href}>
                         {link.text}
                       </Link>
@@ -186,14 +186,6 @@ export default function MenuList() {
             </li>
           ))}
         </ul>
-        <div className="main-banner">
-          <div className="small-banner">
-            <img src="https://placehold.co/300x600?text=Banner+1" alt="Small Banner 1" />
-          </div>
-          <div className="small-banner">
-            <img src="https://placehold.co/300x600?text=Banner+2" alt="Small Banner 2" />
-          </div>
-        </div>
       </div>
     </ContainerFluid>
   );

@@ -1,0 +1,154 @@
+/* MegaMenu styles */
+.megamenu-nav {
+  width: 250px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  margin: 0;
+  padding: 10px 0;
+  position: absolute;
+  top: 0; /* Adjusted to align with top of slider container */
+  left: 20px;
+  z-index: 100;
+}
+
+.main-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin-left: 280px;
+}
+
+.megamenu-nav-main {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.megamenu-nav-main li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 500;
+  color: black;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.megamenu-nav-main li i {
+  font-size: 18px;
+}
+
+.megamenu-nav-main li span {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.megamenu-nav-main li:hover {
+  background: #f5f5f5;
+}
+
+.megamenu-nav-main span:hover {
+  color: var(--color-primary);
+}
+
+.megamenu-column h4 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: var(--color-primary);
+}
+
+.megamenu-column a {
+  display: block;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.megamenu-column a:hover {
+  color: var(--color-primary);
+}
+
+.megamenu-nav-1:hover .megamenu-content-1,
+.megamenu-nav-2:hover .megamenu-content-2,
+.megamenu-nav-3:hover .megamenu-content-3,
+.megamenu-nav-4:hover .megamenu-content-4,
+.megamenu-nav-5:hover .megamenu-content-5,
+.megamenu-nav-6:hover .megamenu-content-6,
+.megamenu-nav-7:hover .megamenu-content-7,
+.megamenu-nav-8:hover .megamenu-content-8,
+.megamenu-nav-9:hover .megamenu-content-9,
+.megamenu-nav-10:hover .megamenu-content-10,
+.megamenu-nav-11:hover .megamenu-content-11 {
+  display: grid;
+}
+
+/* Slider styles */
+.container {
+  position: relative;
+  width: 100%;
+  height: 400px; /* Adjust based on your design */
+  overflow: hidden;
+  z-index: 10;
+}
+
+.slider-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.slider-image.active {
+  opacity: 1;
+}
+
+.prev,
+.next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 20; /* Above images but below MegaMenu */
+}
+
+.prev {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
+
+.container-dots {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  z-index: 20; /* Above images but below MegaMenu */
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 5px;
+  background: #bbb;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dot.active {
+  background: var(--color-primary);
+}

@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
+import './Slider.module.scss';
+import MegaMenu from '../MegaMenu/MegaMenu';
 
 export default function Slider() {
   const images = [
@@ -37,6 +39,8 @@ export default function Slider() {
           ></div>
         ))}
       </div>
+
+          <MegaMenu />
     </div>
   );
 }

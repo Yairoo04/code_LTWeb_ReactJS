@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import ProductCard from './ProductCard.jsx';
 
-export default function ProductSlider({ products }) {
+export default function ProductSlider({ products, showDotActive }) {
   const [productIndex, setProductIndex] = useState(0);
   const visibleProducts = 6;
   const productListRef = useRef(null);
@@ -40,6 +40,14 @@ export default function ProductSlider({ products }) {
         ))}
       </div>
       <button className="product-slider-next" onClick={handleNext}>❯</button>
+
+      {showDotActive && (
+        <div class="flash-sale-content-dots">
+          <span class="flash-sale-content-dot active"></span>
+          <span class="flash-sale-content-dot"></span>
+          <span class="flash-sale-content-dot"></span>
+        </div>
+      )}
     </div>
   );
 }
