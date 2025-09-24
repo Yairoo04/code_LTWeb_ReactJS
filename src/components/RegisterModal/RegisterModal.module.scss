@@ -1,0 +1,9 @@
+@import "../LoginModal/LoginModal.module.scss";
+
+.button {
+  background: linear-gradient(135deg, #4caf50, #6fdc6f);
+
+  &:hover {
+    background: linear-gradient(135deg, #43a047, #57c757);
+  }
+}
