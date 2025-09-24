@@ -22,7 +22,7 @@ export default function FlashSale({
 
         <div className="flash-sale-content">
           {showImg_Sale && (
-            <div class="flash-sale-2-content-img">
+            <div className="flash-sale-2-content-img">
               <img src="image/flash-sale/gtn-gamming-gear.png" alt="Gear Arena Week" />
             </div>
           )}

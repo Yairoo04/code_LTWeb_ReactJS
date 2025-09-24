@@ -40,7 +40,6 @@
   }
 }
 
-// Giờ mở cửa
 .gioMuacua {
   display: flex;
   gap: 6px;
@@ -49,7 +48,6 @@
   background: #e0e2e0;
 }
 
-// Hotline call box
 .call {
   justify-content: center;
   display: flex;
@@ -66,14 +64,9 @@
     gap: 8px;
     align-items: center;
     transition: 0.6s;
-
-    &:hover {
-      background-color: #218838;
-    }
   }
 }
 
-// Tiêu đề khu vực
 .section-title {
   background: #333;
   color: #fff;
@@ -84,7 +77,6 @@
   font-weight: bold;
 }
 
-// Lưới cửa hàng
 .store-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(250px, 1fr));
@@ -124,14 +116,9 @@
     .st-direction-text {
       color: #fff;
     }
-
-    &:hover {
-      background-color: #056bb5;
-    }
   }
 }
 
-// Liên hệ
 .lienHe {
   background: #e0e2e0;
   padding: 10px 20px;

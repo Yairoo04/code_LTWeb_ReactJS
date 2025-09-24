@@ -5,7 +5,7 @@ import config from '../config';
 // import { HeaderOnly } from '~/layouts';
 
 // import Home from '~/pages/Home';
-import Showroom from '../pages/showroom_system/showroom.jsx';
+import Showroom from '../pages/he-thong-cua-hang-gtn/he-thong-cua-hang-gtn.jsx';
 // import Profile from '~/pages/Profile';
 // import Upload from '~/pages/Upload';
 // import Search from '~/pages/Search';

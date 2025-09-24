@@ -1,55 +1,43 @@
-import './menuList.scss';
-import Link from 'next/link';
+// src/layout/menu_list/menu_list_showroom.jsx
+// import React from "react";
+// import "./menu_list_showroom.scss";
 
-const MenuList = () => {
+'use client';
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import './menu_list_showroom.scss';
+
+const MenuListShowroom = ({ active }) => {
+    const pathname = usePathname(); // Lấy đường dẫn hiện tại
+
+    const menuItems = [
+        { path: 'gioi-thieu-GTN/gioi-thieu-GTN', label: 'Giới thiệu' },
+        { path: '/he-thong-cua-hang-gtn/he-thong-cua-hang-gtn', label: 'Hệ thống cửa hàng' },
+        { path: '/bang-gia-thu-san-pham-cu/bang-gia-thu-san-pham-cu', label: 'Bảng giá thu sản phẩm cũ' },
+        { path: '/ho-tro-ky-thuat/ho-tro-ky-thuat', label: 'Hỗ trợ kỹ thuật tận nơi' },
+        { path: '/sua-chua/sua-chua', label: 'Dịch vụ sửa chữa' },
+        { path: '/tra-cuu-bao-hanh/tra-cuu-bao-hanh', label: 'Tra cứu bảo hành' },
+        { path: '/chinh-sach-giao-hang/chinh-sach-giao-hang', label: 'Chính sách giao hàng' },
+        { path: '/chinh-sach-bao-hanh/chinh-sach-bao-hanh', label: 'Chính sách bảo hành' },
+        { path: '/thanh-toan/thanh-toan', label: 'Thanh toán' },
+        { path: '/tra-gop/tra-gop', label: 'Mua hàng trả góp' },
+        { path: '/huong-dan-mua-hang/huong-dan-mua-hang', label: 'Hướng dẫn mua hàng' },
+        { path: '/chinh-sach-bao-mat/chinh-sach-bao-mat', label: 'Chính sách bảo mật' },
+        { path: '/dieu-khoan/dieu-khoan', label: 'Điều khoản dịch vụ' },
+        { path: '/ve-sinh/ve-sinh', label: 'Dịch vụ vệ sinh miễn phí' },
+    ];
+
     return (
-      <div className="menu-list">
+        <div className="menu-list">
             <ul>
-                <li className="menu-item menu-gioi-thieu">
-                    <Link href="/gioi-thieu-GTN">Giới thiệu</Link>
-                </li>
-                <li className="menu-item menu-showroom">
-                    <Link href="/he-thong-cua-hang-GTN">Hệ thống cửa hàng</Link>
-                </li>
-                <li className="menu-item menu-bang-gia">
-                    <Link href="/bang-gia-thu-san-pham-cu">Bảng giá thu sản phẩm cũ</Link>
-                </li>
-                <li className="menu-item menu-ho-tro">
-                    <Link href="/ho-tro-ky-thuat">Hỗ trợ kỹ thuật tận nơi</Link>
-                </li>
-                <li className="menu-item menu-sua-chua">
-                    <Link href="/sua-chua">Dịch vụ sữa chữa</Link>
-                </li>
-                <li className="menu-item menu-bao-hanh-tra-cuu">
-                    <Link href="/tra-cuu-bao-hanh">Tra cứu thông tin bảo hành</Link>
-                </li>
-                <li className="menu-item menu-giao-hang">
-                    <Link href="/chinh-sach-giao-hang">Chính sách giao hàng</Link>
-                </li>
-                <li className="menu-item menu-bao-hanh">
-                    <Link href="/chinh-sach-bao-hanh">Chính sách bảo hành</Link>
-                </li>
-                <li className="menu-item menu-thanh-toan">
-                    <Link href="/thanh-toan">Thanh toán</Link>
-                </li>
-                <li className="menu-item menu-tra-gop">
-                    <Link href="/tra-gop">Mua hàng trả góp</Link>
-                </li>
-                <li className="menu-item menu-huong-dan">
-                    <Link href="/huong-dan-mua-hang">Hướng dẫn mua hàng</Link>
-                </li>
-                <li className="menu-item menu-bao-mat">
-                    <Link href="/chinh-sach-bao-mat">Chính sách bảo mật</Link>
-                </li>
-                <li className="menu-item menu-dieu-khoan">
-                    <Link href="/dieu-khoan">Điều khoản dịch vụ</Link>
-                </li>
-                <li className="menu-item menu-ve-sinh">
-                    <Link href="/ve-sinh">Dịch vụ vệ sinh miễn phí</Link>
-                </li>
+                {menuItems.map((item) => (
+                    <li key={item.path} className={pathname === item.path ? 'active' : ''}>
+                        <a href={item.path}>{item.label}</a>
+                    </li>
+                ))}
             </ul>
         </div>
     );
 };
 
-export default MenuList;
+export default MenuListShowroom;

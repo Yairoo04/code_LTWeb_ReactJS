@@ -1,6 +1,8 @@
 import "./style.scss"; // file SCSS
 import Link from "next/link";
 import { useState } from "react";
+import React from 'react';
+import MenuListShowroom from '../../layout/menu_list/menu_list_showroom';
 
 const TraCuuBaoHanh = () => {
   const [activeTab, setActiveTab] = useState("content-a");
@@ -8,24 +10,8 @@ const TraCuuBaoHanh = () => {
   return (
     <div className="showroom-system-container">
       {/* Menu bên trái */}
-      <div className="menu-list">
-        <ul>
-          <li><Link href="/gioi-thieu-GTN">Giới thiệu</Link></li>
-          <li><Link href="/he-thong-cua-hang-gtn">Hệ thống cửa hàng</Link></li>
-          <li><Link href="/bang-gia-thu-san-pham-cu">Bảng giá thu sản phẩm cũ</Link></li>
-          <li><Link href="/ho-tro-ky-thuat">Hỗ trợ kỹ thuật tận nơi</Link></li>
-          <li><Link href="/sua-chua">Dịch vụ sửa chữa</Link></li>
-          <li className="active"><Link href="/tra-cuu-bao-hanh">Tra cứu bảo hành</Link></li>
-          <li><Link href="/chinh-sach-giao-hang">Chính sách giao hàng</Link></li>
-          <li><Link href="/chinh-sach-bao-hanh">Chính sách bảo hành</Link></li>
-          <li><Link href="/thanh-toan">Thanh toán</Link></li>
-          <li><Link href="/tra-gop">Mua hàng trả góp</Link></li>
-          <li><Link href="/huong-dan-mua-hang">Hướng dẫn mua hàng</Link></li>
-          <li><Link href="/chinh-sach-bao-mat">Chính sách bảo mật</Link></li>
-          <li><Link href="/dieu-khoan/dieu-khoan">Điều khoản dịch vụ</Link></li>
-          <li><Link href="/ve-sinh">Dịch vụ vệ sinh miễn phí</Link></li>
-        </ul>
-      </div>
+            <MenuListShowroom active="/tra-cuu-bao-hanh" />
+
 
       {/* Nội dung */}
       <div className="content">

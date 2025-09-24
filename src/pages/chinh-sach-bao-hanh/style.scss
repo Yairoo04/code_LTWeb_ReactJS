@@ -1,0 +1,240 @@
+// .showroom-system-container {
+//   display: flex;
+//   justify-content: center;
+//   gap: 50px;
+//   margin-top: 30px;
+// }
+
+// .menu-list {
+//   width: 500px;
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+//   background: #fff;
+
+//   ul {
+//     list-style: none;
+//     margin: 0;
+//     padding: 0;
+
+//     li {
+//       border-bottom: 1px solid #eee;
+
+//       a {
+//         display: block;
+//         padding: 12px 16px;
+//         text-decoration: none;
+//         color: #0877d8;
+//         transition: 0.2s;
+//       }
+
+//       &.active {
+//         a {
+//           background: #075396;
+//           color: #fff;
+//           font-weight: bold;
+//         }
+//       }
+//     }
+//   }
+// }
+
+.showroom-system-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 30px;
+}
+
+.menu-list {
+  width: 500px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      border-bottom: 1px solid #eee;
+
+      a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #0877d8;
+        transition: 0.2s;
+      }
+
+      &.active {
+        a {
+          background: #075396;
+          color: #fff;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+
+
+
+
+.policy-content {
+  flex: 1;
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  line-height: 1.7;
+  color: #333;
+  font-size: 15px;
+
+  h1 {
+    font-size: 28px;
+    color: #075396;
+    margin-bottom: 25px;
+    font-weight: 700;
+    border-bottom: 2px solid #075396;
+    padding-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 20px;
+    color: #d32f2f;
+    margin-top: 35px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    border-left: 4px solid #d32f2f;
+    padding-left: 10px;
+  }
+
+  p {
+    margin-bottom: 14px;
+    color: #444;
+  }
+
+  ul {
+    margin: 10px 0 20px 25px;
+    padding-left: 0;
+
+    li {
+      margin-bottom: 10px;
+      list-style: disc;
+      color: #555;
+
+      strong {
+        color: #000;
+      }
+    }
+  }
+
+  a {
+    color: #0877d8;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+      color: #055fa8;
+    }
+  }
+
+
+
+
+.map-section {
+  margin: 30px 0;
+
+  h2 {
+    color: #d32f2f;
+    margin-bottom: 20px;
+    font-weight: 600;
+    border-left: 4px solid #d32f2f;
+    padding-left: 10px;
+  }
+
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+  }
+
+  .map-box {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  }
+}
+
+  .tra-cuu-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+
+    form {
+      display: flex;
+      flex-direction: column;
+
+      .form-group {
+        margin-bottom: 14px;
+
+        label {
+          display: block;
+          margin-bottom: 6px;
+          font-weight: bold;
+          color: #444;
+        }
+
+        input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 14px;
+        }
+      }
+
+      button {
+        align-self: flex-start;
+        padding: 10px 20px;
+        background-color: #0b9ff5;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.2s;
+
+        &:hover {
+          background-color: darken(#0c82f0, 8%);
+        }
+      }
+    }
+  }
+
+  .note {
+    margin-top: 25px;
+    font-style: italic;
+    color: #555;
+    background: #fff3f3;
+    padding: 12px 16px;
+    border-left: 4px solid #0791ee;
+    border-radius: 6px;
+  }
+}

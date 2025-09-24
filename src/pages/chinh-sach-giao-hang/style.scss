@@ -1,17 +1,15 @@
 .showroom-system-container {
   display: flex;
-  justify-content: center;
   gap: 50px;
   margin-top: 30px;
 }
 
 .menu-list {
-  width: 500px;
+  width: 250px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: #fff;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 6px;
 
   ul {
     list-style: none;
@@ -20,21 +18,23 @@
 
     li {
       border-bottom: 1px solid #eee;
+      margin-bottom: 5px;
 
       a {
         display: block;
-        padding: 12px 16px;
+        padding: 10px 15px;
         text-decoration: none;
         color: #0877d8;
         transition: 0.2s;
+        border-radius: 4px;
 
         &:hover {
-          background: #f2f2f2;
+          background-color: #f2f2f2;
         }
       }
 
       &.active a {
-        background: #075396;
+        background-color: #075396;
         color: #fff;
         font-weight: bold;
       }
@@ -45,46 +45,89 @@
 .content {
   flex: 1;
   background: #fff;
-  padding: 20px;
-  border-radius: 6px;
-}
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 
-.table-chinh-sach,
-.table-tuyen {
-  width: 100%;
-  max-width: 800px;
-  margin: auto;
-  border-collapse: collapse;
+  h2.title-page {
+    color: #d32f2f;
+    margin-bottom: 20px;
+    border-left: 4px solid #d32f2f;
+    padding-left: 10px;
+  }
 
-  th,
-  td {
-    border: 1px solid #ccc;
-    padding: 10px 15px;
+  section {
+    margin-bottom: 30px;
+
+    h3 {
+      color: #d32f2f;
+      margin-bottom: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    ul {
+      margin-left: 20px;
+      li {
+        margin-bottom: 10px;
+        line-height: 1.6;
+      }
+    }
+
+    p {
+      margin-bottom: 15px;
+      line-height: 1.6;
+      color: #333;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: 600;
+    }
+
+    td:first-child {
+      text-align: left;
+    }
+
+    .highlight {
+      background-color: #ffe8e6;
+      font-weight: bold;
+      text-align: center;
+      color: #d32f2f;
+    }
+  }
+
+  .effective-date {
     text-align: center;
+    font-style: italic;
+    color: #777;
+    margin-top: 10px;
   }
 
-  th {
-    background: #f2f2f2;
-    font-weight: bold;
+  .note {
+    font-style: italic;
+    color: #555;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-left: 4px solid #d32f2f;
+    border-radius: 4px;
   }
 
-  td:first-child {
-    text-align: left;
-  }
-}
-
-.note {
-  font-style: italic;
-  margin-top: 10px;
-}
-
-li {
-  margin-bottom: 8px;
-  margin-top: 10px;
-}
-
-.luu-y-nhan-hang {
-  a {
+  .luu-y-nhan-hang a {
     color: #0877d8;
+    text-decoration: underline;
   }
 }
