@@ -1,15 +1,16 @@
 "use client";
 import Header from "../components/Header/Header.jsx";
 import Footer from "../components/Footer/Footer.jsx";
-import Slider from "../pages/main_Page/Slider.jsx";
+import Slider from "../pages/main_Page/Slider/Slider.jsx";
 import SubBanner from "../pages/main_Page/SubBanner.jsx";
-import RecentView from "../pages/main_Page/RecentView.jsx";
+import RecentView from "../pages/main_Page/Product/RecentView.jsx";
 import FlashSale from "../pages/main_Page/FlashSale.jsx";
 import MidBanner from "../pages/main_Page/MidBanner.jsx";
 import SectionCollection from "../pages/main_Page/SectionCollection.jsx";
 import SubHeader from "../pages/main_Page/SubHeader.jsx";
-import { publicRoutes } from '../routes/routes.js';
-
+// import MenuList from "../pages/main_Page/MenuList.jsx";
+// import { publicRoutes } from '../routes/routes.js';
+import MegaMenu from "../pages/main_Page/MegaMenu/MegaMenu.jsx";
 
 export default function Home() {
   return (
@@ -19,9 +20,13 @@ export default function Home() {
       <SubHeader />
       <main>
         <Slider />
+        {/* <MenuList /> */}
         <SubBanner />
         <RecentView />
-        <FlashSale />
+        {/* <!-- Nhóm fsl 2 --> */}
+        <FlashSale className="flash-sale-1" h2Title="⚡ FLASH SALE 10H MỖI NGÀY" showImg_Sale={false} />
+        {/* <!-- Nhóm fsl 2 --> */}
+        <FlashSale className="flash-sale-2" h2Title="⚡ GEAR ARENA WEEK" showTitle={false} showReadMore={false}/>
         <MidBanner />
         <SectionCollection />
       </main>
