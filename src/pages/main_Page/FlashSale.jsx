@@ -1,5 +1,5 @@
 import ProductSlider from './ProductSlider.jsx';
-import { products } from '../lib/data';
+import { products } from '../../lib/data.js';
 import ContainerFluid from './container-fluid.jsx';
 
 export default function FlashSale() {

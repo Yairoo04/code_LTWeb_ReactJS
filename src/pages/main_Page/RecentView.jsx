@@ -1,5 +1,5 @@
 import ProductSlider from './ProductSlider';
-import { products } from '../lib/data';
+import { products } from '../../lib/data';
 import ContainerFluid from './container-fluid.jsx';
 
 export default function RecentView() {

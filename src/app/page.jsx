@@ -1,17 +1,22 @@
 "use client";
-import Header from "../components/Header.jsx";
-import Footer from "../components/Footer.jsx";
-import Slider from "../components/Slider.jsx";
-import SubBanner from "../components/SubBanner.jsx";
-import RecentView from "../components/RecentView.jsx";
-import FlashSale from "../components/FlashSale.jsx";
-import MidBanner from "../components/MidBanner.jsx";
-import SectionCollection from "../components/SectionCollection.jsx";
+import Header from "../components/Header/Header.jsx";
+import Footer from "../components/Footer/Footer.jsx";
+import Slider from "../pages/main_Page/Slider.jsx";
+import SubBanner from "../pages/main_Page/SubBanner.jsx";
+import RecentView from "../pages/main_Page/RecentView.jsx";
+import FlashSale from "../pages/main_Page/FlashSale.jsx";
+import MidBanner from "../pages/main_Page/MidBanner.jsx";
+import SectionCollection from "../pages/main_Page/SectionCollection.jsx";
+import SubHeader from "../pages/main_Page/SubHeader.jsx";
+import { publicRoutes } from '../routes/routes.js';
+
 
 export default function Home() {
   return (
     <div>
-      <Header />
+      <Header>
+      </Header>
+      <SubHeader />
       <main>
         <Slider />
         <SubBanner />

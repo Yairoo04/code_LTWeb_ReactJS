@@ -1,12 +1,16 @@
+import classNames from 'classnames/bind';
 import Link from 'next/link';
-import ContainerFluid from './container-fluid.jsx';
+import ContainerFluid from '../../pages/main_Page/container-fluid.jsx';
+import styles from './Footer.module.scss';
+
+const cx = classNames.bind(styles);
 
 export default function Footer() {
   return (
     <ContainerFluid>
       <footer>
-        <div className="footer-bottom">
-          <div className="company-info">
+        <div className={cx("footer-bottom")}>
+          <div className={cx("company-info")}>
             <h4>Hỗ trợ khách hàng</h4>
             <ul>
               <li><Link href="/offers">Thẻ ưu đãi</Link></li>
@@ -16,7 +20,7 @@ export default function Footer() {
               <li><Link href="/repair">Dịch vụ sửa chữa</Link></li>
             </ul>
           </div>
-          <div className="company-info">
+          <div className={cx("company-info")}>
             <h4>Chính sách mua hàng</h4>
             <ul>
               <li><Link href="/terms">Điều kiện giao dịch chung</Link></li>
@@ -27,7 +31,7 @@ export default function Footer() {
               <li><Link href="/deposit">Quy định Đặt cọc và Giữ hàng</Link></li>
             </ul>
           </div>
-          <div className="company-info">
+          <div className={cx("company-info")}>
             <h4>Thông tin GTN</h4>
             <ul>
               <li><Link href="/about">Giới thiệu GTN</Link></li>
@@ -38,7 +42,7 @@ export default function Footer() {
               <li><Link href="/careers">Tuyển dụng</Link></li>
             </ul>
           </div>
-          <div className="company-info">
+          <div className={cx("company-info")}>
             <h4>Cộng đồng GTN</h4>
             <ul>
               <li><Link href="/contact">Gọi mua hàng (miễn phí) 18001234</Link></li>
@@ -49,7 +53,7 @@ export default function Footer() {
               <li><Link href="/oa">OA GTN</Link></li>
             </ul>
           </div>
-          <div className="company-info">
+          <div className={cx("company-info")}>
             <h4>Email liên hệ</h4>
             <ul>
               <li><a href="mailto:cskh@gtn.com">Hỗ trợ khách hàng: cskh@gtn.com</a></li>
@@ -58,9 +62,9 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="payment">
+        <div className={cx("payment")} >
           <h4>Phương thức thanh toán</h4>
-          <div className="bank-list">
+          <div className={cx("bank-list")}>
             <div>
               <img src="/image/qr-code.png" alt="QR Code" />
               <p>QR Code</p>
@@ -79,11 +83,11 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="company-info">
+        <div className={cx("company-info")}>
           <h4>CÔNG TY CỔ PHẦN THƯƠNG MAI - DỊCH VỤ GTN</h4>
           <p>© 1997 - 2020 Công Ty Cổ Phần Thương Mại - Dịch Vụ GTN...</p>
         </div>
-        <div className="address">
+        <div className={cx("address")} >
           <h4>Địa chỉ trụ sở chính:</h4>
           <p>Tầng 5, Số 117-119-121 Nguyễn Du, Phường Bến Thành, Thành Phố Hồ Chí Minh</p>
           <h4>Văn phòng điều hành miền Bắc:</h4>
