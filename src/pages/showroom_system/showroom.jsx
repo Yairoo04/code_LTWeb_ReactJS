@@ -1,25 +1,26 @@
 import "./style.scss"; // style của bạn
+import Link from "next/link";
 
 const Showroom = () => {
   return (
     <div className="showroom-system-container">
       {/* Menu bên trái */}
-      <div className="menu-list">
+     <div className="menu-list">
         <ul>
-          <li><a href="link">Giới thiệu</a></li>
-          <li><a href="link">Hệ thống cửa hàng</a></li>
-          <li><a href="link">Bảng giá thu sản phẩm cũ</a></li>
-          <li><a href="link">Hỗ trợ kỹ thuật tận nơi</a></li>
-          <li><a href="link">Dịch vụ sữa chữa</a></li>
-          <li><a href="link">Tra cứu thông tin bảo hành</a></li>
-          <li><a href="link">Chính sách giao hàng</a></li>
-          <li><a href="link">Chính sách bảo hành</a></li>
-          <li><a href="link">Thanh toán</a></li>
-          <li><a href="link">Mua hàng trả góp</a></li>
-          <li><a href="link">Hướng dẫn mua hàng</a></li>
-          <li><a href="link">Chính sách bảo mật</a></li>
-          <li><a href="link">Điều khoản dịch vụ</a></li>
-          <li><a href="link">Dịch vụ vệ sinh miễn phí</a></li>
+          <li><Link href="/gioi-thieu-GTN">Giới thiệu</Link></li>
+          <li><Link href="/he-thong-cua-hang-gtn">Hệ thống cửa hàng</Link></li>
+          <li><Link href="/bang-gia-thu-san-pham-cu">Bảng giá thu sản phẩm cũ</Link></li>
+          <li><Link href="/ho-tro-ky-thuat">Hỗ trợ kỹ thuật tận nơi</Link></li>
+          <li><Link href="/sua-chua">Dịch vụ sữa chữa</Link></li>
+          <li><Link href="tra-cuu-bao-hanh/tra-cuu-bao-hanh">Tra cứu thông tin bảo hành</Link></li>
+          <li><Link href="chinh-sach-giao-hang/chinh-sach-giao-hang">Chính sách giao hàng</Link></li>
+          <li><Link href="/chinh-sach-bao-hanh">Chính sách bảo hành</Link></li>
+          <li><Link href="thanh-toan/thanh-toan">Thanh toán</Link></li>
+          <li><Link href="/tra-gop">Mua hàng trả góp</Link></li>
+          <li><Link href="/huong-dan-mua-hang">Hướng dẫn mua hàng</Link></li>
+          <li><Link href="/chinh-sach-bao-mat">Chính sách bảo mật</Link></li>
+          <li><Link href="/dieu-khoan/dieu-khoan">Điều khoản dịch vụ</Link></li>
+          <li><Link href="/ve-sinh">Dịch vụ vệ sinh miễn phí</Link></li>
         </ul>
       </div>
 
