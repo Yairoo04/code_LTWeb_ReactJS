@@ -1,0 +1,266 @@
+
+.showroom-system-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin-top: 30px;
+}
+
+.menu-list {
+  width: 500px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      border-bottom: 1px solid #eee;
+
+      a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #0877d8;
+        transition: 0.2s;
+      }
+
+      &.active a {
+        background: #075396;
+        color: #fff;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+
+
+
+.page-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.sidebar {
+  width: 220px;
+  background: #222;
+  color: #fff;
+  padding: 20px 0;
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin: 10px 0;
+
+      a {
+        display: block;
+        padding: 12px 20px;
+        color: #ccc;
+        text-decoration: none;
+        transition: 0.3s;
+
+        &:hover,
+        &.active {
+          background: #007bff;
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* ========== Checkout CSS ========== */
+.checkout {
+  &__title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 30px;
+  }
+
+  &__container {
+    display: flex;
+    gap: 30px;
+    max-width: 1100px;
+  }
+
+  &__form {
+    flex: 2;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+    h3 {
+      margin-bottom: 15px;
+      font-size: 20px;
+      border-left: 4px solid #007bff;
+      padding-left: 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 15px;
+      font-weight: 500;
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-top: 5px;
+        font-size: 14px;
+
+        &:focus {
+          border-color: #007bff;
+          outline: none;
+        }
+      }
+
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+    }
+  }
+
+  &__payment {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: normal;
+    }
+  }
+
+  &__btn {
+    width: 100%;
+    padding: 14px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+      background: #0056b3;
+    }
+  }
+
+  &__summary {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
+    h3 {
+      margin-bottom: 15px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+    }
+
+    .checkout__total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: bold;
+      color: #d9534f;
+    }
+  }
+}
+/* Giữ nguyên layout showroom-system-container + menu-list từ style.scss */
+/* Riêng phần nội dung thanh toán */
+.thanhtoan-content {
+  flex: 1;
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  line-height: 1.7;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+  h1 {
+    font-size: 26px;
+    margin-bottom: 16px;
+    color: #075396;
+    font-weight: bold;
+    border-bottom: 2px solid #0877d8;
+    padding-bottom: 8px;
+  }
+
+  .intro {
+    margin-bottom: 20px;
+    color: #555;
+    font-style: italic;
+  }
+
+  .payment-step {
+    margin-bottom: 24px;
+    padding: 16px;
+    border-left: 4px solid #0877d8;
+    background: #f9fbfd;
+    border-radius: 4px;
+
+    h2 {
+      font-size: 18px;
+      color: #075396;
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 28px;
+
+      &::before {
+        content: "💳";
+        position: absolute;
+        left: 0;
+        top: -2px;
+        font-size: 20px;
+      }
+    }
+
+    p, ul {
+      color: #444;
+      font-size: 15px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-top: 8px;
+
+      li {
+        margin-bottom: 6px;
+        list-style: disc;
+      }
+    }
+  }
+}
