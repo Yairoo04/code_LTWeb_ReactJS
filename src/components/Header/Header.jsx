@@ -10,6 +10,7 @@ import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
+import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
 
 export default function Header() {
     const pathname = usePathname();
@@ -25,14 +26,31 @@ export default function Header() {
         });
     }, [pathname]);
 
-    const handleLoginSuccess = () => {
-        // Giả lập login thành công
-        setUser({ name: 'Trần Thị Ánh Nguyệt' });
+    const handleLoginSuccess = (userData) => {
+        // Ví dụ userData được backend trả về
+        const data = {
+            name: userData.fullname || 'Trần Thị Ánh Nguyệt',
+            email: userData.email || 'anhnguyett21@gmail.com',
+        };
+
+        localStorage.setItem('user', JSON.stringify(data));
+        setUser(data);
         setIsLoginOpen(false);
     };
 
+    useEffect(() => {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
+
     const handleLogout = () => {
         setUser(null);
+    };
+
+    const toggleDropdown = () => {
+        setDropdownOpen((prev) => !prev);
     };
 
     return (
@@ -103,14 +121,24 @@ export default function Header() {
                                     onMouseEnter={() => setDropdownOpen(true)}
                                     onMouseLeave={() => setDropdownOpen(false)}
                                 >
-                                    <span className={styles.userName}>Xin chào, {user.name}</span>
+                                    {/* thêm onClick để toggle */}
+                                    <span className={styles.userName} onClick={toggleDropdown}>
+                                        Xin chào {user.name}
+                                    </span>
+
                                     {dropdownOpen && (
                                         <div className={styles.dropdown}>
-                                            <p className={styles.dropdownItem}>Tài khoản</p>
-                                            <p className={styles.dropdownItem}>Đơn hàng của tôi</p>
-                                            <p className={styles.dropdownItem}>Đã xem gần đây</p>
+                                            <Link href="/tai-khoan/thong-tin" className={styles.dropdownItem}>
+                                                <FaUser className={styles.icon} /> Thông tin tài khoản
+                                            </Link>
+                                            <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
+                                                <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
+                                            </Link>
+                                            <Link href="/tai-khoan/san-pham-da-xem" className={styles.dropdownItem}>
+                                                <FaEye className={styles.icon} /> Đã xem gần đây
+                                            </Link>
                                             <p className={styles.dropdownItem} onClick={handleLogout}>
-                                                Đăng xuất
+                                                <FaSignOutAlt className={styles.icon} /> Đăng xuất
                                             </p>
                                         </div>
                                     )}
@@ -125,7 +153,18 @@ export default function Header() {
                                 setIsLoginOpen(false);
                                 setIsRegisterOpen(true);
                             }}
-                            onLoginSuccess={(userData) => setUser(userData)}
+                            onLoginSuccess={(userData) => {
+                                const data = {
+                                    name: userData.fullname || 'Người dùng',
+                                    email: userData.email || '',
+                                    phone: userData.phone || '',
+                                    gender: userData.gender || 'Nam',
+                                    birthday: userData.birthday || { day: '', month: '', year: '' },
+                                };
+
+                                localStorage.setItem('user', JSON.stringify(data));
+                                setUser(data);
+                            }}
                         />
 
                         <RegisterModal

@@ -170,6 +170,17 @@ li {
   flex-direction: column;
 }
 
+.showroom-system {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white; /* thêm để đồng bộ với Hotline */
+}
+.showroom-system-text {
+  display: flex;
+  flex-direction: column;
+}
+
 .login {
   font-size: 16px;
   font-weight: 600;
