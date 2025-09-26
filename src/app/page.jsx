@@ -4,7 +4,7 @@ import Footer from "../components/Footer/Footer.jsx";
 import Slider from "../pages/main_Page/Slider/Slider.jsx";
 import SubBanner from "../pages/main_Page/SubBanner.jsx";
 import RecentView from "../pages/main_Page/Product/RecentView.jsx";
-import FlashSale from "../pages/main_Page/FlashSale.jsx";
+import FlashSale from "../pages/main_Page/FlashSale/FlashSale.jsx";
 import MidBanner from "../pages/main_Page/MidBanner.jsx";
 import SectionCollection from "../pages/main_Page/SectionCollection.jsx";
 import SubHeader from "../pages/main_Page/SubHeader.jsx";

@@ -42,10 +42,10 @@ export default function ProductSlider({ products, showDotActive }) {
       <button className="product-slider-next" onClick={handleNext}>❯</button>
 
       {showDotActive && (
-        <div class="flash-sale-content-dots">
-          <span class="flash-sale-content-dot active"></span>
-          <span class="flash-sale-content-dot"></span>
-          <span class="flash-sale-content-dot"></span>
+        <div className="flash-sale-content-dots">
+          <span className="flash-sale-content-dot active"></span>
+          <span className="flash-sale-content-dot"></span>
+          <span className="flash-sale-content-dot"></span>
         </div>
       )}
     </div>
