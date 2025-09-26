@@ -580,14 +580,6 @@ footer {
 
 /* Flash sale */
 
-.flash-sale-1,
-.flash-sale-2 {
-  max-width: 1220;
-  background: #7ba2f0;
-  /* background: #296fff; */
-  border-radius: 8px;
-}
-
 .flash-sale-header {
   display: flex;
   align-items: center;
@@ -609,12 +601,12 @@ footer {
   color: #ffee12;
 }
 
-/* 
+
 .flash-sale-content {
   padding: 16px;
-  background: url("./image/sale-bg/thang_04_layout_web_-12.png") no-repeat center center;
+  background: url("/image/sale-bg/thang_04_layout_web_-12.png") no-repeat center center;
   background-size: cover;
-} */
+}
 
 .sale-title {
   background: #fff;
@@ -1054,13 +1046,4 @@ footer {
   text-align: center;
   margin-top: 8px;
   font-weight: 500;
-}
-
-/* Flash sale */
-.flash-sale-1,
-.flash-sale-2 {
-  max-width: 1220;
-  background: #7ba2f0;
-  /* background: #296fff; */
-  border-radius: 8px;
 }

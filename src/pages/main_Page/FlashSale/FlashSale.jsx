@@ -1,6 +1,6 @@
-import ProductSlider from './Product/ProductSlider.jsx';
-import { products } from '../../lib/data.js';
-import ContainerFluid from './container-fluid.jsx';
+import ProductSlider from '../Product/ProductSlider.jsx';
+import { products } from '../../../lib/data.js';
+import ContainerFluid from '../container-fluid.jsx';
 
 export default function FlashSale({
   className = 'flash-sale',
