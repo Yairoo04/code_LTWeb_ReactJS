@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useRef } from 'react';
-import ProductCard from './ProductCard.jsx';
+import { useState, useRef } from "react";
+import ProductCard from "./ProductCard.jsx";
 
-export default function ProductSlider({ products, showDotActive }) {
+export default function ProductSlider({ products = [], showDotActive }) {
   const [productIndex, setProductIndex] = useState(0);
   const visibleProducts = 6;
   const productListRef = useRef(null);
 
   const updateProductSlide = () => {
-    const cardWidth = productListRef.current.querySelector('.product-card').offsetWidth;
-    productListRef.current.style.transform = `translateX(-${productIndex * cardWidth}px)`;
+    if (!productListRef.current) return;
+    const card = productListRef.current.querySelector(".product-card");
+    if (!card) return;
+
+    const cardWidth = card.offsetWidth;
+    productListRef.current.style.transform = `translateX(-${
+      productIndex * cardWidth
+    }px)`;
   };
 
   const handleNext = () => {
@@ -26,20 +32,32 @@ export default function ProductSlider({ products, showDotActive }) {
     if (productIndex > 0) {
       setProductIndex(productIndex - visibleProducts);
     } else {
-      setProductIndex(products.length - visibleProducts);
+      setProductIndex(Math.max(products.length - visibleProducts, 0));
     }
     updateProductSlide();
   };
 
+  if (!Array.isArray(products) || products.length === 0) {
+    return (
+      <div className="product-slider-empty">
+        <p>No products available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="product-slider">
-      <button className="product-slider-prev" onClick={handlePrev}>❮</button>
+      <button className="product-slider-prev" onClick={handlePrev}>
+        ❮
+      </button>
       <div className="product-list" ref={productListRef}>
         {products.map((product, index) => (
           <ProductCard key={index} product={product} />
         ))}
       </div>
-      <button className="product-slider-next" onClick={handleNext}>❯</button>
+      <button className="product-slider-next" onClick={handleNext}>
+        ❯
+      </button>
 
       {showDotActive && (
         <div className="flash-sale-content-dots">

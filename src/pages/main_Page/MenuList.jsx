@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from "next/navigation";
 import ContainerFluid from './container-fluid.jsx';
-import './main_Page.module.scss';
 
 export default function MenuList() {
   const pathname = usePathname();
