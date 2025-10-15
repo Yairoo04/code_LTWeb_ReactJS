@@ -131,3 +131,6 @@
 // };
 
 // export default Showroom;
+export default function Showroom() {
+  return <div>Showroom</div>;
+}
