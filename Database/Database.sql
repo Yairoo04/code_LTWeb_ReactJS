@@ -985,5 +985,3 @@ END
 
 GO
 
-PRINT '--- DONE: GTN_Shop created and extended with full features & sample data ---';
-GO
