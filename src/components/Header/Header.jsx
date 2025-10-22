@@ -58,7 +58,7 @@ export default function Header() {
             <div className="list-banner">
                 <ContainerFluid>
                     <div className="top-banner">
-                        <img src="/image/top-banner.gif" alt="Top Banner" className="img-banner" />
+                        <img src="/images/top-banner.gif" alt="Top Banner" className="img-banner" />
                     </div>
                 </ContainerFluid>
             </div>
@@ -67,7 +67,7 @@ export default function Header() {
                 <ContainerFluid>
                     <div className="menu">
                         <Link href={config.routes.home}>
-                            <img src="/image/logo.jpg" alt="GTN Logo" className="img-logo" />
+                            <img src="/images/logo.jpg" alt="GTN Logo" className="img-logo" />
                         </Link>
                         <div className="category">
                             <FontAwesomeIcon icon={faBars} /> Danh mục

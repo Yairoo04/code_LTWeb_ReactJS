@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from 'react';
-import './Slider.module.scss';
+// import './Slider.module.scss';
+import '../../../styles/globals.css';
 import MegaMenu from '../MegaMenu/MegaMenu';
 
 export default function Slider() {
   const images = [
-    '/image/slider-img/slider-banner-1.webp',
-    '/image/slider-img/slider-banner-2.webp',
-    '/image/slider-img/slider-banner-3.webp',
+    '/images/slider-img/slider-banner-1.webp',
+    '/images/slider-img/slider-banner-2.webp',
+    '/images/slider-img/slider-banner-3.webp',
   ];
   const [index, setIndex] = useState(0);
 
@@ -39,7 +40,6 @@ export default function Slider() {
           ></div>
         ))}
       </div>
-
           <MegaMenu />
     </div>
   );

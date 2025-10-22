@@ -222,7 +222,7 @@ li {
   justify-content: space-between;
   align-items: center;
   padding: 20px 15%;
-  background: url("/image/slider-img/slider-banner-1.webp") no-repeat center center;
+  background: url("/images/slider-img/slider-banner-1.webp") no-repeat center center;
   background-size: cover;
   position: relative;
 }
@@ -604,7 +604,7 @@ footer {
 
 .flash-sale-content {
   padding: 16px;
-  background: url("/image/sale-bg/thang_04_layout_web_-12.png") no-repeat center center;
+  background: url("/images/sale-bg/thang_04_layout_web_-12.png") no-repeat center center;
   background-size: cover;
 }
 

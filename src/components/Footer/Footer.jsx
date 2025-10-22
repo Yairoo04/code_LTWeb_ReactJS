@@ -66,19 +66,19 @@ export default function Footer() {
           <h4>Phương thức thanh toán</h4>
           <div className={cx("bank-list")}>
             <div>
-              <img src="/image/qr-code.png" alt="QR Code" />
+              <img src="/images/qr-code.png" alt="QR Code" />
               <p>QR Code</p>
             </div>
             <div>
-              <img src="/image/cash.png" alt="Tiền mặt" />
+              <img src="/images/cash.png" alt="Tiền mặt" />
               <p>Tiền mặt</p>
             </div>
             <div>
-              <img src="/image/installment.png" alt="Trả góp" />
+              <img src="/images/installment.png" alt="Trả góp" />
               <p>Trả góp</p>
             </div>
             <div>
-              <img src="/image/banking.png" alt="Internet Banking" />
+              <img src="/images/banking.png" alt="Internet Banking" />
               <p>Internet Banking</p>
             </div>
           </div>

@@ -323,10 +323,10 @@ const MegaMenu = () => {
             </div>
             <div className="main-banner">
                 <div className="small-banner">
-                    <img src="./image/right-small-banner1.gif" alt="Banner 1" />
+                    <img src="./images/right-small-banner1.gif" alt="Banner 1" />
                 </div>
                 <div className="small-banner">
-                    <img src="./image/right-small-banner1.gif" alt="Banner 2" />
+                    <img src="./images/right-small-banner1.gif" alt="Banner 2" />
                 </div>
             </div>
         </>
