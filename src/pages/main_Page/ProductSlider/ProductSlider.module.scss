@@ -1,0 +1,124 @@
+.product-slider {
+  position: relative;
+  overflow: hidden;
+  padding: 16px 0 12px; // Ensure space for dots and title
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+
+  &__title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0 16px 10px;
+    color: #333;
+  }
+
+  &__no-products {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+
+  &__list {
+    display: flex;
+    transition: transform 0.5s ease;
+    flex-wrap: nowrap;
+    gap: 10px;
+    width: 100%; // Ensure list takes full width
+  }
+
+  &__card {
+    box-sizing: border-box;
+    padding: 10px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    min-width: 0; // Allow shrinking to fit
+    flex: 0 0 auto; // Prevent overflow
+
+    img {
+      width: 70px;
+      height: 70px;
+      border-radius: 5px;
+    }
+  }
+
+  &__prev,
+  &__next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(87, 85, 85, 0.4);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 50%;
+    opacity: 0.7;
+    z-index: 10;
+    transition: all 0.3s ease-in-out;
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background: rgba(8, 8, 8, 0.4);
+      color: var(--color-primary, #e30019);
+    }
+  }
+
+  &__prev {
+    left: 10px;
+  }
+
+  &__next {
+    right: 10px;
+  }
+
+  &__dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 0;
+    z-index: 20;
+
+    button {
+      width: 12px;
+      height: 2px;
+      background: rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      padding: 0;
+
+      &.product-slider__dot--active {
+        background: var(--color-primary, #e30019);
+        width: 15px;
+      }
+    }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-slider__card {
+    flex: 0 0 calc(100% / 1); // Stack cards on small screens
+  }
+}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import ContainerFluid from './container-fluid.jsx';
+import ContainerFluid from './ContainerFluid/container-fluid';
 
 export default function MidBanner() {
   return (

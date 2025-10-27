@@ -174,8 +174,10 @@ li {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: white; /* thêm để đồng bộ với Hotline */
+  color: white;
+  /* thêm để đồng bộ với Hotline */
 }
+
 .showroom-system-text {
   display: flex;
   flex-direction: column;
@@ -184,7 +186,7 @@ li {
 .login {
   font-size: 16px;
   font-weight: 600;
-  color: #fff; 
+  color: #fff;
   gap: 10px;
   background-color: #be1529;
   padding: 8px 15px;
@@ -222,7 +224,8 @@ li {
   justify-content: space-between;
   align-items: center;
   padding: 20px 15%;
-  background: url("/images/slider-img/slider-banner-1.webp") no-repeat center center;
+  background: no-repeat center center;
+  /*url("/images/slider-img/slider-banner-1.webp")*/
   background-size: cover;
   position: relative;
 }
@@ -907,6 +910,7 @@ footer {
   position: relative;
   overflow: hidden;
   padding: 16px 0px 8px;
+  display: flex;
 }
 
 .product-list {
@@ -997,20 +1001,28 @@ footer {
   border-radius: 8px;
 }
 
-.recent-view .product-card {
-  width: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 calc(100% / 4);
-  gap: 10px;
-  text-align: center;
+.recent-view {
+  .product-card {
+    width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 calc(100% / 4);
+    gap: 10px;
+    text-align: center;
+  }
 }
 
-.recent-view .product-card img {
-  width: 70px;
-  height: 70px;
-  border-radius: 5px;
+.recent-view {
+  .product-slider {
+    .product-card {
+      >img {
+        width: 70px;
+        height: 70px;
+        border-radius: 5px;
+      }
+    }
+  }
 }
 
 .flash-sale,

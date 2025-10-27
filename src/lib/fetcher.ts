@@ -5,6 +5,5 @@ export const fetcher = (url: string) =>
   });
 
 export function buildClientUrl(path: string) {
-  // /api/products -> /_api/products (đi qua proxy, tránh CORS + OPTIONS)
   return path.replace(/^\/api\//, '/_api/');
 }

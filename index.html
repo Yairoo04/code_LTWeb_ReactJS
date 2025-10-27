@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sản phẩm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            max-width: 100px;
+            height: auto;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Danh sách sản phẩm</h1>
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Mã sản phẩm</th>
+                <th>Tên</th>
+                <th>Mô tả</th>
+                <th>Mã danh mục</th>
+                <th>SKU</th>
+                <th>Giá</th>
+                <th>Giá giảm</th>
+                <th>Tồn kho</th>
+                <th>Hình ảnh</th>
+                <th>Đã xuất bản</th>
+                <th>Ngày tạo</th>
+                <th>Ngày cập nhật</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchProducts() {
+            const tableBody = document.querySelector('#productTable tbody');
+            try {
+                const response = await fetch('http://localhost:4000/api/products', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP! Mã trạng thái: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                console.log('Dữ liệu từ API:', data);
+
+                const products = Array.isArray(data) ? data : data.data || [];
+
+                tableBody.innerHTML = '';
+                
+                if (!products || products.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="12" class="error">Không tìm thấy sản phẩm</td></tr>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.ProductId ?? 'N/A'}</td>
+                        <td>${product.Name ?? 'N/A'}</td>
+                        <td>${product.Description ?? 'N/A'}</td>
+                        <td>${product.CategoryId ?? 'N/A'}</td>
+                        <td>${product.SKU ?? 'N/A'}</td>
+                        <td>${product.Price ? product.Price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : 'N/A'}</td>
+                        <td>${product.DiscountPrice ? product.DiscountPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : 'N/A'}</td>
+                        <td>${product.Stock ?? 'N/A'}</td>
+                        <td>${product.ImageUrl ? `<img src="http://localhost:4000${product.ImageUrl}" alt="Hình sản phẩm" onerror="this.src='https://via.placeholder.com/100'; this.alt='Hình không tải được'">` : 'N/A'}</td>
+                        <td>${product.IsPublished ? 'Có' : 'Không'}</td>
+                        <td>${product.CreatedAt ? new Date(product.CreatedAt).toLocaleString('vi-VN') : 'N/A'}</td>
+                        <td>${product.UpdatedAt ? new Date(product.UpdatedAt).toLocaleString('vi-VN') : 'N/A'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Lỗi khi lấy sản phẩm:', error);
+                tableBody.innerHTML = `<tr><td colspan="12" class="error">Không thể tải sản phẩm: ${error.message}</td></tr>`;
+            }
+        }
+
+        window.onload = fetchProducts;
+    </script>
+</body>
+</html>

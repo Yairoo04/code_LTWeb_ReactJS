@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import Link from 'next/link';
-import ContainerFluid from '../../pages/main_Page/container-fluid.jsx';
+import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid.jsx';
 import styles from './Footer.module.scss';
 
 const cx = classNames.bind(styles);

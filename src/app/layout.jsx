@@ -1,8 +1,8 @@
-import "../styles/globals.css";
+import "../styles/globals.scss";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
-config.autoAddCss = false; // Ngăn FontAwesome tự thêm CSS 2 lần
+config.autoAddCss = false;
 
 export const metadata = {
   title: "GTN - Technology Retail",

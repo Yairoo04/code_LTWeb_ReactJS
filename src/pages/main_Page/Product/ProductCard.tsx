@@ -1,16 +1,14 @@
-// src/app/(components)/RecentView/ProductCard.tsx
 import React from 'react';
 
-type Product = {
+type FrontendProduct = {
   id: number;
   name: string;
   description?: string;
   price: number;
-  category?: string;
+  category?: string | null;
   stock?: number;
   image_url?: string;
   created_at?: string;
-  // nếu sau này backend có thêm oldPrice/status thì thêm ở đây
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -20,7 +18,7 @@ function formatVND(n?: number) {
   return new Intl.NumberFormat('vi-VN').format(n) + '₫';
 }
 
-export default function ProductCard({ product }: { product?: Product }) {
+export default function ProductCard({ product }: { product?: FrontendProduct }) {
   if (!product) {
     return (
       <div className="product-card empty">
@@ -30,8 +28,8 @@ export default function ProductCard({ product }: { product?: Product }) {
   }
 
   const imgSrc = product.image_url
-    ? `${API_BASE}${product.image_url}` // ảnh từ backend
-    : '/images/placeholder.png';        // ảnh tĩnh của FE: public/image/placeholder.png
+    ? `${API_BASE}${product.image_url}`
+    : '/images/placeholder.png';
 
   const inStock = (product.stock ?? 0) > 0;
 
@@ -44,16 +42,7 @@ export default function ProductCard({ product }: { product?: Product }) {
       />
       <div className="info">
         <div className="name">{product.name || 'Unknown'}</div>
-
-        {/* Giá hiện có từ backend */}
         <div className="new-price">{formatVND(product.price)}</div>
-
-        {/* Nếu backend có oldPrice/status thì render bổ sung:
-        <div className="old-price">{formatVND(product.oldPrice)}</div>
-        <div className="status">{product.status}</div>
-        */}
-
-        {/* Badge tồn kho (tùy style CSS của bạn) */}
         <div className={`stock ${inStock ? 'in' : 'out'}`}>
           {inStock ? 'Còn hàng' : 'Hết hàng'}
         </div>

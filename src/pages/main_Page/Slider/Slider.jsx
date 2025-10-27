@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 // import './Slider.module.scss';
-import '../../../styles/globals.css';
+import '../../../styles/globals.scss';
 import MegaMenu from '../MegaMenu/MegaMenu';
 
 export default function Slider() {

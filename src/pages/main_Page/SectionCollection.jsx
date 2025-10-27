@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import React, { useState } from 'react';
-import ContainerFluid from './container-fluid.jsx';
+import ContainerFluid from './ContainerFluid/container-fluid.jsx';
 import { products, categories } from '../../lib/data.js';
 
 export default function SectionCollection() {
-  const itemsPerPage = 4; // Number of products per slide
+  const itemsPerPage = 4;
   const totalSlides = Math.ceil(products.length / itemsPerPage);
   const [currentSlide, setCurrentSlide] = useState(0);
 

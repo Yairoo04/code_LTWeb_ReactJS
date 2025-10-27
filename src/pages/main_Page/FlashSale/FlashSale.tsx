@@ -1,18 +1,11 @@
-// src/app/(components)/FlashSale/index.tsx
-import { api } from '@/lib/api';
-import ProductSlider from '../Product/ProductSlider'; // không cần .tsx ở import
-import ContainerFluid from '../container-fluid.jsx';
+'use client';
 
-type Product = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  stock: number;
-  image_url: string;
-  created_at: string;
-};
+import { api } from '@/lib/api';
+import { Product } from '@/lib/product';
+import ProductSlider from '../ProductSlider/ProductSlider';
+import ContainerFluid from '../ContainerFluid/container-fluid';
+import '../../../styles/globals.scss';
+import React from 'react';
 
 type FlashSaleProps = {
   className?: string;
@@ -21,19 +14,10 @@ type FlashSaleProps = {
   showTitle?: boolean;
   showReadMore?: boolean;
   showDotActive?: boolean;
-  limit?: number; // số sản phẩm hiển thị
+  limit?: number;
 };
 
-async function getFlashProducts(limit = 12): Promise<Product[]> {
-  const json = await api<{ success: boolean; data: Product[] }>('/api/products');
-  const products = json.data ?? [];
-  // demo: lấy mới nhất, còn logic “flash sale” tùy bạn filter theo field riêng
-  return products
-    .toSorted((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
-    .slice(0, limit);
-}
-
-export default async function FlashSale({
+export default function FlashSale({
   className = 'flash-sale',
   h2Title = 'Flash Sale',
   showImg_Sale = true,
@@ -42,7 +26,49 @@ export default async function FlashSale({
   showDotActive = true,
   limit = 12,
 }: FlashSaleProps) {
-  const products = await getFlashProducts(limit);
+  const [products, setProducts] = React.useState<Product[]>([]);
+
+  React.useEffect(() => {
+    async function getFlashProducts() {
+      try {
+        const res = await fetch('/api/products', {
+          cache: 'no-store',
+        });
+
+        if (!res.ok) {
+          console.error('Fetch /api/products failed:', res.status);
+          return [];
+        }
+        const json = await res.json() as { success: boolean; data: any[] };
+        if (!json?.success || !Array.isArray(json.data)) return [];
+
+        const mapped = json.data.map(item => ({
+          ProductId: item.ProductId ?? 0,
+          Name: item.Name ?? 'N/A',
+          Description: item.Description ?? 'N/A',
+          Price: item.Price ?? 0,
+          Category: item.Category ?? '',
+          Stock: item.Stock ?? 0,
+          ImageUrl: item.ImageUrl ?? '',
+          CreatedAt: item.CreatedAt ?? new Date().toISOString(),
+          DiscountPrice: item.DiscountPrice ?? null,
+          CategoryId: item.CategoryId ?? null,
+          SKU: item.SKU ?? '',
+          IsPublished: item.IsPublished ?? true,
+          UpdatedAt: item.UpdatedAt ?? null,
+        })) as Product[];
+
+        return mapped
+          .sort((a, b) => +new Date(b.CreatedAt) - +new Date(a.CreatedAt))
+          .slice(0, limit);
+      } catch (error) {
+        console.error('Lỗi fetch products:', error);
+        return [];
+      }
+    }
+
+    getFlashProducts().then(setProducts);
+  }, [limit]);
 
   return (
     <ContainerFluid>
@@ -57,7 +83,6 @@ export default async function FlashSale({
         <div className="flash-sale-content">
           {showImg_Sale && (
             <div className="flash-sale-2-content-img">
-              {/* ảnh tĩnh của FRONTEND phải nằm ở: frontend/public/image/flash-sale/gtn-gamming-gear.png */}
               <img
                 src="/images/flash-sale/gtn-gamming-gear.png"
                 alt="Gear Arena Week"
