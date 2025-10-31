@@ -126,12 +126,12 @@
     }
   }
 
-  &.facebook {
-    background: #4267b2;
-    &:hover {
-      background: #365899;
-    }
-  }
+  // &.facebook {
+  //   background: #4267b2;
+  //   &:hover {
+  //     background: #365899;
+  //   }
+  // }
 }
 
 .footer {
@@ -160,3 +160,13 @@
     transform: translateY(0);
   }
 }
+
+.error {
+  color: #e63946;
+  background: #ffe6e6;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
