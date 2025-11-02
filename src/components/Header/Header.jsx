@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faPhone, faStore, faTruck, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import ContainerFluid from '../../pages/main/Page/ContainerFluid/container-fluid';
+import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
