@@ -1,3 +1,4 @@
+// app/(components)/FlashSale.tsx
 'use client';
 
 import { api } from '@/lib/api';
@@ -5,7 +6,9 @@ import { Product } from '@/lib/product';
 import ProductSlider from '../ProductSlider/ProductSlider';
 import ContainerFluid from '../ContainerFluid/container-fluid';
 import '../../../styles/globals.scss';
+import './FlashSale.module.scss';
 import React from 'react';
+import { useRecentView } from '../RecentViewProducts/RecentViewContext';
 
 type FlashSaleProps = {
   className?: string;
@@ -27,6 +30,7 @@ export default function FlashSale({
   limit = 12,
 }: FlashSaleProps) {
   const [products, setProducts] = React.useState<Product[]>([]);
+  const { addRecentView } = useRecentView();
 
   React.useEffect(() => {
     async function getFlashProducts() {
@@ -47,7 +51,6 @@ export default function FlashSale({
           Name: item.Name ?? 'N/A',
           Description: item.Description ?? 'N/A',
           Price: item.Price ?? 0,
-          Category: item.Category ?? '',
           Stock: item.Stock ?? 0,
           ImageUrl: item.ImageUrl ?? '',
           CreatedAt: item.CreatedAt ?? new Date().toISOString(),

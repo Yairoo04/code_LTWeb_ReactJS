@@ -102,7 +102,7 @@ export const recent_Products = [
   },
 ];
 
-export const categories = [
+export const categories_pc = [
   { title: 'PC I3', href: '#' },
   { title: 'PC I5', href: '#' },
   { title: 'PC I7', href: '#' },
@@ -111,4 +111,42 @@ export const categories = [
   { title: 'PC R3', href: '#' },
   { title: 'PC R7', href: '#' },
   { title: 'PC R9', href: '#' },
+];
+
+export const categories_laptop = [
+  { title: 'ASUS', href: '#' },
+  { title: 'ACER', href: '#' },
+  { title: 'MSI', href: '#' },
+  { title: 'LENOVO', href: '#' },
+  { title: 'GIGABYTE', href: '#' },
+  { title: 'DELL', href: '#' },
+];
+
+export const categories_mouse = [
+  { title: 'Logitech', href: '#' },
+  { title: 'Razer', href: '#' },
+  { title: 'Asus', href: '#' },
+  { title: 'Corsair', href: '#' },
+  { title: 'Dare-U', href: '#' },
+  { title: 'Rapoo', href: '#' },
+];
+
+export const categories_keyboard = [
+  { title: 'Akko', href: '#' },
+  { title: 'Asus', href: '#' },
+  { title: 'Razer', href: '#' },
+  { title: 'Logitech', href: '#' },
+  { title: 'Leopold', href: '#' },
+  { title: 'DareU', href: '#' },
+];
+
+export const categories_monitor = [
+  { title: 'LG', href: '#' },
+  { title: 'Asus', href: '#' },
+  { title: 'ViewSonic', href: '#' },
+  { title: 'Dell', href: '#' },
+  { title: 'Gigabyte', href: '#' },
+  { title: 'AOC', href: '#' },
+  { title: 'Acer', href: '#' },
+  { title: 'HKC', href: '#' },
 ];

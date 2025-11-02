@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faPhone, faStore, faTruck, faShoppingCart, faSearch } from '@fortawesome/free-solid-svg-icons';
-import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
+import { faBars, faPhone, faStore, faTruck, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import ContainerFluid from '../../pages/main/Page/ContainerFluid/container-fluid';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
 import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
+
+// THÊM IMPORT SEARCHBOX
+import SearchBox from '../Search/SearchBox'; // Đảm bảo đường dẫn đúng
 
 export default function Header() {
   const pathname = usePathname();
@@ -56,12 +59,14 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
+    setDropdownOpen(false);
   };
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
   return (
     <header className="main-header">
+      {/* Banner top */}
       <div className="list-banner">
         <ContainerFluid>
           <div className="top-banner">
@@ -70,6 +75,7 @@ export default function Header() {
         </ContainerFluid>
       </div>
 
+      {/* Header chính */}
       <div className="main-header--top">
         <ContainerFluid>
           <div className="menu">
@@ -81,12 +87,11 @@ export default function Header() {
               <FontAwesomeIcon icon={faBars} /> Danh mục
             </div>
 
-            <div className="search-box">
-              <input type="text" className="search" placeholder="Tìm kiếm sản phẩm..." />
-              <button className="button-search">
-                <FontAwesomeIcon icon={faSearch} />
-              </button>
+            {/* THAY THẾ PHẦN SEARCH CŨ BẰNG SEARCHBOX */}
+            <div className={styles.searchContainer}>
+              <SearchBox />
             </div>
+            {/* KẾT THÚC */}
 
             <div className="hotline">
               <FontAwesomeIcon icon={faPhone} />
@@ -123,6 +128,7 @@ export default function Header() {
               </div>
             </div>
 
+            {/* User Menu */}
             <nav className="nav">
               {!user ? (
                 <button onClick={() => setIsLoginOpen(true)} className="login">
@@ -159,7 +165,7 @@ export default function Header() {
               )}
             </nav>
 
-            {/* Modals */}
+            {/* Modal */}
             <LoginModal
               isOpen={isLoginOpen}
               onClose={() => setIsLoginOpen(false)}
