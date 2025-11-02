@@ -12,7 +12,7 @@ import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
 import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
 
-// THÊM IMPORT SEARCHBOX
+// THÊM IMPORT SEARCHBO
 import SearchBox from '../Search/SearchBox'; // Đảm bảo đường dẫn đúng
 
 export default function Header() {
