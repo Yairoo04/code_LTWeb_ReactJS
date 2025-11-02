@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faPhone, faStore, faTruck, faShoppingCart, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPhone, faStore, faTruck, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
 import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
+
+// THÊM IMPORT SEARCHBOX
+import SearchBox from '../Search/SearchBox'; // Đảm bảo đường dẫn đúng
 
 export default function Header() {
     const pathname = usePathname();
@@ -27,12 +30,10 @@ export default function Header() {
     }, [pathname]);
 
     const handleLoginSuccess = (userData) => {
-        // Ví dụ userData được backend trả về
         const data = {
             name: userData.fullname || 'Trần Thị Ánh Nguyệt',
             email: userData.email || 'anhnguyett21@gmail.com',
         };
-
         localStorage.setItem('user', JSON.stringify(data));
         setUser(data);
         setIsLoginOpen(false);
@@ -46,7 +47,9 @@ export default function Header() {
     }, []);
 
     const handleLogout = () => {
+        localStorage.removeItem('user');
         setUser(null);
+        setDropdownOpen(false);
     };
 
     const toggleDropdown = () => {
@@ -55,6 +58,7 @@ export default function Header() {
 
     return (
         <header className="main-header">
+            {/* Banner top */}
             <div className="list-banner">
                 <ContainerFluid>
                     <div className="top-banner">
@@ -63,21 +67,24 @@ export default function Header() {
                 </ContainerFluid>
             </div>
 
+            {/* Header chính */}
             <div className="main-header--top">
                 <ContainerFluid>
                     <div className="menu">
                         <Link href={config.routes.home}>
                             <img src="/images/logo.jpg" alt="GTN Logo" className="img-logo" />
                         </Link>
+
                         <div className="category">
                             <FontAwesomeIcon icon={faBars} /> Danh mục
                         </div>
-                        <div className="search-box">
-                            <input type="text" className="search" placeholder="Tìm kiếm sản phẩm..." />
-                            <button className="button-search">
-                                <FontAwesomeIcon icon={faSearch} />
-                            </button>
+
+                        {/* THAY THẾ PHẦN SEARCH CŨ BẰNG SEARCHBOX */}
+                        <div className={styles.searchContainer}>
+                            <SearchBox />
                         </div>
+                        {/* KẾT THÚC */}
+
                         <div className="hotline">
                             <FontAwesomeIcon icon={faPhone} />
                             <div className="hotline-text">
@@ -85,6 +92,7 @@ export default function Header() {
                                 <span>1900.1000</span>
                             </div>
                         </div>
+
                         <Link href={config.routes.showroom}>
                             <div className="showroom-system">
                                 <FontAwesomeIcon icon={faStore} />
@@ -94,6 +102,7 @@ export default function Header() {
                                 </div>
                             </div>
                         </Link>
+
                         <div className="track-oder">
                             <FontAwesomeIcon icon={faTruck} />
                             <div className="track-oder-text">
@@ -101,6 +110,7 @@ export default function Header() {
                                 <span>đơn hàng</span>
                             </div>
                         </div>
+
                         <div className="user-cart">
                             <FontAwesomeIcon icon={faShoppingCart} />
                             <span className="quantity">0</span>
@@ -110,6 +120,7 @@ export default function Header() {
                             </div>
                         </div>
 
+                        {/* User Menu */}
                         <nav className="nav">
                             {!user ? (
                                 <button onClick={() => setIsLoginOpen(true)} className="login">
@@ -121,7 +132,6 @@ export default function Header() {
                                     onMouseEnter={() => setDropdownOpen(true)}
                                     onMouseLeave={() => setDropdownOpen(false)}
                                 >
-                                    {/* thêm onClick để toggle */}
                                     <span className={styles.userName} onClick={toggleDropdown}>
                                         Xin chào {user.name}
                                     </span>
@@ -146,6 +156,7 @@ export default function Header() {
                             )}
                         </nav>
 
+                        {/* Modal */}
                         <LoginModal
                             isOpen={isLoginOpen}
                             onClose={() => setIsLoginOpen(false)}
@@ -153,18 +164,7 @@ export default function Header() {
                                 setIsLoginOpen(false);
                                 setIsRegisterOpen(true);
                             }}
-                            onLoginSuccess={(userData) => {
-                                const data = {
-                                    name: userData.fullname || 'Người dùng',
-                                    email: userData.email || '',
-                                    phone: userData.phone || '',
-                                    gender: userData.gender || 'Nam',
-                                    birthday: userData.birthday || { day: '', month: '', year: '' },
-                                };
-
-                                localStorage.setItem('user', JSON.stringify(data));
-                                setUser(data);
-                            }}
+                            onLoginSuccess={handleLoginSuccess}
                         />
 
                         <RegisterModal

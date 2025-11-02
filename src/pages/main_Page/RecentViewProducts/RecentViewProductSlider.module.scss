@@ -1,0 +1,88 @@
+// app/(components)/RecentView/RecentViewProductSlider.module.scss
+.slider {
+  position: relative;
+  overflow: hidden;
+  padding: 16px 0;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px 16px;
+  color: #222;
+}
+
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  transition: transform 0.5s ease-in-out;
+}
+
+.item {
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.prev,
+.next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &.active {
+    background: #333;
+    transform: scale(1.2);
+  }
+}
+
+.empty {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 32px;
+  font-size: 14px;
+}

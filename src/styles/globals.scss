@@ -618,42 +618,6 @@ footer {
   font-weight: bold;
 }
 
-.product-slider {
-  position: relative;
-  overflow: hidden;
-  padding: 16px 0px 8px;
-}
-
-.product-list {
-  display: flex;
-  transition: transform 0.3s ease;
-}
-
-.product-card {
-  flex: 0 0 calc(100% / 6);
-  /* mỗi card chiếm 1/6 khung */
-  box-sizing: border-box;
-  padding: 10px;
-  text-align: center;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 10px;
-  margin-right: 15px;
-  min-width: 180px;
-  text-align: center;
-  transition: transform 0.3s;
-
-}
-
-/* .product-card:hover {
-  transform: translateY(-5px);
-} */
-
-.product-card img {
-  border-radius: 5px;
-}
-
 .old-price {
   text-decoration: line-through;
   color: #888;
@@ -667,39 +631,6 @@ footer {
 .status {
   color: #ff6600;
   font-size: 14px;
-}
-
-.product-slider-prev,
-.product-slider-next {
-  position: absolute;
-  top: 40%;
-  background: rgba(87, 85, 85, 0.4);
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 50%;
-  opacity: 0.7;
-  z-index: 10;
-  transition: all 0.3s ease-in-out;
-}
-
-.product-slider-prev {
-  left: 0px;
-}
-
-.product-slider-next {
-  right: 0px;
-}
-
-.product-slider-prev:hover {
-  background: rgba(8, 8, 8, 0.4);
-  color: var(--color-primary);
-}
-
-.product-slider-next:hover {
-  background: rgba(8, 8, 8, 0.4);
-  color: var(--color-primary);
 }
 
 .more-promotion {
@@ -742,6 +673,28 @@ footer {
   margin-top: 30px;
 }
 
+.flash-sale-2 {
+  .flash-sale-content {
+    .product-slider {
+      .product-card {
+        .product-name {
+          font-weight: 600;
+          font-size: 16px;
+          color: red;
+          margin: 0 0 8px;
+          line-height: 1.4;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          text-overflow: ellipsis;
+          word-break: break-word;
+        }
+      }
+    }
+  }
+}
+
 .flash-sale-content-dot {
   width: 20px;
   height: 4px;
@@ -767,68 +720,6 @@ footer {
   width: 600px;
   height: 180px;
   border-radius: 8px;
-}
-
-/* Collection sesion */
-.section .section-collection {
-  background: #7ba2f0;
-  border-radius: 8px;
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-align: center;
-  background: #fff;
-  color: black;
-  padding: 12px 28px 12px 24px;
-  border-radius: 6px 6px 0px 0px;
-}
-
-.box-left {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-
-.box-header {
-  padding-right: 20px;
-  font-size: 14px;
-  border-right: 1px solid black;
-}
-
-.box-subheader {
-  font-size: 14px;
-}
-
-.box-right {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 30px;
-}
-
-.cate-list {
-  display: flex;
-  gap: 15px;
-}
-
-.cate-list>li>a {
-  font-size: 14px;
-  color: black;
-}
-
-.box-link>a {
-  font-size: 14px;
-  color: #1aa6f7;
-  font-weight: bold;
-}
-
-.section-content {
-  padding: 0px 20px;
-  background-color: #fff;
 }
 
 /* Mid banner 2*/
@@ -906,13 +797,6 @@ footer {
   }
 }
 
-.product-slider {
-  position: relative;
-  overflow: hidden;
-  padding: 16px 0px 8px;
-  display: flex;
-}
-
 .product-list {
   display: flex;
   transition: transform 0.5s ease;
@@ -926,7 +810,6 @@ footer {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 8px;
-  margin-right: 15px;
   min-width: 180px;
   text-align: center;
 }
@@ -951,35 +834,6 @@ footer {
   font-size: 14px;
 }
 
-.product-slider-prev,
-.product-slider-next {
-  position: absolute;
-  top: 40%;
-  background: rgba(87, 85, 85, 0.4);
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 50%;
-  opacity: 0.7;
-  z-index: 10;
-  transition: all 0.3s ease-in-out;
-}
-
-.product-slider-prev {
-  left: 0px;
-}
-
-.product-slider-next {
-  right: 0px;
-}
-
-.product-slider-prev:hover,
-.product-slider-next:hover {
-  background: rgba(8, 8, 8, 0.4);
-  color: var(--color-primary);
-}
-
 .sub-banner {
   display: flex;
   gap: 20px;
@@ -994,37 +848,6 @@ footer {
   border-radius: 8px;
 }
 
-.recent-view {
-  padding: 20px;
-  background: #fff;
-  margin: 20px 0;
-  border-radius: 8px;
-}
-
-.recent-view {
-  .product-card {
-    width: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 0 0 calc(100% / 4);
-    gap: 10px;
-    text-align: center;
-  }
-}
-
-.recent-view {
-  .product-slider {
-    .product-card {
-      >img {
-        width: 70px;
-        height: 70px;
-        border-radius: 5px;
-      }
-    }
-  }
-}
-
 .flash-sale,
 .section-collection {
   padding: 20px;
@@ -1033,7 +856,6 @@ footer {
   border-radius: 8px;
 }
 
-.recent-view h2,
 .flash-sale h2,
 .section-collection h2 {
   font-size: 24px;
@@ -1058,4 +880,86 @@ footer {
   text-align: center;
   margin-top: 8px;
   font-weight: 500;
+}
+
+/* === PRODUCT CARD === */
+.recentViewProductCard {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px 8px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 10px;
+  }
+
+  .text {
+    flex: 1;
+    text-align: left;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0 0 4px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+    line-height: 1.3;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  &__price {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: left;
+    gap: 6px;
+    font-size: 14px;
+
+    .original {
+      text-decoration: line-through;
+      color: #888;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+  }
+
+  &__discountPrice {
+    display: flex;
+    gap: 5px;
+
+    .current {
+      font-weight: bold;
+      font-size: 16px;
+      color: #e30019;
+    }
+
+    .percent {
+      color: #e30019;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid #e30019;
+      background-color: #ffeded;
+    }
+  }
 }
