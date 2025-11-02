@@ -10,6 +10,7 @@ import './FlashSale.module.scss';
 import React from 'react';
 import { useRecentView } from '../RecentViewProducts/RecentViewContext';
 
+
 type FlashSaleProps = {
   className?: string;
   h2Title?: string;
@@ -32,6 +33,7 @@ export default function FlashSale({
   const [products, setProducts] = React.useState<Product[]>([]);
   const { addRecentView } = useRecentView();
 
+
   React.useEffect(() => {
     async function getFlashProducts() {
       try {
@@ -51,6 +53,8 @@ export default function FlashSale({
           Name: item.Name ?? 'N/A',
           Description: item.Description ?? 'N/A',
           Price: item.Price ?? 0,
+
+          Category: item.Category ?? '',
           Stock: item.Stock ?? 0,
           ImageUrl: item.ImageUrl ?? '',
           CreatedAt: item.CreatedAt ?? new Date().toISOString(),
@@ -99,7 +103,6 @@ export default function FlashSale({
               <span className="sale-title">Flash sale</span>
             </div>
           )}
-
           <ProductSlider products={products} showDotActive={showDotActive} />
 
           {showReadMore && (
