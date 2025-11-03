@@ -1,3 +1,5 @@
+"use client";
+
 import styles from './Footer.module.scss';
 import Link from 'next/link';
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';

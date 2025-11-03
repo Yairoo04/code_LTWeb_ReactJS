@@ -26,24 +26,25 @@
     justify-content: center;
     align-items: center;
     gap: 20px;
-}
 
-.box-header {
-    padding-right: 20px;
-    font-size: 14px;
-    border-right: 1px solid #97999d;
-}
 
-.box-subheader {
-    font-size: 14px;
-}
+    .box-header {
+        padding-right: 20px;
+        font-size: 14px;
+        border-right: 1px solid #97999d;
+    }
 
-.hTitle {
-    font-size: 22px;
-}
+    .box-subheader {
+        font-size: 14px;
+    }
 
-.shTitle {
-    font-size: 18px;
+    .hTitle {
+        font-size: 22px;
+    }
+
+    .shTitle {
+        font-size: 18px;
+    }
 }
 
 .box-right {
@@ -64,7 +65,7 @@
     padding: 5px 10px;
     font-weight: bold;
     line-height: 22px;
-    
+
 
     &:hover {
         color: var(--color-primary, #e30019);
