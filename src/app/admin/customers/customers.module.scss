@@ -1,0 +1,82 @@
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, max-content);
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 12px 0 16px;
+}
+.search {
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0 12px;
+}
+.select {
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0 10px;
+}
+
+.btnReset {
+  height: 38px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+  padding: 0 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.summary {
+  margin: 6px 0 12px;
+  color: #374151;
+}
+
+.tableWrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table thead th {
+  background: #f9fafb;
+  color: #374151;
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+.table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.rowClickable { cursor: pointer; }
+.table tbody tr:hover { background: #fafafa; }
+
+.badgeActive { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badgeBlocked { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+
+.modalOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+}
+.modal {
+  width: min(640px, 100%);
+  background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+.modalHeader { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f3f4f6; }
+.modalHeader h3 { margin: 0; font-size: 18px; }
+.closeBtn { border: none; background: transparent; font-size: 20px; line-height: 1; cursor: pointer; }
+.modalBody { padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.field span { color: #6b7280; font-size: 12px; display: block; margin-bottom: 4px; }
+.field b { color: #111827; }
+.modalFooter { padding: 12px 16px; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; }
+.closePrimary { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+
+@media (max-width: 640px) {
+  .modalBody { grid-template-columns: 1fr; }
+}

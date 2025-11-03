@@ -7,7 +7,7 @@ export async function POST(req) {
 
     // 🧩 Log kiểm tra biến môi trường
     console.log("ADMIN_EMAIL =", process.env.ADMIN_EMAIL);
-    console.log("ADMIN_PASS =", process.env.ADMIN_PASS ? "ĐÃ TẢI ✅" : "CHƯA TẢI ❌");
+    console.log("ADMIN_PASS =", process.env.ADMIN_PASS ? "ĐÃ TẢI " : "CHƯA TẢI ");
 
     // 1️⃣ Cấu hình SMTP (dùng Gmail)
     const transporter = nodemailer.createTransport({

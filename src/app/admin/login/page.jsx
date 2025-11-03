@@ -52,7 +52,7 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [lockUntil]);
 
-  // 📨 Gửi OTP (giới hạn 1 phút/lần)
+  //  Gửi OTP (giới hạn 1 phút/lần)
   const sendOtp = async () => {
     const now = Date.now();
     if (now - lastOtpTime < 60000) {
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success) {
-        alert("✅ Mã OTP đã được gửi đến email admin!");
+        alert(" Mã OTP đã được gửi đến email admin!");
         setStep(2);
       } else {
         setError("Gửi mail thất bại: " + data.error);
@@ -87,7 +87,7 @@ export default function LoginPage() {
     }
   };
 
-  // 🔐 Xử lý đăng nhập bước 1
+  //  Xử lý đăng nhập bước 1
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
@@ -99,7 +99,9 @@ export default function LoginPage() {
     setSubmitting(true);
 
     setTimeout(() => {
-      if (username.trim() === "admin" && password === "123456") {
+      const uname = username.trim().toLowerCase();
+      const allowed = { admin: "ADMIN", manager: "MANAGER", staff01: "STAFF" };
+      if (allowed[uname] && password === "123456") {
         sendOtp();
         setFailedAttempts(0);
       } else {
@@ -120,23 +122,25 @@ export default function LoginPage() {
     }, 800);
   };
 
-  // 🔑 Xử lý xác minh OTP
+  //  Xử lý xác minh OTP
   const handleVerify = (e) => {
     e.preventDefault();
 
     if (Date.now() > otpExpireTime) {
-      setError("⏰ Mã OTP đã hết hạn, vui lòng yêu cầu mã mới!");
+      setError("Mã OTP đã hết hạn, vui lòng yêu cầu mã mới!");
       return;
     }
 
     if (otp.trim() === serverOtp) {
       Cookies.set("isLoggedIn", "true", { path: "/" });
       sessionStorage.setItem("isLoggedIn", "true");
-      sessionStorage.setItem("user", JSON.stringify({ username }));
+      const allowed = { admin: "ADMIN", manager: "MANAGER", staff01: "STAFF" };
+      const role = allowed[username.trim().toLowerCase()] || "STAFF";
+      sessionStorage.setItem("user", JSON.stringify({ username, role }));
 
-      alert("🎉 Đăng nhập thành công!");
+      alert(" Đăng nhập thành công!");
       localStorage.removeItem("lockUntil");
-      router.push("/admin/dashboard");
+  router.push("/admin/dashboard");
     } else {
       setError("❌ Mã OTP không đúng!");
       setShake(true);

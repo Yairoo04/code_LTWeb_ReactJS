@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> db44fea ( cap nhat admin)
 // app/(components)/FlashSale.tsx
 'use client';
 
@@ -5,11 +9,18 @@ import { api } from '@/lib/api';
 import { Product } from '@/lib/product';
 import ProductSlider from '../ProductSlider/ProductSlider';
 import ContainerFluid from '../ContainerFluid/container-fluid';
+<<<<<<< HEAD
+=======
+
+>>>>>>> db44fea ( cap nhat admin)
 import '../../../styles/globals.scss';
 import './FlashSale.module.scss';
 import React from 'react';
 import { useRecentView } from '../RecentViewProducts/RecentViewContext';
+<<<<<<< HEAD
 
+=======
+>>>>>>> db44fea ( cap nhat admin)
 
 type FlashSaleProps = {
   className?: string;
@@ -31,8 +42,13 @@ export default function FlashSale({
   limit = 12,
 }: FlashSaleProps) {
   const [products, setProducts] = React.useState<Product[]>([]);
+<<<<<<< HEAD
   const { addRecentView } = useRecentView();
 
+=======
+
+  const { addRecentView } = useRecentView();
+>>>>>>> db44fea ( cap nhat admin)
 
   React.useEffect(() => {
     async function getFlashProducts() {
@@ -54,7 +70,10 @@ export default function FlashSale({
           Description: item.Description ?? 'N/A',
           Price: item.Price ?? 0,
 
+<<<<<<< HEAD
           Category: item.Category ?? '',
+=======
+>>>>>>> db44fea ( cap nhat admin)
           Stock: item.Stock ?? 0,
           ImageUrl: item.ImageUrl ?? '',
           CreatedAt: item.CreatedAt ?? new Date().toISOString(),

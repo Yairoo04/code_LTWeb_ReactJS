@@ -2,7 +2,7 @@ import "../styles/globals.scss";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { RecentViewProvider } from '../pages/main/Page/RecentViewProducts/RecentViewContext';
+import { RecentViewProvider } from '../pages/main_Page/RecentViewProducts/RecentViewContext';
 
 config.autoAddCss = false;
 
