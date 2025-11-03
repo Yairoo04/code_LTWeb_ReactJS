@@ -36,6 +36,30 @@ yarn-error.log*
 # vercel
 .vercel
 
+
+# custom ignores
+# database scripts / dumps
+*.sql
+*.bak
+
+# archives / compressed files
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# local config files
+.env.local
+.env.development.local
+.env.production.local
+
+# system files
+Thumbs.db
+.idea/
+.vscode/
+
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

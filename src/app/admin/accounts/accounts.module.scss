@@ -1,0 +1,35 @@
+.toolbar { display: grid; grid-template-columns: 1fr repeat(3, max-content); gap: 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; margin: 12px 0 16px; }
+.search { height: 38px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 12px; }
+.select { height: 38px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; padding: 0 10px; }
+.btn { background: #2563eb; color: #fff; border: none; border-radius: 8px; height: 38px; padding: 0 12px; cursor: pointer; }
+.btnGhost { border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 8px; height: 38px; padding: 0 12px; cursor: pointer; }
+.btnDanger { border: 1px solid #ef4444; background: #fff5f5; color: #b91c1c; border-radius: 8px; height: 32px; padding: 0 10px; cursor: pointer; }
+
+.tableWrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.table { width: 100%; border-collapse: collapse; }
+.table thead th { background: #f9fafb; color: #374151; text-align: left; padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb; }
+.table tbody td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+.actions { display: flex; gap: 8px; align-items: center; }
+.mono { font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+
+.badgeAdmin { background: #eef2ff; color: #1d4ed8; border: 1px solid #c7d2fe; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badgeManager { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badgeStaff { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badgeActive { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badgeBlocked { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+
+.modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+.modal { width: min(720px, 100%); background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.15); }
+.modalHeader { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f3f4f6; }
+.closeBtn { border: none; background: transparent; font-size: 20px; line-height: 1; cursor: pointer; }
+.modalBody { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+.formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.formGrid label { display: flex; flex-direction: column; gap: 6px; }
+.formGrid input, .formGrid select { height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 10px; }
+.checkRow { display: inline-flex; align-items: center; gap: 8px; }
+.roleHint { font-size: 13px; color: #374151; }
+.modalFooter { padding: 12px 16px; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 680px) {
+  .formGrid { grid-template-columns: 1fr; }
+}
