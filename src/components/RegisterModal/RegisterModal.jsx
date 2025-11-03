@@ -10,49 +10,50 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(""); // Luu loi hien thi len form
+  const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
   if (!isOpen) return null;
 
-  // Kiem tra mat khau manh
+  // Kiểm tra độ mạnh của mật khẩu
   const validatePassword = (pwd) => {
     if (pwd.length < 8) return "Mật khẩu phải có ít nhất 8 ký tự.";
-    if (!/[A-Z]/.test(pwd)) return "Mật khẩu phải chứa ít nhất một chữ cái in hoa.";
-    if (!/[a-z]/.test(pwd)) return "Mật khẩu phải chứa ít nhất một chữ cái thường.";
-    if (!/[0-9]/.test(pwd)) return "Mật khẩu phải chứa ít nhất một chữ số.";
+    if (!/[A-Z]/.test(pwd)) return "Mật khẩu phải chứa ít nhất 1 chữ cái in hoa.";
+    if (!/[a-z]/.test(pwd)) return "Mật khẩu phải chứa ít nhất 1 chữ cái thường.";
+    if (!/[0-9]/.test(pwd)) return "Mật khẩu phải chứa ít nhất 1 chữ số.";
     return null;
   };
 
+  // Gửi form đăng ký
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
 
-    // Kiem tra du lieu dau vao
+    // Kiểm tra dữ liệu đầu vào
     if (!username || !email || !password || !phone) {
-      setErrorMsg("⚠️ Vui lòng nhập đầy đủ thông tin!");
+      setErrorMsg("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
-    // Kiem tra dinh dang email
+    // Kiểm tra email hợp lệ
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setErrorMsg("⚠️ Email không hợp lệ!");
+      setErrorMsg("Email không hợp lệ!");
       return;
     }
 
-    // Kiem tra so dien thoai
+    // Kiểm tra số điện thoại Việt Nam
     const phoneRegex = /^0\d{9}$/;
     if (!phoneRegex.test(phone)) {
-      setErrorMsg("⚠️ Số điện thoại phải có 10 chữ số và bắt đầu bằng 0!");
+      setErrorMsg("Số điện thoại phải có 10 chữ số và bắt đầu bằng 0!");
       return;
     }
 
-    // Kiem tra do manh mat khau
+    // Kiểm tra độ mạnh mật khẩu
     const pwdError = validatePassword(password);
     if (pwdError) {
-      setErrorMsg("⚠️ " + pwdError);
+      setErrorMsg("Loi: " + pwdError);
       return;
     }
 
@@ -62,21 +63,26 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, phone }),
+        body: JSON.stringify({
+          username: username,
+          email,
+          password,
+          phone,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setErrorMsg(data.message || "Đăng ký thất bại!");
+        setErrorMsg(data.message || "Đăng ký thất bại! Email có thể đã tồn tại.");
         return;
       }
 
       // Thành công
-      setSuccessMsg("Đăng ký thành công! Hãy đăng nhập để tiếp tục.");
+      setSuccessMsg("Đăng ký thành công! Đang chuyển sang đăng nhập...");
       setTimeout(() => {
         onClose();
-        onSwitchToLogin();
+        onSwitchToLogin?.();
       }, 1500);
     } catch (error) {
       console.error("Lỗi đăng ký:", error);
@@ -89,10 +95,15 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        {/* Nút đóng */}
+        <button className={styles.closeBtn} onClick={onClose}>
+          ✕
+        </button>
 
+        {/* Tiêu đề */}
         <h2 className={styles.title}>Tạo tài khoản mới</h2>
 
+        {/* Form */}
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaUser className={styles.icon} />
@@ -102,6 +113,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
               className={styles.input}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
             />
           </div>
 
@@ -113,6 +125,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
               className={styles.input}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
@@ -120,10 +133,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             <FaPhone className={styles.icon} />
             <input
               type="text"
-              placeholder="Số điện thoại"
+              placeholder="Số điện thoại (VD: 0912345678)"
               className={styles.input}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              required
             />
           </div>
 
@@ -135,10 +149,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
               className={styles.input}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 
-          {/* Hien thi loi hoac thong bao thanh cong */}
+          {/* Hiển thị thông báo */}
           {errorMsg && <p className={styles.error}>{errorMsg}</p>}
           {successMsg && <p className={styles.success}>{successMsg}</p>}
 
