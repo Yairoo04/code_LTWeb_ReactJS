@@ -19,7 +19,7 @@ type FrontendProduct = {
   created_at: string;
 };
 
-const API_URL = '/api/products/search'; // Dùng POST route
+const API_URL = '/api/products/ssearch'; // Dùng POST route
 
 const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => ({
   id: product.ProductId,
@@ -119,7 +119,7 @@ export default function SearchBox() {
         )}
         <button
           className={styles['search-btn']}
-          onClick={() => query && router.push(`/tim-kiem?q=${encodeURIComponent(query)}`)}
+          onClick={() => query && router.push(`/search?q=${encodeURIComponent(query)}`)}
           aria-label="Tìm kiếm"
         >
           <FontAwesomeIcon icon={faSearch} />

@@ -8,44 +8,25 @@ import ContainerFluid from '@/pages/main_Page/ContainerFluid/container-fluid';
 import RecentView from '@/pages/main_Page/RecentViewProducts/RecentView';
 import SectionCollection from '@/pages/main_Page/sectionCollection/SectionCollection';
 
-// Assume you have a function to fetch product data
+// Function to fetch product data including specs
 async function fetchProduct(productId: string) {
-  const res = await fetch(`http://localhost:4000/api/products/${productId}`);
+  const res = await fetch(`http://localhost:4000/api/products?productId=${productId}&details=true`);
   if (!res.ok) {
     throw new Error('Failed to fetch product');
   }
-  const { data } = await res.json();
-  if (!data) {
+  const json = await res.json();
+  const { data } = json;
+  if (!data || !data.product) {
     notFound();
   }
   return data;
 }
 
-// For specs, since API doesn't have detailed specs, we'll parse from description if possible
-// For now, assume description is text. For PCs, you might need to add a specs field to API.
-// Example specs for demonstration; in real, fetch or parse.
-const getSpecs = (product: any) => {
-  // Placeholder: If category is PC (assume CategoryId 2 for laptops/PCs), mock specs
-  if (product.ProductId === 2) {
-    return [
-      { component: 'Bo mạch chủ', detail: 'Bo mạch chủ ASUS ROG Strix X870E-H Gaming Hatsune Miku Edition', warranty: '36 Tháng' },
-      { component: 'CPU', detail: 'Bộ vi xử lý AMD Ryzen 9 9950X3D - 4.3GHz Boost 5.7GHz - 16 nhân 32 luồng', warranty: '36 Tháng' },
-      { component: 'RAM', detail: 'RAM Corsair Dominator Titanium White 96GB (2x48GB) RGB 6600 DDR5', warranty: '36 Tháng' },
-      { component: 'VGA', detail: 'VGA ASUS ROG Strix GeForce RTX 5090 16GB GDDR7 Hatsune Miku Edition', warranty: '36 Tháng' },
-      { component: 'SSD', detail: 'Ổ cứng SSD Samsung 990 PRO NVMe M.2 1TB Gen5', warranty: '60 Tháng' },
-      { component: 'HDD', detail: 'Tùy chọn nâng cấp', warranty: '24 Tháng' },
-      { component: 'PSU', detail: 'Nguồn ASUS ROG THOR 1200 P 1200W Platinum II Hatsune Miku Edition', warranty: '120 Tháng' },
-      { component: 'CASE', detail: 'Vỏ máy tính ASUS ROG Strix Helios II Hatsune Miku Edition', warranty: '12 Tháng' },
-      { component: 'Tản nhiệt', detail: 'Tản nhiệt AIO ASUS ROG Ryujin IV SLC 360 ARGB Hatsune Miku Edition', warranty: '72 Tháng' },
-    ];
-  }
-  return [];
-};
-
 export default async function ProductDetailPage({ params }: { params: Promise<{ productId: string }> }) {
   const resolvedParams = await params;
-  const product = await fetchProduct(resolvedParams.productId);
-  const specs = getSpecs(product);
+  const data = await fetchProduct(resolvedParams.productId);
+  const product = data.product;
+  const specs = data.specs || []; // Default to empty array if no specs
 
   return (
     <>
@@ -155,6 +136,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               excludeProductId={resolvedParams.productId}
             />
           )}
+
           {product.Description.startsWith('Laptop') && (
             <SectionCollection
               type="laptop"
@@ -162,9 +144,32 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               excludeProductId={resolvedParams.productId}
             />
           )}
+
+          {product.Description.startsWith('Chuột') && (
+            <SectionCollection
+              type="mouse"
+              title="Sản phẩm tương tự"
+              excludeProductId={resolvedParams.productId}
+            />
+          )}
+
+          {product.Description.startsWith('Bàn phím') && (
+            <SectionCollection
+              type="keyboard"
+              title="Sản phẩm tương tự"
+              excludeProductId={resolvedParams.productId}
+            />
+          )}
+
+          {product.Description.startsWith('Màn') && (
+            <SectionCollection
+              type="monitor"
+              title="Sản phẩm tương tự"
+              excludeProductId={resolvedParams.productId}
+            />
+          )}
           {/* Thêm điều kiện cho các loại khác nếu cần, ví dụ mouse, keyboard, monitor */}
         </section>
-
         {/* Reviews Section */}
         <section className={styles.reviews}>
           <h2>Đánh giá & Nhận xét</h2>

@@ -1,4 +1,5 @@
-@import "../admin.scss";
+@use "sass:color";
+@use "../admin" as *;
 
 .login-page {
   height: 100vh;
@@ -55,7 +56,7 @@
       font-size: 15px;
 
       &:hover:not(:disabled) {
-        background: darken($primary, 8%);
+        background: color.adjust($primary, $lightness: -8%);
       }
 
       &:disabled {
