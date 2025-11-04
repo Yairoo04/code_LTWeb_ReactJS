@@ -1,14 +1,11 @@
-
+@use "sass:color";
 $primary: #d62828;
 $dark: #222;
 $light: #fff;
 $bg: #f6f6f6;
 $border: #ddd;
-
-
-// ⚠️ Biến lỗi 
+// ⚠️ Biến lỗi
 $error: #e63946;
-
 
 .admin-container {
   display: flex;
@@ -20,16 +17,16 @@ $error: #e63946;
     // background-color: $dark;
     // color: $light;
     // padding: 20px;
-      position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 250px;
-  background-color: $dark;
-  color: $light;
-  padding: 20px;
-  overflow-y: auto;
-    
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    background-color: $dark;
+    color: $light;
+    padding: 20px;
+    overflow-y: auto;
+
     h2 {
       text-align: center;
       margin-bottom: 30px;
@@ -41,16 +38,19 @@ $error: #e63946;
 
       li {
         margin: 10px 0;
+
         a {
           text-decoration: none;
           color: $light;
           display: block;
           padding: 10px;
           border-radius: 6px;
+
           &:hover {
-            background-color: lighten($dark, 10%);
+            background-color: color.adjust($dark, $lightness: 10%);
           }
         }
+
         &.active a {
           background-color: $primary;
         }
@@ -63,7 +63,7 @@ $error: #e63946;
     display: flex;
     flex-direction: column;
     background-color: $bg;
-    margin-left: 250px; 
+    margin-left: 250px;
 
     .admin-header {
       background-color: $light;
@@ -80,8 +80,9 @@ $error: #e63946;
         padding: 6px 12px;
         border-radius: 6px;
         cursor: pointer;
+
         &:hover {
-          background-color: darken($primary, 8%);
+          background-color: color.adjust($primary, $lightness: -8%);
         }
       }
     }
@@ -91,8 +92,6 @@ $error: #e63946;
     }
   }
 }
-
-
 
 .admin-page {
   padding: 20px;
@@ -142,9 +141,7 @@ $error: #e63946;
   }
 }
 
-
 /* --- 🎨 Bổ sung style đẹp hơn cho dashboard --- */
-
 .admin-page {
   background-color: #f9fafb;
   padding: 2rem;
@@ -208,8 +205,7 @@ $error: #e63946;
   }
 }
 
-
-// thêm mới 
+// thêm mới
 .dashboard-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -293,7 +289,8 @@ $error: #e63946;
       border-collapse: collapse;
       margin-top: 0.5rem;
 
-      th, td {
+      th,
+      td {
         padding: 0.6rem;
         border-bottom: 1px solid #e5e7eb;
         text-align: left;
