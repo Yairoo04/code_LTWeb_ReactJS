@@ -88,7 +88,7 @@ export default function LoginPage() {
   };
 
   //  Xử lý đăng nhập bước 1
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -98,15 +98,25 @@ export default function LoginPage() {
 
     setSubmitting(true);
 
-    setTimeout(() => {
-      const uname = username.trim().toLowerCase();
-      const allowed = { admin: "ADMIN", manager: "MANAGER", staff01: "STAFF" };
-      if (allowed[uname] && password === "123456") {
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+      const res = await fetch(`${API_BASE}/api/admin/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Lưu thông tin user vào sessionStorage
+        sessionStorage.setItem('user', JSON.stringify(data.data));
+        // Gửi OTP
         sendOtp();
         setFailedAttempts(0);
       } else {
         setFailedAttempts((prev) => prev + 1);
-        setError("❌ Sai tên đăng nhập hoặc mật khẩu!");
+        setError(`❌ ${data.error || 'Sai tên đăng nhập hoặc mật khẩu!'}`);
         setShake(true);
         setTimeout(() => setShake(false), 500);
 
@@ -118,8 +128,11 @@ export default function LoginPage() {
           setError("🔒 Bạn đã nhập sai quá 3 lần. Vui lòng thử lại sau 30 giây!");
         }
       }
+    } catch (err) {
+      setError("❌ Lỗi kết nối tới server!");
+    } finally {
       setSubmitting(false);
-    }, 800);
+    }
   };
 
   //  Xử lý xác minh OTP
@@ -134,13 +147,11 @@ export default function LoginPage() {
     if (otp.trim() === serverOtp) {
       Cookies.set("isLoggedIn", "true", { path: "/" });
       sessionStorage.setItem("isLoggedIn", "true");
-      const allowed = { admin: "ADMIN", manager: "MANAGER", staff01: "STAFF" };
-      const role = allowed[username.trim().toLowerCase()] || "STAFF";
-      sessionStorage.setItem("user", JSON.stringify({ username, role }));
+      // User info đã được lưu từ bước login API
 
-      alert(" Đăng nhập thành công!");
+      alert("✅ Đăng nhập thành công!");
       localStorage.removeItem("lockUntil");
-  router.push("/admin/dashboard");
+      router.push("/admin/dashboard");
     } else {
       setError("❌ Mã OTP không đúng!");
       setShake(true);

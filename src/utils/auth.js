@@ -21,7 +21,9 @@ export const getCurrentUser = () => {
 export const hasRole = (user, roles) => {
   if (!user) return false;
   if (!roles || roles.length === 0) return true;
-  return roles.includes(user.role);
+  // So sánh không phân biệt hoa thường
+  const userRole = (user.role || '').toUpperCase();
+  return roles.some(r => r.toUpperCase() === userRole);
 };
 
 // �🚪 Hàm đăng xuất

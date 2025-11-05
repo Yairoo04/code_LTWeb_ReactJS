@@ -4,12 +4,19 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { logout, isLoggedIn, getCurrentUser, hasRole } from "@/utils/auth";
 import "./admin.scss";
+import {
+  BellIcon,
+  ChatBubbleLeftRightIcon,
+  MoonIcon,
+  SunIcon,
+} from "@heroicons/react/24/outline";
 
 export default function AdminLayout({ children }) {
   const path = usePathname();
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     const check = isLoggedIn();
@@ -40,6 +47,22 @@ export default function AdminLayout({ children }) {
 
   const handleLogout = () => logout(router);
 
+  // Darkmode: persist and toggle root class
+  useEffect(() => {
+    const saved = localStorage.getItem("adminTheme");
+    if (saved === "dark") {
+      setDark(true);
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  const toggleDark = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("adminTheme", next ? "dark" : "light");
+  };
+
   // Nếu đang ở /admin/login → KHÔNG render sidebar
   if (path === "/admin/login") {
     return <>{children}</>;
@@ -58,38 +81,51 @@ export default function AdminLayout({ children }) {
           <ul>
             {hasRole(user, ["ADMIN", "MANAGER"]) && (
               <li className={path === "/admin/dashboard" ? "active" : ""}>
-                <Link href="/admin/dashboard">🏠 Dashboard</Link>
+                <Link href="/admin/dashboard"> Trang chủ</Link>
               </li>
             )}
             <li className={path === "/admin/products" ? "active" : ""}>
-              <Link href="/admin/products">📦 Sản phẩm</Link>
+              <Link href="/admin/products"> Sản phẩm</Link>
             </li>
             <li className={path === "/admin/orders" ? "active" : ""}>
-              <Link href="/admin/orders">🧾 Đơn hàng</Link>
+              <Link href="/admin/orders"> Đơn hàng</Link>
             </li>
             <li className={path === "/admin/customers" ? "active" : ""}>
-              <Link href="/admin/customers">👤 Khách hàng</Link>
+              <Link href="/admin/customers"> Khách hàng</Link>
             </li>
             {hasRole(user, ["ADMIN"]) && (
               <li className={path === "/admin/accounts" ? "active" : ""}>
-                <Link href="/admin/accounts">🔐 Tài khoản</Link>
+                <Link href="/admin/accounts"> Tài khoản</Link>
               </li>
             )}
             {hasRole(user, ["ADMIN", "MANAGER"]) && (
               <li className={path === "/admin/statistics" ? "active" : ""}>
-                <Link href="/admin/statistics">📊 Thống kê</Link>
+                <Link href="/admin/statistics"> Thống kê</Link>
               </li>
             )}
           </ul>
         </nav>
+        <button className="logout-btn sidebar-logout" onClick={handleLogout}>
+          Đăng xuất
+        </button>
       </aside>
 
       <main className="admin-content">
         <header className="admin-header">
           <span>Xin chào, {user?.username || "Admin"} {user?.role ? `(${user.role})` : ""}</span>
-          <button className="logout-btn" onClick={handleLogout}>
-            Đăng xuất
-          </button>
+          <div className="header-actions">
+            <button className="icon-btn" title="Thông báo">
+              <BellIcon className="icon" />
+              <span className="badge">3</span>
+            </button>
+            <button className="icon-btn" title="Tin nhắn">
+              <ChatBubbleLeftRightIcon className="icon" />
+              <span className="badge">5</span>
+            </button>
+            <button className="icon-btn" onClick={toggleDark} title="Chế độ tối / sáng">
+              {dark ? <SunIcon className="icon" /> : <MoonIcon className="icon" />}
+            </button>
+          </div>
         </header>
         <section className="admin-main">{children}</section>
       </main>

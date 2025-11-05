@@ -29,6 +29,8 @@ $error: #e63946;
   color: $light;
   padding: 20px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
     
     h2 {
       text-align: center;
@@ -56,6 +58,18 @@ $error: #e63946;
         }
       }
     }
+
+    .sidebar-logout {
+      width: 100%;
+      margin-top: auto;
+      background-color: $primary;
+      border: none;
+      color: $light;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      &:hover { background-color: darken($primary, 8%); }
+    }
   }
 
   .admin-content {
@@ -73,16 +87,36 @@ $error: #e63946;
       justify-content: space-between;
       align-items: center;
 
-      .logout-btn {
-        background-color: $primary;
-        border: none;
-        color: $light;
-        padding: 6px 12px;
-        border-radius: 6px;
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .icon-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px; height: 36px;
+        border-radius: 999px;
+        border: 1px solid $border;
+        background: $light;
         cursor: pointer;
-        &:hover {
-          background-color: darken($primary, 8%);
-        }
+        transition: background .2s ease;
+        .icon { width: 18px; height: 18px; color: #374151; }
+        &:hover { background: #f3f4f6; }
+      }
+
+      .badge {
+        position: absolute;
+        top: -4px; right: -4px;
+        background: #ef4444;
+        color: $light;
+        border-radius: 999px;
+        padding: 2px 6px;
+        font-size: 10px;
+        line-height: 1;
       }
     }
 
@@ -224,6 +258,8 @@ $error: #e63946;
     padding: 1rem 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 6px solid var(--accent, #2563eb);
+    position: relative;
 
     &:hover {
       transform: translateY(-3px);
@@ -231,7 +267,7 @@ $error: #e63946;
     }
 
     .icon-wrap {
-      background: #eef2ff;
+      background: var(--accent-bg, #eef2ff);
       border-radius: 50%;
       padding: 0.6rem;
       margin-right: 1rem;
@@ -239,7 +275,7 @@ $error: #e63946;
       .icon {
         width: 26px;
         height: 26px;
-        color: #2563eb;
+        color: var(--accent, #2563eb);
       }
     }
 
@@ -248,13 +284,21 @@ $error: #e63946;
       color: #6b7280;
     }
 
-    p {
+    .stat-value {
       font-size: 1.3rem;
       font-weight: 700;
-      color: #111827;
+      color: var(--accent, #111827);
     }
   }
 }
+
+/* Color variants for stat cards */
+.stat-card.is-blue { --accent: #2563eb; --accent-bg: #dbeafe; }
+.stat-card.is-emerald { --accent: #10b981; --accent-bg: #d1fae5; }
+.stat-card.is-amber { --accent: #f59e0b; --accent-bg: #fef3c7; }
+.stat-card.is-violet { --accent: #8b5cf6; --accent-bg: #ede9fe; }
+.stat-card.is-rose { --accent: #ef4444; --accent-bg: #ffe4e6; }
+.stat-card.is-indigo { --accent: #6366f1; --accent-bg: #e0e7ff; }
 
 .charts-grid {
   display: grid;
@@ -309,5 +353,40 @@ $error: #e63946;
         background: #f9fafb;
       }
     }
+  }
+}
+
+/* ================= Dark mode (nhẹ) ================= */
+.dark {
+  .admin-container {
+    .admin-sidebar {
+      background-color: #111827;
+      color: #e5e7eb;
+      ul li a { color: #e5e7eb; }
+      ul li a:hover { background-color: #1f2937; }
+    }
+    .admin-content {
+      background-color: #0f172a;
+      .admin-header {
+        background-color: #111827;
+        border-color: #374151;
+        color: #e5e7eb;
+        .icon-btn { background: #111827; border-color: #374151; }
+        .icon-btn .icon { color: #e5e7eb; }
+        .icon-btn:hover { background: #1f2937; }
+      }
+      .admin-main {
+        color: #e5e7eb;
+      }
+    }
+    .charts-grid .chart-box,
+    .tables-section .table-box {
+      background: #111827;
+      color: #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .tables-section table th,
+    .tables-section table td { border-color: #334155; }
+    .tables-section table tr:hover { background: #111827; }
   }
 }
