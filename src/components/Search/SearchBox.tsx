@@ -19,14 +19,14 @@ type FrontendProduct = {
   created_at: string;
 };
 
-const API_URL = '/api/products/search'; // Dùng POST route
+const API_URL = 'http://localhost:4000/api/products/search'; // Sử dụng URL đầy đủ của backend và route đúng
 
 const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => ({
   id: product.ProductId,
   name: product.Name,
   description: product.Description,
   price: product.Price,
-  category: product.CategoryId?.toString() || null,
+  category: (product as any).CategoryName || null, // Sử dụng CategoryName từ response
   stock: product.Stock,
   image_url: product.ImageUrl,
   created_at: product.CreatedAt,
@@ -68,10 +68,12 @@ export default function SearchBox() {
   const fetchProducts = async (searchTerm: string) => {
     setLoading(true);
     try {
-      const response = await axios.post(API_URL, {
-        keyword: searchTerm,
-        page: 1,
-        pageSize: 6, // Chỉ lấy 6 cho gợi ý
+      const response = await axios.get(API_URL, {
+        params: {
+          q: searchTerm,
+          page: 1,
+          pageSize: 6, // Chỉ lấy 6 cho gợi ý, giả sử backend hỗ trợ; nếu không, loại bỏ và slice results
+        },
       });
 
       if (response.data.success) {
@@ -119,7 +121,7 @@ export default function SearchBox() {
         )}
         <button
           className={styles['search-btn']}
-          onClick={() => query && router.push(`/tim-kiem?q=${encodeURIComponent(query)}`)}
+          onClick={() => query && router.push(`/search?q=${encodeURIComponent(query)}`)}
           aria-label="Tìm kiếm"
         >
           <FontAwesomeIcon icon={faSearch} />
