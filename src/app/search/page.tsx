@@ -108,7 +108,6 @@ export default function SearchPage() {
   return (
     <>
       <Header />
-
       <main className={styles.searchPage}>
         <ContainerFluid>
           <div className={styles.searchPageResults}>

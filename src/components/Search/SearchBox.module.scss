@@ -11,6 +11,8 @@
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
+  width: 350px;
+  height: 42px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -174,9 +176,11 @@
   0% {
     background-color: #f0f0f0;
   }
+
   50% {
     background-color: #e0e0e0;
   }
+
   100% {
     background-color: #f0f0f0;
   }

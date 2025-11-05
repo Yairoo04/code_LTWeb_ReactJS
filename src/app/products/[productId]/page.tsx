@@ -7,6 +7,7 @@ import Footer from "@/components/Footer/Footer.jsx";
 import ContainerFluid from '@/pages/main_Page/ContainerFluid/container-fluid';
 import RecentView from '@/pages/main_Page/RecentViewProducts/RecentView';
 import SectionCollection from '@/pages/main_Page/sectionCollection/SectionCollection';
+import SpecsTable from './SpecsTable'; // Import the new client component
 
 // Function to fetch product data including specs
 async function fetchProduct(productId: string) {
@@ -96,24 +97,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <section className={styles.specs}>
           <h2>Thông số kỹ thuật</h2>
           {specs.length > 0 ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>Linh kiện</th>
-                  <th>Chi tiết</th>
-                  <th>Bảo hành</th>
-                </tr>
-              </thead>
-              <tbody>
-                {specs.map((spec, index) => (
-                  <tr key={index}>
-                    <td>{spec.component}</td>
-                    <td>{spec.detail}</td>
-                    <td>{spec.warranty}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <SpecsTable specs={specs} /> // Use the client component here
           ) : (
             <p>{product.Description}</p>
           )}

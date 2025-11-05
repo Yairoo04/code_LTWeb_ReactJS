@@ -89,43 +89,68 @@ export default function SectionCollection({ type, title, excludeProductId }: Sec
   }
 
   // Hàm render một section duy nhất
-  const renderSection = (sectionType: string, products: BackendProduct[], cats: { title: string; href: string; }[], mainTitle: string, sub: string) => (
-    <ContainerFluid key={sectionType}>
-      <section className={styles['section-collection']} id={`home-collection-${sectionType}`}>
-        <div className={styles['section-heading']}>
-          <div className={styles['box-left']}>
-            <div className={styles['box-header']}>
-              <h2 className={styles['hTitle']}>{mainTitle}</h2>
+  const renderSection = (sectionType: string, products: BackendProduct[], cats: { title: string; href: string; }[], mainTitle: string, sub: string) => {
+    let searchTerm = '';
+    switch (sectionType) {
+      case 'pc':
+        searchTerm = 'PC';
+        break;
+      case 'laptop':
+        searchTerm = 'Laptop';
+        break;
+      case 'mouse':
+        searchTerm = 'Chuột';
+        break;
+      case 'keyboard':
+        searchTerm = 'Bàn phím';
+        break;
+      case 'monitor':
+        searchTerm = 'Màn';
+        break;
+      default:
+        searchTerm = '';
+    }
+
+    const searchHref = searchTerm ? `/search?q=${encodeURIComponent(searchTerm)}` : '#';
+
+    return (
+      <ContainerFluid key={sectionType}>
+        <section className={styles['section-collection']} id={`home-collection-${sectionType}`}>
+          <div className={styles['section-heading']}>
+            <div className={styles['box-left']}>
+              <div className={styles['box-header']}>
+                <h2 className={styles['hTitle']}>{mainTitle}</h2>
+              </div>
+              <div className={styles['box-subheader']}>
+                <h3 className={styles['shTitle']}>{sub}</h3>
+              </div>
             </div>
-            <div className={styles['box-subheader']}>
-              <h3 className={styles['shTitle']}>{sub}</h3>
+            <div className={styles['box-right']}>
+              <div className={styles['box-cate']}>
+                <ul className={styles['cate-list']}>
+                  {cats.map((category, index) => (
+                    <li key={index}>
+                      <Link href={category.href} title={category.title}>
+                        {category.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={styles['box-link']}>
+                <Link href={searchHref} className={styles['button-more']}>
+                  Xem tất cả
+                </Link>
+              </div>
             </div>
           </div>
-          <div className={styles['box-right']}>
-            <div className={styles['box-cate']}>
-              <ul className={styles['cate-list']}>
-                {cats.map((category, index) => (
-                  <li key={index}>
-                    <Link href={category.href} title={category.title}>
-                      {category.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className={styles['box-link']}>
-              <Link href="#" className={styles['button-more']}>
-                Xem tất cả
-              </Link>
-            </div>
+          <div className={styles['section-content']}>
+            <ProductSlider products={products} showDotActive={true} />
           </div>
-        </div>
-        <div className={styles['section-content']}>
-          <ProductSlider products={products} showDotActive={true} />
-        </div>
-      </section>
-    </ContainerFluid>
-  );
+        </section>
+      </ContainerFluid>
+    );
+  };
 
   if (type) {
     // Chỉ render section theo type

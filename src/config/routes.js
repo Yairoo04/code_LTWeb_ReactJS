@@ -4,6 +4,7 @@ const routes = {
     profile: '/:nickname',
     upload: '/orders-history',
     search: '/search',
+    cart: '/gio-hang',
 };
 
 export default routes;

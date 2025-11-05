@@ -27,25 +27,44 @@
 
 .prev,
 .next {
+  // position: absolute;
+  // top: 50%;
+  // transform: translateY(-50%);
+  // background: rgba(0, 0, 0, 0.5);
+  // color: white;
+  // border: none;
+  // width: 40px;
+  // height: 40px;
+  // border-radius: 50%;
+  // font-size: 24px;
+  // cursor: pointer;
+  // z-index: 10;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
+  // transition: background 0.3s;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+  background: rgba(87, 85, 85, 0.6);
+  color: #fff;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 10;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.3s;
+  cursor: pointer;
+  border-radius: 50%;
+  opacity: 0.7;
+  z-index: 10;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
 
   &:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(8, 8, 8, 0.7);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
   }
 
   &:disabled {
@@ -54,8 +73,13 @@
   }
 }
 
-.prev { left: 10px; }
-.next { right: 10px; }
+.prev {
+  left: 8px;
+}
+
+.next {
+  right: 8px;
+}
 
 .dots {
   display: flex;
