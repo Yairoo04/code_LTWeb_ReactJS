@@ -8,6 +8,7 @@ import { categories_pc, categories_laptop, categories_mouse, categories_keyboard
 import ProductSlider from '../ProductSlider/ProductSlider';
 import styles from './SectionCollection.module.scss';
 import { Product as BackendProduct } from '@/lib/product';
+import CategoryCollection from './CategoryCollection';
 
 interface SectionCollectionProps {
   type?: 'pc' | 'laptop' | 'mouse' | 'keyboard' | 'monitor'; // Loại section cần hiển thị
@@ -105,7 +106,7 @@ export default function SectionCollection({ type, title, excludeProductId }: Sec
         searchTerm = 'Bàn phím';
         break;
       case 'monitor':
-        searchTerm = 'Màn';
+        searchTerm = 'Màn hình'; // Sửa để khớp đầy đủ hơn nếu search cần chính xác
         break;
       default:
         searchTerm = '';
@@ -145,7 +146,11 @@ export default function SectionCollection({ type, title, excludeProductId }: Sec
             </div>
           </div>
           <div className={styles['section-content']}>
-            <ProductSlider products={products} showDotActive={true} />
+            {products.length > 0 ? (
+              <ProductSlider products={products} showDotActive={true} />
+            ) : (
+              <p>Không có sản phẩm nào trong danh mục này.</p>
+            )}
           </div>
         </section>
       </ContainerFluid>
@@ -171,48 +176,7 @@ export default function SectionCollection({ type, title, excludeProductId }: Sec
         {renderSection('keyboard', keyboardProducts, categories_keyboard, 'Bàn phím bán chạy', 'Giao hàng toàn quốc')}
         {renderSection('monitor', monitorProducts, categories_monitor, 'Màn hình chính hãng', 'Bảo hành 1 đổi 1')}
 
-        {/* Phần grid danh mục giữ nguyên */}
-        <ContainerFluid>
-          <section className={styles['section-collection']}>
-            <h2 className={styles['section-collection__catalog']}>Danh mục sản phẩm</h2>
-            <div className={styles['collection-grid']}>
-              <div className={styles['item-icon']}>
-                <Link href="/laptops">
-                  <img src="/images/product-catalog/laptop_catalog.jpg" alt="Laptops" />
-                  <p>Laptops</p>
-                </Link>
-              </div>
-
-              <div className={styles['item-icon']}>
-                <Link href="/gaming">
-                  <img src="/images/product-catalog/pc_catalog.jpg" alt="Gaming" />
-                  <p>PC</p>
-                </Link>
-              </div>
-
-              <div className={styles['item-icon']}>
-                <Link href="/accessories">
-                  <img src="/images/product-catalog/man_hinh_catalog.jpg" alt="Accessories" />
-                  <p>Màn hình</p>
-                </Link>
-              </div>
-
-              <div className={styles['item-icon']}>
-                <Link href="/accessories">
-                  <img src="/images/product-catalog/ban_phim_catalog.jpg" alt="Accessories" />
-                  <p>Bàn phím</p>
-                </Link>
-              </div>
-
-              <div className={styles['item-icon']}>
-                <Link href="/accessories">
-                  <img src="/images/product-catalog/chuot_catalog.jpg" alt="Accessories" />
-                  <p>Chuột</p>
-                </Link>
-              </div>
-            </div>
-          </section>
-        </ContainerFluid>
+        <CategoryCollection/>
       </div>
     );
   }

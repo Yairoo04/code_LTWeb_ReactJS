@@ -1,10 +1,14 @@
-.showroom-system-container {
+.shippingPolicyContainer {
   display: flex;
-  gap: 50px;
+  justify-content: flex-start;
   margin-top: 30px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
 }
 
-.menu-list {
+.menuList {
   width: 250px;
   height: 100%;
   background: #f9f9f9;
@@ -49,7 +53,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 
-  h2.title-page {
+  .titlePage {
     color: #d32f2f;
     margin-bottom: 20px;
     border-left: 4px solid #d32f2f;
@@ -101,7 +105,9 @@
     td:first-child {
       text-align: left;
     }
+  }
 
+  .tableChinhSach {
     .highlight {
       background-color: #ffe8e6;
       font-weight: bold;
@@ -110,7 +116,7 @@
     }
   }
 
-  .effective-date {
+  .effectiveDate {
     text-align: center;
     font-style: italic;
     color: #777;
@@ -126,7 +132,7 @@
     border-radius: 4px;
   }
 
-  .luu-y-nhan-hang a {
+  .luuYNhanHang a {
     color: #0877d8;
     text-decoration: underline;
   }
