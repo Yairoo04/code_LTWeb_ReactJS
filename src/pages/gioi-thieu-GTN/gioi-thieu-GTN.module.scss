@@ -1,10 +1,10 @@
-.gioi-thieu-page {
+.aboutPage {
   background: #fff;
   padding: 40px;
 }
 
 /* ==== Giới thiệu ==== */
-.gioi-thieu-container {
+.aboutContainer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14,7 +14,7 @@
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 
-  .left {
+  .leftSection {
     flex: 1;
 
     .title {
@@ -31,7 +31,7 @@
       text-align: justify;
     }
 
-    .quote-box {
+    .quoteBox {
       margin-top: 20px;
       padding: 16px 20px;
       background: #fff3f4;
@@ -41,11 +41,11 @@
     }
   }
 
-  .right {
+  .rightSection {
     flex: 0.8;
     text-align: center;
 
-    .founder-img {
+    .founderImage {
       border-radius: 12px;
       box-shadow: 0 6px 16px rgba(0,0,0,0.15);
       margin-bottom: 16px;
@@ -66,7 +66,7 @@
 }
 
 /* ==== Showroom System ==== */
-.showroom-system-container {
+.showroomSystemContainer {
   padding: 40px;
   text-align: center;
   background: #fff;
@@ -84,9 +84,7 @@
     align-items: flex-start;
     gap: 50px;
 
-
-
-    .left, .right {
+    .leftSection, .rightSection {
       flex: 1;
       background: #fafafa;
       padding: 20px;
@@ -94,7 +92,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    .map-img, .online-img {
+    .mapImage, .onlineImage {
       max-width: 100%;
       height: auto;
       margin-bottom: 20px;
@@ -151,7 +149,7 @@
   }
 }
 
-.btn-showroom, .btn-buy {
+.showroomButton, .buyButton {
   margin-top: 15px;
   padding: 10px 20px;
   font-size: 14px;

@@ -12,7 +12,7 @@ export default function Footer() {
           <div className={styles.companyInfo}>
             <h4>VỀ GTN</h4>
             <ul>
-              <li><Link href="/gioi-thieu">Giới thiệu</Link></li>
+              <li><Link href="/gioi-thieu-gtn">Giới thiệu</Link></li>
               <li><Link href="/tuyen-dung">Tuyển dụng</Link></li>
               <li><Link href="/lien-he">Liên hệ</Link></li>
             </ul>
