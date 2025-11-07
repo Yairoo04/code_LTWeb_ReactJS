@@ -1,65 +1,9 @@
 "use client";
 import "../admin.scss";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styles from "./customers.module.scss";
 
-const SAMPLE_CUSTOMERS = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    email: "a@gmail.com",
-    phone: "0901234567",
-    status: "active",
-    createdAt: "2025-01-12T10:25:00Z",
-    totalOrders: 5,
-    totalSpent: 5250000,
-    address: "12 Trần Hưng Đạo, Q.1, TP.HCM",
-  },
-  {
-    id: 2,
-    name: "Trần Thị B",
-    email: "b@gmail.com",
-    phone: "0907654321",
-    status: "active",
-    createdAt: "2025-02-08T08:15:00Z",
-    totalOrders: 2,
-    totalSpent: 980000,
-    address: "45 Nguyễn Trãi, Q.5, TP.HCM",
-  },
-  {
-    id: 3,
-    name: "Lê Minh C",
-    email: "minhc@example.com",
-    phone: "0912345678",
-    status: "blocked",
-    createdAt: "2024-12-20T14:10:00Z",
-    totalOrders: 7,
-    totalSpent: 11200000,
-    address: "89 Láng Hạ, Đống Đa, Hà Nội",
-  },
-  {
-    id: 4,
-    name: "Phạm Duy D",
-    email: "duyd@example.com",
-    phone: "0987654321",
-    status: "active",
-    createdAt: "2025-03-15T09:00:00Z",
-    totalOrders: 1,
-    totalSpent: 350000,
-    address: "22 Điện Biên Phủ, Bình Thạnh, TP.HCM",
-  },
-  {
-    id: 5,
-    name: "Đỗ Thị E",
-    email: "e.do@example.com",
-    phone: "0933332222",
-    status: "active",
-    createdAt: "2025-04-01T12:30:00Z",
-    totalOrders: 10,
-    totalSpent: 21450000,
-    address: "5 Hai Bà Trưng, Hoàn Kiếm, Hà Nội",
-  },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 function currency(v) {
   try {
@@ -70,38 +14,86 @@ function currency(v) {
 }
 
 export default function CustomersPage() {
-  const [customers] = useState(SAMPLE_CUSTOMERS);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("newest");
   const [selected, setSelected] = useState(null);
 
+  // Fetch customers từ API khi component mount
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  async function fetchCustomers() {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/customers`);
+      const data = await res.json();
+      if (data.success) {
+        setCustomers(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch customers:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const filtered = useMemo(() => {
     let list = customers.filter((c) => {
-      const s = (c.name + c.email + c.phone).toLowerCase();
+      const s = ((c.FullName || "") + (c.Email || "") + (c.PhoneNumber || "")).toLowerCase();
       return s.includes(q.toLowerCase());
     });
-    if (status !== "all") list = list.filter((c) => c.status === status);
     switch (sort) {
       case "newest":
         list = [...list].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          (a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt)
         );
         break;
       case "ordersDesc":
-        list = [...list].sort((a, b) => b.totalOrders - a.totalOrders);
+        list = [...list].sort((a, b) => b.TotalOrders - a.TotalOrders);
         break;
       case "spentDesc":
-        list = [...list].sort((a, b) => b.totalSpent - a.totalSpent);
+        list = [...list].sort((a, b) => b.TotalSpent - a.TotalSpent);
         break;
     }
     return list;
-  }, [customers, q, status, sort]);
+  }, [customers, q, sort]);
 
   function resetFilters() {
     setQ("");
-    setStatus("all");
     setSort("newest");
+  }
+
+  async function viewCustomerDetails(customerId) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/customers?customerId=${customerId}`);
+      const data = await res.json();
+      if (data.success) {
+        setSelected(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch customer details:", error);
+    }
+  }
+
+  async function deleteCustomer(customerId) {
+    if (!confirm("Bạn có chắc muốn xóa khách hàng này? Thao tác này không thể hoàn tác!")) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/customers?customerId=${customerId}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCustomers((prev) => prev.filter((c) => c.UserId !== customerId));
+        setSelected(null);
+        alert("Xóa khách hàng thành công!");
+      }
+    } catch (error) {
+      console.error("Failed to delete customer:", error);
+      alert("Xóa khách hàng thất bại!");
+    }
   }
 
   return (
@@ -116,15 +108,6 @@ export default function CustomersPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <select
-          className={styles.select}
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="all">Tất cả trạng thái</option>
-          <option value="active">Hoạt động</option>
-          <option value="blocked">Đã chặn</option>
-        </select>
         <select
           className={styles.select}
           value={sort}
@@ -151,25 +134,27 @@ export default function CustomersPage() {
               <th>SĐT</th>
               <th>Đơn hàng</th>
               <th>Chi tiêu</th>
-              <th>Trạng thái</th>
               <th>Ngày tạo</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((c) => (
-              <tr key={c.id} onClick={() => setSelected(c)} className={styles.rowClickable}>
-                <td>{c.id}</td>
-                <td>{c.name}</td>
-                <td>{c.email}</td>
-                <td>{c.phone}</td>
-                <td>{c.totalOrders}</td>
-                <td>{currency(c.totalSpent)}</td>
+              <tr key={c.UserId} onClick={() => viewCustomerDetails(c.UserId)} className={styles.rowClickable}>
+                <td>KH{c.UserId.toString().padStart(3, '0')}</td>
+                <td>{c.FullName || "Chưa có tên"}</td>
+                <td>{c.Email}</td>
+                <td>{c.PhoneNumber || "Chưa có"}</td>
+                <td>{c.TotalOrders}</td>
+                <td>{currency(c.TotalSpent)}</td>
+                <td>{c.CreatedAt ? new Date(c.CreatedAt).toLocaleDateString("vi-VN", {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit'
+                }) : "N/A"}</td>
                 <td>
-                  <span className={c.status === "active" ? styles.badgeActive : styles.badgeBlocked}>
-                    {c.status === "active" ? "Hoạt động" : "Đã chặn"}
-                  </span>
+                  <button className={styles.btnAction} onClick={(e) => { e.stopPropagation(); deleteCustomer(c.UserId); }}>Xóa</button>
                 </td>
-                <td>{new Date(c.createdAt).toLocaleDateString("vi-VN")}</td>
               </tr>
             ))}
           </tbody>
@@ -186,17 +171,13 @@ export default function CustomersPage() {
               </button>
             </div>
             <div className={styles.modalBody}>
-              <div className={styles.field}><span>Mã KH:</span><b>{selected.id}</b></div>
-              <div className={styles.field}><span>Họ tên:</span><b>{selected.name}</b></div>
-              <div className={styles.field}><span>Email:</span><b>{selected.email}</b></div>
-              <div className={styles.field}><span>SĐT:</span><b>{selected.phone}</b></div>
-              <div className={styles.field}><span>Địa chỉ:</span><b>{selected.address}</b></div>
-              <div className={styles.field}><span>Trạng thái:</span>
-                <b>{selected.status === "active" ? "Hoạt động" : "Đã chặn"}</b>
-              </div>
-              <div className={styles.field}><span>Số đơn hàng:</span><b>{selected.totalOrders}</b></div>
-              <div className={styles.field}><span>Tổng chi tiêu:</span><b>{currency(selected.totalSpent)}</b></div>
-              <div className={styles.field}><span>Ngày tạo:</span><b>{new Date(selected.createdAt).toLocaleString("vi-VN")}</b></div>
+              <div className={styles.field}><span>Mã KH:</span><b>KH{selected.UserId.toString().padStart(3, '0')}</b></div>
+              <div className={styles.field}><span>Họ tên:</span><b>{selected.FullName}</b></div>
+              <div className={styles.field}><span>Email:</span><b>{selected.Email}</b></div>
+              <div className={styles.field}><span>SĐT:</span><b>{selected.PhoneNumber || "Chưa có"}</b></div>
+              <div className={styles.field}><span>Số đơn hàng:</span><b>{selected.TotalOrders}</b></div>
+              <div className={styles.field}><span>Tổng chi tiêu:</span><b>{currency(selected.TotalSpent)}</b></div>
+              <div className={styles.field}><span>Ngày tạo:</span><b>{new Date(selected.CreatedAt).toLocaleString("vi-VN")}</b></div>
             </div>
             <div className={styles.modalFooter}>
               <button className={styles.closePrimary} onClick={() => setSelected(null)}>Đóng</button>

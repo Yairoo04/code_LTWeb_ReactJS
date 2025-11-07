@@ -1,6 +1,8 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styles from "./products.module.scss";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 function currency(v) {
   try {
@@ -10,48 +12,72 @@ function currency(v) {
   }
 }
 
-const SAMPLE_PRODUCTS = [
-  { id: 1, name: "Laptop Dell XPS 13", price: 25000000, category: "Laptop", stock: 10, imageUrl: "/images/products/view_vx2528j.jpg" },
-  { id: 2, name: "PC Gaming ASUS ROG", price: 35000000, discountPrice: 33000000, category: "PC - Workstation", stock: 5, imageUrl: "/images/products/view_vx2479a-hd-pro.jpg" },
-  { id: 3, name: "Laptop HP Pavilion 15", price: 15000000, category: "Laptop", stock: 15, imageUrl: "/images/products/view_vx2528j.jpg" },
-  { id: 4, name: "PC Lenovo Workstation", price: 40000000, category: "PC - Workstation", stock: 3, imageUrl: "/images/products/acer_kg240y_x1.jpg" },
-  { id: 5, name: "Viewsonic VA2432A-H", price: 1800000, category: "Màn hình", stock: 3, imageUrl: "/images/products/view_va2432a-h.jpg" },
-  { id: 6, name: "Keychron K2", price: 1890000, category: "Phím chuột", stock: 15, imageUrl: "/images/products/keychron_k2.jpg" },
-  { id: 7, name: "Logitech G502 HERO", price: 1490000, category: "Phím chuột", stock: 25, imageUrl: "/images/products/g502.jpg" },
-  { id: 8, name: "Áo thun PTIT", price: 150000, discountPrice: 120000, category: "Phụ kiện", stock: 50, imageUrl: "/images/aothun.png" },
-  { id: 9, name: "Laptop HP Pavilion 2025 i7 16GB", price: 18500000, discountPrice: 16900000, category: "Laptop", stock: 20, imageUrl: "/images/hp_pavilion.jpg" },
-  { id: 10, name: "Chuột không dây GTN M1", price: 299000, category: "Phím chuột", stock: 0, imageUrl: "/images/products/g502.jpg" },
-  { id: 11, name: "Bàn phím cơ GTN TKL", price: 1299000, discountPrice: 990000, category: "Phím chuột", stock: 8, imageUrl: "/images/products/keychron_k2.jpg" },
-  { id: 12, name: "Màn hình ASUS 27\" 144Hz", price: 4490000, category: "Màn hình", stock: 12, imageUrl: "/images/products/view_va2432a-h.jpg" },
-];
-
 export default function ProductPage() {
-  const [products, setProducts] = useState(SAMPLE_PRODUCTS);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState("default");
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [formData, setFormData] = useState({
+    productName: "",
+    description: "",
+    price: "",
+    discountPrice: "",
+    stockQuantity: "",
+    categoryId: "",
+    imageUrl: "",
+    sku: "",
+  });
+
+  // Fetch products từ API khi component mount
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  async function fetchProducts() {
+    try {
+      setLoading(true);
+      console.log("🔍 Fetching products from:", `${API_BASE}/api/admin/products`);
+      const res = await fetch(`${API_BASE}/api/admin/products`);
+      const data = await res.json();
+      console.log("📦 Products response:", data);
+      if (data.success) {
+        console.log("✅ Products loaded:", data.data.length);
+        setProducts(data.data);
+      } else {
+        console.error("❌ API returned success=false:", data);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch products:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const categories = useMemo(() => {
-    const set = new Set(["all", ...products.map((p) => p.category)]);
+    const set = new Set(["all", ...products.map((p) => p.CategoryName).filter(Boolean)]);
     return Array.from(set);
   }, [products]);
 
   const filtered = useMemo(() => {
     let list = products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
+      (p.ProductName || "").toLowerCase().includes(search.toLowerCase())
     );
-    if (category !== "all") list = list.filter((p) => p.category === category);
-    if (inStockOnly) list = list.filter((p) => (p.stock ?? 0) > 0);
+    if (category !== "all") list = list.filter((p) => p.CategoryName === category);
+    if (inStockOnly) list = list.filter((p) => (p.StockQuantity ?? 0) > 0);
     switch (sort) {
       case "priceAsc":
         list = [...list].sort(
-          (a, b) => (a.discountPrice ?? a.price) - (b.discountPrice ?? b.price)
+          (a, b) => (a.DiscountPrice ?? a.Price) - (b.DiscountPrice ?? b.Price)
         );
         break;
       case "priceDesc":
         list = [...list].sort(
-          (a, b) => (b.discountPrice ?? b.price) - (a.discountPrice ?? a.price)
+          (a, b) => (b.DiscountPrice ?? b.Price) - (a.DiscountPrice ?? a.Price)
         );
         break;
       default:
@@ -60,25 +86,170 @@ export default function ProductPage() {
     return list;
   }, [products, search, category, inStockOnly, sort]);
 
-  function handleAddSample() {
-    const nextId = (products.at(-1)?.id ?? 0) + 1;
-    const sample = {
-      id: nextId,
-      name: `Sản phẩm mẫu #${nextId}`,
-      price: 199000 + (nextId % 5) * 100000,
-      category: ["Laptop", "Phím chuột", "Màn hình", "Phụ kiện"][nextId % 4],
-      stock: [0, 5, 10, 20][nextId % 4],
-      imageUrl: "/images/products/keychron_k2.jpg",
-    };
-    setProducts((prev) => [...prev, sample]);
+  function openEditModal(product) {
+    setEditingProduct(product);
+    setFormData({
+      productName: product.ProductName || "",
+      description: product.Description || "",
+      price: product.Price || "",
+      discountPrice: product.DiscountPrice || "",
+      stockQuantity: product.StockQuantity || "",
+      categoryId: product.CategoryId || "",
+      imageUrl: product.ImageUrl || "",
+      sku: product.SKU || "",
+    });
+  }
+
+  function openAddModal() {
+    setShowAddModal(true);
+    setFormData({
+      productName: "",
+      description: "",
+      price: "",
+      discountPrice: "",
+      stockQuantity: "",
+      categoryId: "",
+      imageUrl: "",
+      sku: "",
+    });
+  }
+
+  function closeModals() {
+    setEditingProduct(null);
+    setShowAddModal(false);
+    setFormData({
+      productName: "",
+      description: "",
+      price: "",
+      discountPrice: "",
+      stockQuantity: "",
+      categoryId: "",
+      imageUrl: "",
+      sku: "",
+    });
+  }
+
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+
+      const res = await fetch(`${API_BASE}/api/upload`, {
+        method: "POST",
+        body: formDataUpload,
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setFormData({ ...formData, imageUrl: data.imageUrl });
+      } else {
+        alert("Upload ảnh thất bại: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      alert("Upload ảnh thất bại!");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function saveProduct() {
+    if (!editingProduct) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/products`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: editingProduct.ProductId,
+          data: formData,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh lại danh sách
+        await fetchProducts();
+        closeModals();
+        alert("Cập nhật sản phẩm thành công!");
+      }
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      alert("Cập nhật sản phẩm thất bại!");
+    }
+  }
+
+  async function createProduct() {
+    if (!formData.productName || !formData.price || !formData.categoryId) {
+      alert("Vui lòng điền đầy đủ: Tên sản phẩm, Giá, Danh mục!");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh lại danh sách
+        await fetchProducts();
+        closeModals();
+        alert("Thêm sản phẩm thành công!");
+      }
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      alert("Thêm sản phẩm thất bại!");
+    }
+  }
+
+  async function togglePublished(productId) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/products`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, action: "togglePublished" })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Cập nhật state local
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.ProductId === productId ? { ...p, IsPublished: p.IsPublished ? 0 : 1 } : p
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Failed to toggle product:", error);
+      alert("Cập nhật trạng thái thất bại!");
+    }
+  }
+
+  async function deleteProduct(productId) {
+    if (!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/products?productId=${productId}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Xóa khỏi state local
+        setProducts((prev) => prev.filter((p) => p.ProductId !== productId));
+      }
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      alert("Xóa sản phẩm thất bại!");
+    }
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Quản lý sản phẩm</h1>
-        <button className={styles.addBtn} onClick={handleAddSample}>
-          + Thêm sản phẩm mẫu
+        <button className={styles.addBtn} onClick={openAddModal}>
+          + Thêm sản phẩm
         </button>
       </div>
 
@@ -121,57 +292,314 @@ export default function ProductPage() {
         </label>
       </div>
 
-      <div className={styles.grid}>
-        {filtered.map((p) => {
-          const hasDiscount = p.discountPrice && p.discountPrice < p.price;
-          const finalPrice = p.discountPrice ?? p.price;
-          const discountPercent = hasDiscount
-            ? Math.round(((p.price - p.discountPrice) / p.price) * 100)
-            : 0;
-          const outOfStock = (p.stock ?? 0) <= 0;
-          return (
-            <div key={p.id} className={styles.card}>
-              <div className={styles.imageWrap}>
-                {hasDiscount ? (
-                  <span className={styles.badgeDiscount}>-{discountPercent}%</span>
-                ) : null}
-                {outOfStock ? (
-                  <span className={styles.badgeOut}>Hết hàng</span>
-                ) : (
-                  <span className={styles.badgeIn}>{p.stock ?? 0} còn</span>
-                )}
-                <img
-                  src={p.imageUrl}
-                  alt={p.name}
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = "/images/products/keychron_k2.jpg";
-                  }}
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "2rem" }}>Đang tải...</div>
+      ) : (
+        <div className={styles.grid}>
+          {filtered.map((p) => {
+            const hasDiscount = p.DiscountPrice && p.DiscountPrice < p.Price;
+            const finalPrice = p.DiscountPrice ?? p.Price;
+            const discountPercent = hasDiscount
+              ? Math.round(((p.Price - p.DiscountPrice) / p.Price) * 100)
+              : 0;
+            const outOfStock = (p.StockQuantity ?? 0) <= 0;
+            const isUnpublished = !p.IsPublished;
+            return (
+              <div 
+                key={p.ProductId} 
+                className={`${styles.card} ${isUnpublished ? styles.inactive : ""}`}
+              >
+                <div className={styles.imageWrap}>
+                  {hasDiscount ? (
+                    <span className={styles.badgeDiscount}>-{discountPercent}%</span>
+                  ) : null}
+                  {outOfStock ? (
+                    <span className={styles.badgeOut}>Hết hàng</span>
+                  ) : (
+                    <span className={styles.badgeIn}>{p.StockQuantity ?? 0} còn</span>
+                  )}
+                  {isUnpublished ? (
+                    <span className={styles.badgeInactive}>Đã ẩn</span>
+                  ) : null}
+                  <img
+                    src={p.ImageUrl || "/images/products/keychron_k2.jpg"}
+                    alt={p.ProductName}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/products/keychron_k2.jpg";
+                    }}
+                  />
+                </div>
+                <div className={styles.content}>
+                  <div className={styles.title} title={p.ProductName}>
+                    {p.ProductName}
+                  </div>
+                  <div className={styles.metaRow}>
+                    <span className={styles.categoryChip}>{p.CategoryName || "Khác"}</span>
+                    <span className={styles.skuChip}>SKU: {p.SKU || "N/A"}</span>
+                  </div>
+                  <div className={styles.priceRow}>
+                    <span className={styles.finalPrice}>{currency(finalPrice)}</span>
+                    {hasDiscount ? (
+                      <span className={styles.originalPrice}>{currency(p.Price)}</span>
+                    ) : null}
+                  </div>
+                  <div className={styles.actions}>
+                    <button 
+                      className={styles.btnGhost}
+                      onClick={() => openEditModal(p)}
+                    >
+                      Sửa
+                    </button>
+                    <button 
+                      className={styles.btnGhost}
+                      onClick={() => togglePublished(p.ProductId)}
+                    >
+                      {p.IsPublished ? "Ẩn" : "Hiện"}
+                    </button>
+                    <button 
+                      className={styles.btnDanger}
+                      onClick={() => deleteProduct(p.ProductId)}
+                    >
+                      Xóa
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal Edit */}
+      {editingProduct && (
+        <div className={styles.modalOverlay} onClick={closeModals}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>Sửa sản phẩm #{editingProduct.ProductId}</h3>
+              <button className={styles.closeBtn} onClick={closeModals}>✕</button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label>Tên sản phẩm *</label>
+                <input
+                  type="text"
+                  value={formData.productName}
+                  onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
                 />
               </div>
-              <div className={styles.content}>
-                <div className={styles.title} title={p.name}>
-                  {p.name}
+              <div className={styles.formGroup}>
+                <label>Mô tả sản phẩm</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Ảnh sản phẩm</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+                {uploading && <span style={{ fontSize: "12px", color: "#2563eb" }}>Đang upload...</span>}
+                {formData.imageUrl && (
+                  <div style={{ marginTop: "8px" }}>
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Preview" 
+                      style={{ maxWidth: "200px", maxHeight: "150px", objectFit: "contain", border: "1px solid #e5e7eb", borderRadius: "8px" }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>SKU</label>
+                  <input
+                    type="text"
+                    value={formData.sku}
+                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    placeholder="VD: DELL-XPS13"
+                  />
                 </div>
-                <div className={styles.metaRow}>
-                  <span className={styles.categoryChip}>{p.category}</span>
-                </div>
-                <div className={styles.priceRow}>
-                  <span className={styles.finalPrice}>{currency(finalPrice)}</span>
-                  {hasDiscount ? (
-                    <span className={styles.originalPrice}>{currency(p.price)}</span>
-                  ) : null}
-                </div>
-                <div className={styles.actions}>
-                  <button className={styles.btnGhost}>Sửa</button>
-                  <button className={styles.btnGhost}>Ẩn/Hiện</button>
-                  <button className={styles.btnDanger}>Xóa</button>
+                <div className={styles.formGroup}>
+                  <label>Danh mục *</label>
+                  <select
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                  >
+                    <option value="">-- Chọn danh mục --</option>
+                    {categories
+                      .filter((c) => c !== "all")
+                      .map((catName) => {
+                        const cat = products.find((p) => p.CategoryName === catName);
+                        return cat ? (
+                          <option key={cat.CategoryId} value={cat.CategoryId}>
+                            {catName}
+                          </option>
+                        ) : null;
+                      })}
+                  </select>
                 </div>
               </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Giá gốc (đ) *</label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Giá khuyến mãi (đ)</label>
+                  <input
+                    type="number"
+                    value={formData.discountPrice}
+                    onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Số lượng tồn kho *</label>
+                <input
+                  type="number"
+                  value={formData.stockQuantity}
+                  onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                />
+              </div>
             </div>
-          );
-        })}
-      </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.btnCancel} onClick={closeModals}>
+                Hủy
+              </button>
+              <button className={styles.btnSave} onClick={saveProduct}>
+                Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Add */}
+      {showAddModal && (
+        <div className={styles.modalOverlay} onClick={closeModals}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>Thêm sản phẩm mới</h3>
+              <button className={styles.closeBtn} onClick={closeModals}>✕</button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label>Tên sản phẩm *</label>
+                <input
+                  type="text"
+                  value={formData.productName}
+                  onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                  placeholder="Nhập tên sản phẩm..."
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Mô tả sản phẩm</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Ảnh sản phẩm</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+                {uploading && <span style={{ fontSize: "12px", color: "#2563eb" }}>Đang upload...</span>}
+                {formData.imageUrl && (
+                  <div style={{ marginTop: "8px" }}>
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Preview" 
+                      style={{ maxWidth: "200px", maxHeight: "150px", objectFit: "contain", border: "1px solid #e5e7eb", borderRadius: "8px" }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>SKU</label>
+                  <input
+                    type="text"
+                    value={formData.sku}
+                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    placeholder="VD: DELL-XPS13"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Danh mục *</label>
+                  <select
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                  >
+                    <option value="">-- Chọn danh mục --</option>
+                    {categories
+                      .filter((c) => c !== "all")
+                      .map((catName) => {
+                        const cat = products.find((p) => p.CategoryName === catName);
+                        return cat ? (
+                          <option key={cat.CategoryId} value={cat.CategoryId}>
+                            {catName}
+                          </option>
+                        ) : null;
+                      })}
+                  </select>
+                </div>
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Giá gốc (đ) *</label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="VD: 25000000"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Giá khuyến mãi (đ)</label>
+                  <input
+                    type="number"
+                    value={formData.discountPrice}
+                    onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
+                    placeholder="VD: 22000000"
+                  />
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Số lượng tồn kho *</label>
+                <input
+                  type="number"
+                  value={formData.stockQuantity}
+                  onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                  placeholder="VD: 10"
+                />
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.btnCancel} onClick={closeModals}>
+                Hủy
+              </button>
+              <button className={styles.btnSave} onClick={createProduct}>
+                Thêm sản phẩm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
