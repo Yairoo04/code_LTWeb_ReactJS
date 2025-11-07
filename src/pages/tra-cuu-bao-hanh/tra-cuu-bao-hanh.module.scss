@@ -1,11 +1,14 @@
-.showroom-system-container {
+.showroomSystemContainer {
   display: flex;
-  justify-content: center;
-  gap: 50px;
+  justify-content: flex-start;
   margin-top: 30px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
 }
 
-.menu-list {
+.menuList {
   width: 500px;
   height: 100%;
   display: flex;
@@ -42,10 +45,17 @@
   background: #fff;
   padding: 20px;
   border-radius: 5px;
+  border-radius: 0px 10px 10px 0px;
+
+  .warrantyContent {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 }
 
 /* Tab box */
-.choice-box {
+.tabOption {
   display: inline-block;
   padding: 12px 20px;
   border: 2px solid #ccc;
@@ -61,26 +71,18 @@
   }
 }
 
-.choice-content {
+.tabContentArea {
   position: relative;
   min-height: 300px;
   flex: 1;
 }
 
-.content-box {
+.tabPanel {
   display: none;
 
   &.active {
     display: block;
   }
-}
-
-/* Form tra cứu */
-.input-sdt-bao-hanh {
-  display: flex;
-  gap: 10px;
-  height: 90px;
-  padding: 10px;
 
   input {
     width: 100%;
@@ -97,8 +99,14 @@
   }
 }
 
-.traCuu,
-#content-b button {
+/* Form tra cứu */
+.inputGroup {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.searchButton {
   background: #0877d8;
   color: #fff;
   padding: 12px 20px;

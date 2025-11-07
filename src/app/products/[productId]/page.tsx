@@ -1,6 +1,8 @@
 // app/products/[productId]/page.tsx
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import styles from './ProductDetail.module.scss';
 import Header from "@/components/Header/Header.jsx";
 import Footer from "@/components/Footer/Footer.jsx";
@@ -38,6 +40,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <ContainerFluid>
             <div className={styles.breadcrumbList}>
               <ol className={styles.breadcrumbArrow}>
+                <FontAwesomeIcon icon={faHouse} className={styles.icon} />
                 <li><a href="/">Trang chủ</a></li>
                 <li><a href="/products">Sản phẩm</a></li>
                 <li>{product.Name}</li>
