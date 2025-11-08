@@ -3,13 +3,12 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ContainerFluid from './container-fluid.jsx';
+import ContainerFluid from './ContainerFluid/container-fluid.jsx';
 
 export default function SubHeader() {
   const router = useRouter();
 
   useEffect(() => {
-    // Auto-active menu based on current path
     const currentPath = router.pathname;
     document.querySelectorAll('#menu-list-showroom li a').forEach(link => {
       const linkPath = new URL(link.href, window.location.origin).pathname;

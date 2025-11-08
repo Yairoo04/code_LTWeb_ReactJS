@@ -7,3 +7,100 @@
     background: linear-gradient(135deg, #43a047, #57c757);
   }
 }
+
+.error {
+  color: #e63946;
+  background-color: #ffe6e6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.success {
+  color: #2a9d8f;
+  background-color: #e0f7f3;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.socialLogin {
+  margin-top: 1.5rem;
+
+  p {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.8rem;
+  }
+}
+
+.socialButtons {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.socialBtn {
+  flex: 1;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 0.9rem;
+
+  &.google {
+    background: #db4437;
+
+    &:hover {
+      background: #c1351d;
+    }
+  }
+
+  &.facebook {
+    background: #4267b2;
+
+    &:hover {
+      background: #365899;
+    }
+  }
+}
+
+.footer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #444;
+
+  .link {
+    color: #ff4d6d;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,8 +1,9 @@
-import "../styles/globals.css";
+import "../styles/globals.scss";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import Providers from "./Providers";
 
-config.autoAddCss = false; // Ngăn FontAwesome tự thêm CSS 2 lần
+config.autoAddCss = false;
 
 export const metadata = {
   title: "GTN - Technology Retail",
@@ -11,9 +12,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        {children}
+    <html lang="en" className="mdl-js">
+      <body suppressHydrationWarning={true}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

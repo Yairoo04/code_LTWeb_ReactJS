@@ -1,38 +1,109 @@
 "use client";
 
 import { useState } from "react";
-import { FaUser, FaLock, FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaUser, FaLock } from "react-icons/fa";
 import styles from "./LoginModal.module.scss";
+import { GoogleLogin } from "@react-oauth/google";
+import { saveAuth } from "../../lib/auth";
 
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  // ĐĂNG NHẬP THƯỜNG
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // Kiểm tra form
     if (!email || !password) {
-      alert("Vui lòng nhập đầy đủ thông tin");
+      setError("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
-    // Giả lập login thành công
-    const userData = { name: "Nguyệt", email };
-    onLoginSuccess(userData);
+    try {
+      setLoading(true);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Đóng modal
-    onClose();
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Sai tài khoản hoặc mật khẩu!");
+        return;
+      }
+
+      const userData = {
+        id: data.user?.id,
+        fullname: data.user?.fullname || "Người dùng",
+        email: data.user?.email || email,
+        phone: data.user?.phone || "",
+        role: data.user?.role || "Customer",
+      };
+
+      console.log("Login success:", { userData, token: data.token });
+      saveAuth(userData, data.token);
+      onLoginSuccess?.(userData);
+      onClose();
+    } catch (err) {
+      console.error("Lỗi kết nối:", err);
+      setError("Không thể kết nối tới máy chủ.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ĐĂNG NHẬP GOOGLE
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      if (!credentialResponse?.credential) {
+        setError("Không nhận được credential từ Google!");
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Đăng nhập Google thất bại!");
+        return;
+      }
+
+      const userData = {
+        id: data.user?.id,
+        fullname: data.user?.fullname || "Người dùng Google",
+        email: data.user?.email,
+        phone: data.user?.phone || "",
+        role: data.user?.role || "Customer",
+      };
+
+      console.log("Google login success:", { userData, token: data.token });
+      saveAuth(userData, data.token);
+      onLoginSuccess?.(userData);
+      onClose();
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError("Không thể kết nối tới máy chủ Google.");
+    }
   };
 
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <button className={styles.closeBtn} onClick={onClose}>✕</button>
-
         <h2 className={styles.title}>Đăng nhập</h2>
+
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaUser className={styles.icon} />
@@ -58,18 +129,19 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
             />
           </div>
 
-          <button type="submit" className={styles.button}>ĐĂNG NHẬP</button>
+          {error && <p className={styles.error}>{error}</p>}
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
+          </button>
         </form>
 
         <div className={styles.socialLogin}>
-          <p>hoặc đăng nhập bằng</p>
-          <div className={styles.socialButtons}>
-            <button className={`${styles.socialBtn} ${styles.google}`}>
-              <FaGoogle /> Google
-            </button>
-            <button className={`${styles.socialBtn} ${styles.facebook}`}>
-              <FaFacebookF /> Facebook
-            </button>
+          <p>hoặc đăng nhập bằng Google</p>
+          <div className={styles.googleWrap}>
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => setError("Google login thất bại!")}
+            />
           </div>
         </div>
 

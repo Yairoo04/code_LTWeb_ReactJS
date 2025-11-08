@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from "next/navigation";
-import ContainerFluid from './container-fluid.jsx';
+import ContainerFluid from './ContainerFluid/container-fluid';
 
 export default function MenuList() {
   const pathname = usePathname();

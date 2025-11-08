@@ -2,7 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"]
+      "@/*": ["src/*"],     // ✅ alias phổ biến (dễ đọc hơn "~")
+      "~/*": ["src/*"]      // tùy chọn, để tương thích code cũ
     }
-  }
+  },
+  "include": ["next-env.d.ts", "**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

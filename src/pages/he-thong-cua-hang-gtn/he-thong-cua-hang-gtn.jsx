@@ -1,4 +1,4 @@
-import './style.scss'; // style của bạn
+import './he-thong-cua-hang-gtn.module.scss'; // style của bạn
 import MenuListShowroom from '../../layout/menu_list/menu_list_showroom';
 import React from 'react';
 
