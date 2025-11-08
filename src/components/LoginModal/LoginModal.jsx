@@ -4,13 +4,9 @@ import { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import styles from "./LoginModal.module.scss";
 import { GoogleLogin } from "@react-oauth/google";
+import { saveAuth } from "../../lib/auth";
 
-export default function LoginModal({
-  isOpen,
-  onClose,
-  onSwitchToRegister,
-  onLoginSuccess,
-}) {
+export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,7 +14,7 @@ export default function LoginModal({
 
   if (!isOpen) return null;
 
-  // === ĐĂNG NHẬP THƯỜNG ===
+  // ĐĂNG NHẬP THƯỜNG
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -37,6 +33,7 @@ export default function LoginModal({
       });
 
       const data = await res.json();
+
       if (!res.ok) {
         setError(data.message || "Sai tài khoản hoặc mật khẩu!");
         return;
@@ -44,14 +41,15 @@ export default function LoginModal({
 
       const userData = {
         id: data.user?.id,
-        name: data.user?.name || "Người dùng",
-        email: data.user?.email,
-        token: data.token,
+        fullname: data.user?.fullname || "Người dùng",
+        email: data.user?.email || email,
+        phone: data.user?.phone || "",
+        role: data.user?.role || "Customer",
       };
 
-      localStorage.setItem("user", JSON.stringify(userData));
+      console.log("Login success:", { userData, token: data.token });
+      saveAuth(userData, data.token);
       onLoginSuccess?.(userData);
-      alert("Đăng nhập thành công!");
       onClose();
     } catch (err) {
       console.error("Lỗi kết nối:", err);
@@ -61,9 +59,14 @@ export default function LoginModal({
     }
   };
 
-  // === ĐĂNG NHẬP GOOGLE ===
+  // ĐĂNG NHẬP GOOGLE
   const handleGoogleLogin = async (credentialResponse) => {
     try {
+      if (!credentialResponse?.credential) {
+        setError("Không nhận được credential từ Google!");
+        return;
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,6 +74,7 @@ export default function LoginModal({
       });
 
       const data = await res.json();
+
       if (!res.ok) {
         setError(data.message || "Đăng nhập Google thất bại!");
         return;
@@ -78,17 +82,18 @@ export default function LoginModal({
 
       const userData = {
         id: data.user?.id,
-        name: data.user?.name || "Người dùng Google",
+        fullname: data.user?.fullname || "Người dùng Google",
         email: data.user?.email,
-        token: data.token,
+        phone: data.user?.phone || "",
+        role: data.user?.role || "Customer",
       };
 
-      localStorage.setItem("user", JSON.stringify(userData));
+      console.log("Google login success:", { userData, token: data.token });
+      saveAuth(userData, data.token);
       onLoginSuccess?.(userData);
-      alert("Đăng nhập Google thành công!");
       onClose();
-    } catch (error) {
-      console.error("Google login error:", error);
+    } catch (err) {
+      console.error("Google login error:", err);
       setError("Không thể kết nối tới máy chủ Google.");
     }
   };
