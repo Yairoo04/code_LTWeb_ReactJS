@@ -5,6 +5,106 @@
 .btnGhost { border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 8px; height: 38px; padding: 0 12px; cursor: pointer; }
 .btnDanger { border: 1px solid #ef4444; background: #fff5f5; color: #b91c1c; border-radius: 8px; height: 32px; padding: 0 10px; cursor: pointer; }
 
+.iconBtn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: relative;
+  color: #6b7280;
+  
+  svg {
+    transition: all 0.2s;
+  }
+  
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+  
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+.iconBtnDanger {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: relative;
+  color: #dc2626;
+  
+  svg {
+    transition: all 0.2s;
+  }
+  
+  &:hover {
+    background: #fee;
+    color: #991b1b;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #991b1b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+  
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
 .tableWrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
 .table { width: 100%; border-collapse: collapse; }
 .table thead th { background: #f9fafb; color: #374151; text-align: left; padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb; }

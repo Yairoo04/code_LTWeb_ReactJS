@@ -2,6 +2,7 @@
 import { useMemo, useState, useEffect } from "react";
 import "../admin.scss";
 import styles from "./accounts.module.scss";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 // Toast notification helper
 function showToast(message, type = 'success') {
@@ -168,7 +169,7 @@ export default function AccountsPage() {
     return (
       <div className="admin-page">
         <h2>Tài khoản</h2>
-        <p>Đang tải...</p>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -231,10 +232,39 @@ export default function AccountsPage() {
                   </span>
                 </td>
                 <td className={styles.actions}>
-                  <button className={styles.btnGhost} onClick={() => setSelected(a)}>Sửa</button>
-                  <button className={styles.btnGhost} onClick={() => setShowPwdFor(a)}>Đổi mật khẩu</button>
+                  <button 
+                    className={styles.iconBtn} 
+                    onClick={() => setSelected(a)}
+                    data-tooltip="Sửa tài khoản"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    className={styles.iconBtn} 
+                    onClick={() => setShowPwdFor(a)}
+                    data-tooltip="Đổi mật khẩu"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </button>
                   {a.role === 'STAFF' && (
-                    <button className={styles.btnDanger} onClick={() => removeAccount(a.id)}>Xóa</button>
+                    <button 
+                      className={styles.iconBtnDanger} 
+                      onClick={() => removeAccount(a.id)}
+                      data-tooltip="Xóa tài khoản"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </button>
                   )}
                 </td>
               </tr>

@@ -1,13 +1,13 @@
 "use client";
 import Cookies from "js-cookie";
 
-// 🧭 Kiểm tra trạng thái đăng nhập
+//  Kiểm tra trạng thái đăng nhập
 export const isLoggedIn = () => {
   if (typeof window === "undefined") return false;
   return Cookies.get("isLoggedIn") === "true"; //  đọc từ cookie
 };
 
-// � Lấy thông tin người dùng hiện tại (username, role)
+//  Lấy thông tin người dùng hiện tại (username, role)
 export const getCurrentUser = () => {
   if (typeof window === "undefined") return null;
   try {

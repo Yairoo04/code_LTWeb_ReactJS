@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import "./../../admin/admin.scss";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -236,9 +237,7 @@ export default function DashboardPage() {
     return (
       <div className="admin-page">
         <h2>📊 Trang chủ</h2>
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
+        <LoadingSpinner message="Đang tải dữ liệu tổng quan..." />
       </div>
     );
   }

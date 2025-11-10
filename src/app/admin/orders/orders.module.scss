@@ -25,6 +25,56 @@
 .muted { color: #6b7280; font-size: 12px; }
 .btnGhost { border: 1px solid #d1d5db; background: #fff; color: #111827; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
 
+.iconBtn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: relative;
+  color: #6b7280;
+  
+  svg {
+    transition: all 0.2s;
+  }
+  
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+  
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
 .badgeDefault { background: #eef2ff; color: #1d4ed8; border: 1px solid #c7d2fe; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
 .badgePending { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
 .badgeCancel { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 999px; font-size: 12px; }

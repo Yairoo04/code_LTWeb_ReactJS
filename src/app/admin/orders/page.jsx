@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 import "../admin.scss";
 import styles from "./orders.module.scss";
 
@@ -271,7 +272,7 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "2rem" }}>Đang tải...</div>
+        <LoadingSpinner message="Đang tải đơn hàng..." minHeight={200} />
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
@@ -306,7 +307,12 @@ export default function OrdersPage() {
                   </td>
                   <td>{new Date(o.CreatedAt).toLocaleString("vi-VN")}</td>
                   <td className={styles.actionsCell}>
-                    <button className={styles.btnGhost} onClick={() => viewOrderDetails(o.OrderId)}>Xem</button>
+                    <button className={styles.iconBtn} data-tooltip="Xem chi tiết đơn hàng" onClick={() => viewOrderDetails(o.OrderId)}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
                     <select
                       className={styles.selectInline}
                       value={o.Status}
