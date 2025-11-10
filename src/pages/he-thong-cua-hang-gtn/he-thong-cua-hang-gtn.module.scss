@@ -1,12 +1,5 @@
-.showroom-system-container {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  margin-top: 30px;
-}
-
-.menu-list {
-  width: 500px;
+.menuList {
+  width: 300px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -40,50 +33,83 @@
   }
 }
 
-.gioMuacua {
+.content {
+  flex: 1;
+  background: #fff;
+  border-radius: 0px 10px 10px 0px;
+
+  .pageHeading {
+    padding: 24px 16px;
+
+    h1 {
+      font-size: 24px;
+      line-height: 36px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+}
+
+.pageWrapper {
+  padding: 24px 16px;
+  font-size: 16px;
+}
+
+.gioMuaCua {
   display: flex;
   gap: 6px;
-  padding: 10px 20px;
   align-items: center;
-  background: #e0e2e0;
+  background: #f8f8f8;
+  border-left: 4px solid #e74c3c;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  border-radius: 0 8px 8px 0;
+  font-size: 18px;
 }
 
 .call {
   justify-content: center;
   display: flex;
-  padding-top: 15px;
+  text-align: center;
+  margin-bottom: 30px;
 
   a {
-    text-decoration: none;
-    background-color: #28a745;
+    background: #27ae60;
     color: white;
-    border-radius: 6px;
+    padding: 12px 35px;
+    text-decoration: none;
     display: inline-block;
-    padding: 10px;
+    border-radius: 5px;
     font-weight: bold;
-    gap: 8px;
-    align-items: center;
-    transition: 0.6s;
+    font-size: 18px;
+    transition: all 0.2s ease-in-out;
   }
 }
 
-.section-title {
-  background: #333;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-  margin: 20px 0 10px;
-  border-radius: 5px;
-  font-weight: bold;
+.showroomHotlineTextHeader {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.store-grid {
+.sectionTitle {
+  background: #3a3a3a;
+  color: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.storeGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
 
-.store-card {
+.storeCard {
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 15px;
@@ -91,59 +117,80 @@
   flex-direction: column;
   gap: 10px;
   background: #fff;
-  margin-bottom: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   h4 {
-    color: #075396;
-    margin: 0 auto;
-  }
-
-  a {
-    color: #0877d8;
-    text-decoration: none;
-  }
-
-  .btn-direction {
-    background-color: #068ded;
-    border-radius: 5px;
-    padding: 8px;
-    text-decoration: none;
+    color: #000;
+    margin: 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
     gap: 5px;
-    color: #333;
+  }
 
-    .st-direction-text {
-      color: #fff;
-    }
+  p {
+    margin: 0;
+    font-size: 14px;
   }
 }
 
-.lienHe {
-  background: #e0e2e0;
+.btnDirection {
+  max-width: 150px;
+  background: #4285f4;
+  color: white;
   padding: 10px 20px;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.stDirectionText {
+  color: #fff;
+}
+
+.contact {
+  background-color: #F5F5F5;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
   border-radius: 5px;
   gap: 10px;
+  margin-top: 20px;
+  font-size: 16px;
+
+  .contactHeading {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 25px;
+    font-weight: bold;
+  }
+
+}
+
+.showroomHotlineTextFooter {
+  color: #28a745;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.emailWebsite {
+  font-size: 15px;
+  font-weight: 600;
 
   a {
-    text-decoration: none;
-  }
+    color: #068ded;
 
-  .showroom-hotline-text-footer {
-    color: #28a745;
-  }
-
-  .email-website {
-    a {
-      color: #068ded;
-
-      &:hover {
-        color: #28a745;
-      }
+    &:hover {
+      color: #28a745;
     }
   }
 }

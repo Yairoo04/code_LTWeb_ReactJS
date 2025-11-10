@@ -28,6 +28,9 @@
 .addBtn:hover { transform: translateY(-1px); }
 
 .toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: grid;
   grid-template-columns: 1fr repeat(3, max-content);
   gap: 10px;
@@ -36,6 +39,7 @@
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .searchWrap input {
@@ -122,6 +126,33 @@
   border-radius: 6px;
 }
 
+.badgeInactive {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.card.inactive {
+  opacity: 0.6;
+  .imageWrap {
+    filter: grayscale(0.5);
+  }
+}
+
+.skuChip {
+  font-size: 11px;
+  color: #6b7280;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .content {
   padding: 10px 12px 12px;
   display: flex;
@@ -182,3 +213,140 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+// Modal Edit
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #374151;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modalFooter {
+  padding: 12px 20px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btnCancel {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+
+  &:hover {
+    background: #f9fafb;
+  }
+}
+
+.btnSave {
+  padding: 8px 16px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+
+  &:hover {
+    background: #1d4ed8;
+  }
+
+  &:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+  }
+}
+

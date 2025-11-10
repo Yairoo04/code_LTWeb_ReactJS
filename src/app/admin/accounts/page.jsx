@@ -1,24 +1,33 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import "../admin.scss";
 import styles from "./accounts.module.scss";
 
+// Toast notification helper
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  const colors = {
+    success: '#22c55e',
+    error: '#ef4444',
+    warning: '#f59e0b'
+  };
+  toast.style.cssText = `position:fixed;top:20px;right:20px;background:${colors[type]};color:white;padding:12px 20px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;font-size:14px;animation:slideIn 0.3s ease;`;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
 const ROLES = [
   { value: "ADMIN", label: "Admin" },
-  { value: "MANAGER", label: "Quản lý" },
   { value: "STAFF", label: "Nhân viên" },
-];
-
-const SAMPLE_ACCOUNTS = [
-  { id: 1, username: "admin", fullName: "Super Admin", email: "admin@gtn.vn", role: "ADMIN", active: true, lastLogin: "2025-10-12T09:30:00Z" },
-  { id: 2, username: "manager", fullName: "Nguyễn Quản Lý", email: "manager@gtn.vn", role: "MANAGER", active: true, lastLogin: "2025-10-10T08:00:00Z" },
-  { id: 3, username: "staff01", fullName: "Trần Nhân Viên", email: "staff01@gtn.vn", role: "STAFF", active: true, lastLogin: "2025-10-08T14:25:00Z" },
 ];
 
 function RoleBadge({ role }) {
   const map = {
     ADMIN: styles.badgeAdmin,
-    MANAGER: styles.badgeManager,
     STAFF: styles.badgeStaff,
   };
   const label = ROLES.find((r) => r.value === role)?.label || role;
@@ -26,11 +35,32 @@ function RoleBadge({ role }) {
 }
 
 export default function AccountsPage() {
-  const [accounts, setAccounts] = useState(SAMPLE_ACCOUNTS);
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [role, setRole] = useState("all");
   const [selected, setSelected] = useState(null);
   const [showPwdFor, setShowPwdFor] = useState(null);
+
+  // Fetch accounts từ API
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  async function fetchAccounts() {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:4000/api/admin/accounts");
+      if (!res.ok) throw new Error("Failed to fetch accounts");
+      const data = await res.json();
+      setAccounts(data);
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+      showToast(" Không thể tải danh sách tài khoản", "error");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const filtered = useMemo(() => {
     let list = accounts.filter((a) =>
@@ -45,27 +75,102 @@ export default function AccountsPage() {
     setRole("all");
   }
 
-  function saveAccount(data) {
+  async function saveAccount(data) {
     if (data.id) {
-      setAccounts((prev) => prev.map((a) => (a.id === data.id ? { ...a, ...data } : a)));
+      // Cập nhật tài khoản
+      const res = await fetch("http://localhost:4000/api/admin/accounts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Cập nhật thất bại");
+      }
+
+      const updated = await res.json();
+      setAccounts((prev) => prev.map((a) => (a.id === data.id ? updated : a)));
+      showToast(" Cập nhật tài khoản thành công", "success");
     } else {
-      const id = Math.max(0, ...accounts.map((a) => a.id)) + 1;
-      setAccounts((prev) => [...prev, { ...data, id, active: true, lastLogin: null }]);
+      // Thêm tài khoản mới
+      const res = await fetch("http://localhost:4000/api/admin/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Thêm tài khoản thất bại");
+      }
+
+      const newAccount = await res.json();
+      setAccounts((prev) => [newAccount, ...prev]);
+      showToast(" Thêm tài khoản thành công", "success");
     }
     setSelected(null);
   }
 
-  function removeAccount(id) {
-    if (confirm("Xóa tài khoản này?")) {
+  async function removeAccount(id) {
+    if (!confirm("Xóa tài khoản này? Tất cả dữ liệu liên quan sẽ bị xóa.")) return;
+
+    try {
+      const res = await fetch(`http://localhost:4000/api/admin/accounts?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Xóa thất bại");
+      }
+
+      // Xóa khỏi danh sách hiển thị
       setAccounts((prev) => prev.filter((a) => a.id !== id));
+      showToast(" Xóa tài khoản thành công", "success");
+    } catch (error) {
+      console.error("Error removing account:", error);
+      showToast(`❌ ${error.message}`, "error");
     }
   }
 
-  function changePassword(id, newPwd) {
-    // Mock: chỉ đóng modal. Thực tế sẽ gọi API.
-    console.log("Change password for", id, newPwd);
+  async function changePassword(id, currentPassword, newPassword) {
+    console.log(" Sending password change request:", { id, currentPassword: "***", newPassword: "***" });
+    
+    const res = await fetch(`http://localhost:4000/api/admin/accounts/change-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, currentPassword, newPassword }),
+    });
+
+    console.log(" Response status:", res.status);
+
+    if (!res.ok) {
+      let errorMessage = "Đổi mật khẩu thất bại";
+      try {
+        const error = await res.json();
+        errorMessage = error.error || errorMessage;
+        console.error("❌ Error response:", error);
+      } catch (e) {
+        console.error("❌ Failed to parse error response");
+      }
+      throw new Error(errorMessage);
+    }
+
+    const result = await res.json();
+    console.log(" Success:", result);
+
     setShowPwdFor(null);
-    alert("Đổi mật khẩu thành công (demo)");
+    showToast(' Đổi mật khẩu thành công', 'success');
+  }
+
+  if (loading) {
+    return (
+      <div className="admin-page">
+        <h2>Tài khoản</h2>
+        <p>Đang tải...</p>
+      </div>
+    );
   }
 
   return (
@@ -98,33 +203,43 @@ export default function AccountsPage() {
               <th>Username</th>
               <th>Họ tên</th>
               <th>Email</th>
+              <th>Số điện thoại</th>
               <th>Vai trò</th>
               <th>Trạng thái</th>
-              <th>Đăng nhập gần nhất</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((a) => (
-              <tr key={a.id}>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                  Không tìm thấy tài khoản nào
+                </td>
+              </tr>
+            ) : (
+              filtered.map((a) => (
+                <tr key={a.id}>
                 <td>{a.id}</td>
                 <td className={styles.mono}>{a.username}</td>
                 <td>{a.fullName}</td>
                 <td>{a.email}</td>
+                <td>{a.phoneNumber || "—"}</td>
                 <td><RoleBadge role={a.role} /></td>
                 <td>
                   <span className={a.active ? styles.badgeActive : styles.badgeBlocked}>
                     {a.active ? "Hoạt động" : "Khóa"}
                   </span>
                 </td>
-                <td>{a.lastLogin ? new Date(a.lastLogin).toLocaleString("vi-VN") : "—"}</td>
                 <td className={styles.actions}>
                   <button className={styles.btnGhost} onClick={() => setSelected(a)}>Sửa</button>
                   <button className={styles.btnGhost} onClick={() => setShowPwdFor(a)}>Đổi mật khẩu</button>
-                  <button className={styles.btnDanger} onClick={() => removeAccount(a.id)}>Xóa</button>
+                  {a.role === 'STAFF' && (
+                    <button className={styles.btnDanger} onClick={() => removeAccount(a.id)}>Xóa</button>
+                  )}
                 </td>
               </tr>
-            ))}
+            )))
+            }
           </tbody>
         </table>
       </div>
@@ -147,16 +262,87 @@ function AccountModal({ value, onClose, onSave }) {
     username: value?.username || "",
     fullName: value?.fullName || "",
     email: value?.email || "",
+    phoneNumber: value?.phoneNumber || "",
     role: value?.role || "STAFF",
     active: value?.active ?? true,
   });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  function submit() {
-    if (!form.username.trim() || !form.fullName.trim() || !form.email.trim()) {
-      alert("Vui lòng nhập đầy đủ Username, Họ tên và Email");
+  // Validate từng field
+  function validateField(name, value) {
+    let error = "";
+    
+    switch(name) {
+      case "username":
+        if (!value.trim()) {
+          error = "Username là bắt buộc";
+        } else if (value.length < 3) {
+          error = "Username tối thiểu 3 ký tự";
+        } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+          error = "Username chỉ chứa chữ, số và dấu gạch dưới";
+        }
+        break;
+      
+      case "fullName":
+        if (!value.trim()) {
+          error = "Họ tên là bắt buộc";
+        } else if (value.length < 2) {
+          error = "Họ tên tối thiểu 2 ký tự";
+        }
+        break;
+      
+      case "email":
+        if (!value.trim()) {
+          error = "Email là bắt buộc";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          error = "Email không hợp lệ";
+        }
+        break;
+      
+      case "phoneNumber":
+        if (value && !/^[0-9]{10,11}$/.test(value)) {
+          error = "Số điện thoại phải là 10-11 chữ số";
+        }
+        break;
+    }
+    
+    return error;
+  }
+
+  // Handle input change với validation
+  function handleChange(name, value) {
+    setForm({ ...form, [name]: value });
+    const error = validateField(name, value);
+    setErrors({ ...errors, [name]: error });
+  }
+
+  // Validate toàn bộ form
+  function validateForm() {
+    const newErrors = {};
+    newErrors.username = validateField("username", form.username);
+    newErrors.fullName = validateField("fullName", form.fullName);
+    newErrors.email = validateField("email", form.email);
+    newErrors.phoneNumber = validateField("phoneNumber", form.phoneNumber);
+    
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(err => err);
+  }
+
+  async function submit() {
+    if (!validateForm()) {
       return;
     }
-    onSave(form);
+
+    setLoading(true);
+    try {
+      await onSave(form);
+    } catch (error) {
+      // Hiển thị lỗi từ API (username trùng, email trùng, etc.)
+      setErrors({ ...errors, general: error.message });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -167,44 +353,118 @@ function AccountModal({ value, onClose, onSave }) {
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
         <div className={styles.modalBody}>
-          <div className={styles.formGrid}>
+          {errors.general && (
+            <div style={{ 
+              padding: '10px 12px', 
+              marginBottom: '12px', 
+              backgroundColor: '#fee', 
+              border: '1px solid #fcc',
+              borderRadius: '4px',
+              color: '#c33',
+              fontSize: '14px'
+            }}>
+              ❌ {errors.general}
+            </div>
+          )}
+
+          <div className={styles.formRow}>
             <label>
-              <span>Username</span>
-              <input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+              <span>Username <span style={{ color: 'red' }}>*</span></span>
+              <input 
+                value={form.username} 
+                onChange={(e) => handleChange("username", e.target.value)}
+                placeholder="Nhập username"
+                disabled={isEdit}
+                style={{ borderColor: errors.username ? '#ef4444' : '' }}
+              />
+              {errors.username && <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.username}</span>}
             </label>
             <label>
-              <span>Họ tên</span>
-              <input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
+              <span>Họ tên <span style={{ color: 'red' }}>*</span></span>
+              <input 
+                value={form.fullName} 
+                onChange={(e) => handleChange("fullName", e.target.value)}
+                placeholder="Nhập họ tên đầy đủ"
+                style={{ borderColor: errors.fullName ? '#ef4444' : '' }}
+              />
+              {errors.fullName && <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.fullName}</span>}
+            </label>
+          </div>
+
+          <div className={styles.formRow}>
+            <label>
+              <span>Email <span style={{ color: 'red' }}>*</span></span>
+              <input 
+                type="email" 
+                value={form.email} 
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="email@example.com"
+                style={{ borderColor: errors.email ? '#ef4444' : '' }}
+              />
+              {errors.email && <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.email}</span>}
             </label>
             <label>
-              <span>Email</span>
-              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <span>Số điện thoại</span>
+              <input 
+                type="tel" 
+                value={form.phoneNumber} 
+                onChange={(e) => handleChange("phoneNumber", e.target.value)}
+                placeholder="0123456789"
+                style={{ borderColor: errors.phoneNumber ? '#ef4444' : '' }}
+              />
+              {errors.phoneNumber && <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{errors.phoneNumber}</span>}
             </label>
+          </div>
+
+          <div className={styles.formRow}>
             <label>
               <span>Vai trò</span>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+              <select 
+                value={form.role} 
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                disabled={isEdit && form.role === 'ADMIN'}
+              >
                 {ROLES.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
               </select>
-            </label>
-            <label className={styles.checkRow}>
-              <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
-              <span>Hoạt động</span>
+              {isEdit && form.role === 'ADMIN' && (
+                <span style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                  Không thể thay đổi vai trò Admin
+                </span>
+              )}
             </label>
           </div>
 
+          <label className={styles.checkRow}>
+            <input 
+              type="checkbox" 
+              checked={form.active} 
+              onChange={(e) => setForm({ ...form, active: e.target.checked })} 
+            />
+            <span>Tài khoản đang hoạt động</span>
+          </label>
+
           <div className={styles.roleHint}>
-            Quyền:
+            <strong>Phân quyền:</strong>
             <ul>
-              <li><b>Admin</b>: toàn quyền mọi chức năng.</li>
-              <li><b>Quản lý</b>: quản lý sản phẩm, đơn hàng, khách hàng; không chỉnh cấu hình hệ thống.</li>
-              <li><b>Nhân viên</b>: xem/chuẩn bị đơn, cập nhật trạng thái; không xóa dữ liệu.</li>
+              <li><b>Admin</b>: Toàn quyền quản lý hệ thống, thêm/sửa/xóa tài khoản Staff.</li>
+              <li><b>Nhân viên</b>: Quản lý đơn hàng, sản phẩm, khách hàng. Không quản lý tài khoản.</li>
             </ul>
+            {!isEdit && (
+              <p style={{ marginTop: "8px", fontSize: "13px", color: "#6b7280", fontStyle: "italic" }}>
+                💡 Mật khẩu mặc định: <strong>Username@123</strong> (chữ cái đầu viết hoa)
+                <br />
+                <span style={{ marginLeft: "20px" }}>Ví dụ: <code>staff02</code> → <code>Staff02@123</code></span>
+              </p>
+            )}
           </div>
         </div>
         <div className={styles.modalFooter}>
-          <button className={styles.btn} onClick={submit}>{isEdit ? "Lưu" : "Thêm"}</button>
+          <button className={styles.btnGhost} onClick={onClose} disabled={loading}>Hủy</button>
+          <button className={styles.btn} onClick={submit} disabled={loading}>
+            {loading ? " Đang xử lý..." : (isEdit ? " Lưu thay đổi" : " Thêm tài khoản")}
+          </button>
         </div>
       </div>
     </div>
@@ -212,41 +472,105 @@ function AccountModal({ value, onClose, onSave }) {
 }
 
 function PasswordModal({ value, onClose, onSave }) {
+  const [currentPwd, setCurrentPwd] = useState("");
   const [pwd1, setPwd1] = useState("");
   const [pwd2, setPwd2] = useState("");
   const [show, setShow] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function submit() {
-    if (pwd1.length < 6) return alert("Mật khẩu tối thiểu 6 ký tự");
-    if (pwd1 !== pwd2) return alert("Mật khẩu nhập lại không khớp");
-    onSave(value.id, pwd1);
+  async function submit() {
+    setError("");
+    
+    if (!currentPwd) {
+      setError("⚠️ Vui lòng nhập mật khẩu cũ");
+      return;
+    }
+    if (pwd1.length < 6) {
+      setError("⚠️ Mật khẩu mới tối thiểu 6 ký tự");
+      return;
+    }
+    if (pwd1 !== pwd2) {
+      setError("⚠️ Mật khẩu nhập lại không khớp");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSave(value.id, currentPwd, pwd1);
+      setCurrentPwd("");
+      setPwd1("");
+      setPwd2("");
+      setError("");
+    } catch (err) {
+      setError(`❌ ${err.message || "Đổi mật khẩu thất bại"}`);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h3>Đổi mật khẩu cho {value.username}</h3>
+          <h3> Đổi mật khẩu cho {value.username}</h3>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
         <div className={styles.modalBody}>
-          <div className={styles.formGrid}>
-            <label>
-              <span>Mật khẩu mới</span>
-              <input type={show ? "text" : "password"} value={pwd1} onChange={(e) => setPwd1(e.target.value)} />
-            </label>
-            <label>
-              <span>Nhập lại mật khẩu</span>
-              <input type={show ? "text" : "password"} value={pwd2} onChange={(e) => setPwd2(e.target.value)} />
-            </label>
-            <label className={styles.checkRow}>
-              <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />
-              <span>Hiện mật khẩu</span>
-            </label>
-          </div>
+          {error && (
+            <div style={{ 
+              padding: '10px 12px', 
+              marginBottom: '12px', 
+              backgroundColor: '#fee', 
+              border: '1px solid #fcc',
+              borderRadius: '4px',
+              color: '#c33',
+              fontSize: '14px'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <label>
+            <span>Mật khẩu hiện tại <span style={{ color: 'red' }}>*</span></span>
+            <input 
+              type={show ? "text" : "password"} 
+              value={currentPwd} 
+              onChange={(e) => setCurrentPwd(e.target.value)}
+              placeholder="Nhập mật khẩu hiện tại"
+            />
+          </label>
+
+          <label style={{ marginTop: '12px' }}>
+            <span>Mật khẩu mới <span style={{ color: 'red' }}>*</span></span>
+            <input 
+              type={show ? "text" : "password"} 
+              value={pwd1} 
+              onChange={(e) => setPwd1(e.target.value)}
+              placeholder="Tối thiểu 6 ký tự"
+            />
+          </label>
+
+          <label style={{ marginTop: '12px' }}>
+            <span>Nhập lại mật khẩu mới <span style={{ color: 'red' }}>*</span></span>
+            <input 
+              type={show ? "text" : "password"} 
+              value={pwd2} 
+              onChange={(e) => setPwd2(e.target.value)}
+              placeholder="Nhập lại mật khẩu"
+            />
+          </label>
+
+          <label className={styles.checkRow} style={{ marginTop: '12px' }}>
+            <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />
+            <span>Hiện mật khẩu</span>
+          </label>
         </div>
         <div className={styles.modalFooter}>
-          <button className={styles.btn} onClick={submit}>Cập nhật</button>
+          <button className={styles.btnGhost} onClick={onClose} disabled={loading}>Hủy</button>
+          <button className={styles.btn} onClick={submit} disabled={loading}>
+            {loading ? " Đang xử lý..." : " Cập nhật mật khẩu"}
+          </button>
         </div>
       </div>
     </div>

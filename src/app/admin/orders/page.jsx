@@ -1,15 +1,27 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import "../admin.scss";
 import styles from "./orders.module.scss";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
 const STATUS = [
-  "Huỷ",
-  "Đang chuẩn bị",
-  "Đang giao",
-  "Đã giao",
-  "Hoàn thành",
+  "Pending",
+  "Processing",
+  "Shipping",
+  "Delivered",
+  "Completed",
+  "Cancelled"
 ];
+
+const STATUS_VI = {
+  "Pending": "Chờ xác nhận",
+  "Processing": "Đang chuẩn bị",
+  "Shipping": "Đang giao",
+  "Delivered": "Đã giao",
+  "Completed": "Hoàn thành",
+  "Cancelled": "Huỷ"
+};
 
 function currency(v) {
   try {
@@ -19,7 +31,8 @@ function currency(v) {
   }
 }
 
-const SAMPLE_ORDERS = [
+// Không dùng SAMPLE_ORDERS nữa - lấy từ API
+const _SAMPLE_ORDERS_OLD = [
   {
     id: 20251001,
     createdAt: "2025-10-10T10:40:34.461Z",
@@ -96,20 +109,35 @@ const SAMPLE_ORDERS = [
   },
 ];
 
-function calcTotal(order) {
-  return order.items.reduce((s, it) => s + it.qty * it.price, 0);
-}
-
 export default function OrdersPage() {
-  const [orders, setOrders] = useState(
-    SAMPLE_ORDERS.map((o) => ({ ...o, total: calcTotal(o) }))
-  );
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("newest");
   const [selected, setSelected] = useState(null);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+  // Fetch orders từ API khi component mount
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  async function fetchOrders() {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/orders`);
+      const data = await res.json();
+      if (data.success) {
+        setOrders(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function resetFilters() {
     setQ("");
@@ -122,49 +150,82 @@ export default function OrdersPage() {
   const filtered = useMemo(() => {
     let list = orders.filter((o) => {
       const hay = (
-        o.id +
-        o.customer.name +
-        (o.customer.email || "") +
-        o.receiver.phone
+        o.OrderId +
+        (o.CustomerName || "") +
+        (o.CustomerEmail || "") +
+        (o.RecipientPhone || "")
       )
         .toString()
         .toLowerCase();
       return hay.includes(q.toLowerCase());
     });
-    if (status !== "all") list = list.filter((o) => o.status === status);
+    if (status !== "all") list = list.filter((o) => o.Status === status);
     // Lọc theo ngày tạo (từ/đến)
     const start = fromDate ? new Date(fromDate + "T00:00:00") : null;
     const end = toDate ? new Date(toDate + "T23:59:59.999") : null;
-    if (start) list = list.filter((o) => new Date(o.createdAt) >= start);
-    if (end) list = list.filter((o) => new Date(o.createdAt) <= end);
+    if (start) list = list.filter((o) => new Date(o.CreatedAt) >= start);
+    if (end) list = list.filter((o) => new Date(o.CreatedAt) <= end);
     switch (sort) {
       case "newest":
         list = [...list].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          (a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt)
         );
         break;
       case "totalDesc":
-        list = [...list].sort((a, b) => b.total - a.total);
+        list = [...list].sort((a, b) => b.TotalAmount - a.TotalAmount);
         break;
     }
     return list;
   }, [orders, q, status, sort, fromDate, toDate]);
 
-  const updateStatus = (id, newStatus) => {
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o)));
-    if (selected?.id === id) setSelected((s) => ({ ...s, status: newStatus }));
-  };
+  async function updateStatus(id, newStatus) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/orders`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: id, status: newStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders((prev) => prev.map((o) => (o.OrderId === id ? { ...o, Status: newStatus } : o)));
+        if (selected?.OrderId === id) setSelected((s) => ({ ...s, Status: newStatus }));
+      }
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      alert("Cập nhật trạng thái thất bại!");
+    }
+  }
+
+  async function viewOrderDetails(orderId) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/orders?orderId=${orderId}`);
+      const data = await res.json();
+      if (data.success) {
+        setSelected(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch order details:", error);
+    }
+  }
 
   const badgeClass = (s) => {
     switch (s) {
+      case "Cancelled":
       case "Huỷ":
         return styles.badgeCancel;
+      case "Pending":
+      case "Chờ xác nhận":
+        return styles.badgePending;
+      case "Processing":
       case "Đang chuẩn bị":
         return styles.badgePrepare;
+      case "Shipping":
       case "Đang giao":
         return styles.badgeShipping;
+      case "Delivered":
       case "Đã giao":
         return styles.badgeDelivered;
+      case "Completed":
       case "Hoàn thành":
         return styles.badgeDone;
       default:
@@ -187,7 +248,7 @@ export default function OrdersPage() {
         <select className={styles.select} value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="all">Tất cả trạng thái</option>
           {STATUS.map((s) => (
-            <option key={s} value={s}>{s}</option>
+            <option key={s} value={s}>{STATUS_VI[s]}</option>
           ))}
         </select>
         <select className={styles.select} value={sort} onChange={(e) => setSort(e.target.value)}>
@@ -209,73 +270,79 @@ export default function OrdersPage() {
         <button className={styles.btnReset} onClick={resetFilters}>Hiện tất cả</button>
       </div>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Mã đơn</th>
-              <th>Khách hàng</th>
-              <th>Liên hệ</th>
-              <th>Tổng tiền</th>
-              <th>Trạng thái</th>
-              <th>Ngày tạo</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((o) => (
-              <tr key={o.id}>
-                <td>#{o.id}</td>
-                <td>
-                  <div className={styles.name}>{o.customer.name}</div>
-                  <div className={styles.note}>Đã đăng ký</div>
-                </td>
-                <td>
-                  <div>{o.customer.email || ""}</div>
-                  <div className={styles.muted}>{o.receiver.phone}</div>
-                </td>
-                <td>{currency(o.total)}</td>
-                <td>
-                  <span className={badgeClass(o.status)}>{o.status}</span>
-                </td>
-                <td>{new Date(o.createdAt).toLocaleString("vi-VN")}</td>
-                <td className={styles.actionsCell}>
-                  <button className={styles.btnGhost} onClick={() => setSelected(o)}>Xem</button>
-                  <select
-                    className={styles.selectInline}
-                    value={o.status}
-                    onChange={(e) => updateStatus(o.id, e.target.value)}
-                  >
-                    {STATUS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </td>
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "2rem" }}>Đang tải...</div>
+      ) : (
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Người nhận</th>
+                <th>Liên hệ</th>
+                <th>Tổng tiền</th>
+                <th>Phương thức TT</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.map((o) => (
+                <tr key={o.OrderId}>
+                  <td>DH{o.OrderId.toString().padStart(3, '0')}</td>
+                  <td>
+                    <div className={styles.name}>{o.RecipientName || "Không có tên"}</div>
+                  </td>
+                  <td>
+                    <div>{o.RecipientPhone || "Chưa có"}</div>
+                  </td>
+                  <td>{currency(o.TotalAmount)}</td>
+                  <td>
+                    <span className={styles.paymentBadge}>{o.PaymentMethod || "Chưa rõ"}</span>
+                  </td>
+                  <td>
+                    <span className={badgeClass(o.Status)}>{STATUS_VI[o.Status] || o.Status}</span>
+                  </td>
+                  <td>{new Date(o.CreatedAt).toLocaleString("vi-VN")}</td>
+                  <td className={styles.actionsCell}>
+                    <button className={styles.btnGhost} onClick={() => viewOrderDetails(o.OrderId)}>Xem</button>
+                    <select
+                      className={styles.selectInline}
+                      value={o.Status}
+                      onChange={(e) => updateStatus(o.OrderId, e.target.value)}
+                    >
+                      {STATUS.map((s) => (
+                        <option key={s} value={s}>{STATUS_VI[s]}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {selected && (
         <div className={styles.modalOverlay} onClick={() => setSelected(null)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h3>Chi tiết đơn hàng #{selected.id}</h3>
+              <h3>Chi tiết đơn hàng DH{selected.OrderId.toString().padStart(3, '0')}</h3>
               <button className={styles.closeBtn} onClick={() => setSelected(null)}>✕</button>
             </div>
             <div className={styles.modalBody}>
               <section className={styles.section}>
                 <h4>Trạng thái</h4>
                 <div className={styles.statusRow}>
-                  <span className={badgeClass(selected.status)}>{selected.status}</span>
+                  <span className={badgeClass(selected.Status)}>{STATUS_VI[selected.Status] || selected.Status}</span>
                   <select
                     className={styles.selectInline}
-                    value={selected.status}
-                    onChange={(e) => updateStatus(selected.id, e.target.value)}
+                    value={selected.Status}
+                    onChange={(e) => updateStatus(selected.OrderId, e.target.value)}
                   >
                     {STATUS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{STATUS_VI[s]}</option>
                     ))}
                   </select>
                 </div>
@@ -283,16 +350,19 @@ export default function OrdersPage() {
 
               <section className={styles.sectionGrid}>
                 <div>
-                  <h4>Người nhận</h4>
-                  <div className={styles.field}><span>Họ tên:</span><b>{selected.receiver.name}</b></div>
-                  <div className={styles.field}><span>SĐT:</span><b>{selected.receiver.phone}</b></div>
-                  <div className={styles.field}><span>Địa chỉ:</span><b>{selected.receiver.address}</b></div>
+                  <h4>Thông tin khách hàng</h4>
+                  <div className={styles.field}><span>Mã KH:</span><b>{selected.CustomerId ? `KH${selected.CustomerId.toString().padStart(3, '0')}` : "N/A"}</b></div>
+                  <div className={styles.field}><span>Họ tên:</span><b>{selected.RecipientName}</b></div>
+                  <div className={styles.field}><span>SĐT:</span><b>{selected.RecipientPhone || "Chưa có"}</b></div>
+                  <div className={styles.field}><span>Email:</span><b>{selected.CustomerEmail || "N/A"}</b></div>
                 </div>
                 <div>
-                  <h4>Khách hàng</h4>
-                  <div className={styles.field}><span>Mã KH:</span><b>{selected.customer.id}</b></div>
-                  <div className={styles.field}><span>Họ tên:</span><b>{selected.customer.name}</b></div>
-                  <div className={styles.field}><span>Email:</span><b>{selected.customer.email}</b></div>
+                  <h4>Thanh toán</h4>
+                  <div className={styles.field}>
+                    <span>Phương thức:</span>
+                    <b>{selected.PaymentMethod || 'Chưa xác định'}</b>
+                  </div>
+                  <div className={styles.field}><span>Tổng tiền:</span><b className={styles.totalPrice}>{currency(selected.TotalAmount)}</b></div>
                 </div>
               </section>
 
@@ -309,26 +379,26 @@ export default function OrdersPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {selected.items.map((it) => (
-                      <tr key={it.sku}>
-                        <td>{it.sku}</td>
-                        <td>{it.name}</td>
-                        <td>{it.qty}</td>
-                        <td>{currency(it.price)}</td>
-                        <td>{currency(it.qty * it.price)}</td>
+                    {selected.Items?.map((it) => (
+                      <tr key={it.OrderItemId}>
+                        <td>{it.SKU || "N/A"}</td>
+                        <td>{it.ProductName}</td>
+                        <td>{it.Quantity}</td>
+                        <td>{currency(it.UnitPrice)}</td>
+                        <td>{currency(it.Quantity * it.UnitPrice)}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr>
                       <td colSpan={4} className={styles.tdRight}>Tổng cộng</td>
-                      <td><b>{currency(selected.total)}</b></td>
+                      <td><b>{currency(selected.TotalAmount)}</b></td>
                     </tr>
                   </tfoot>
                 </table>
               </section>
 
-              <div className={styles.miniInfo}>Tạo lúc: {new Date(selected.createdAt).toLocaleString("vi-VN")}</div>
+              <div className={styles.miniInfo}>Tạo lúc: {new Date(selected.CreatedAt).toLocaleString("vi-VN")}</div>
             </div>
             <div className={styles.modalFooter}>
               <button className={styles.closePrimary} onClick={() => setSelected(null)}>Đóng</button>
