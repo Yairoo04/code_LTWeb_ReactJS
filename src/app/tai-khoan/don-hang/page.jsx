@@ -12,11 +12,12 @@ export default function DonHangPage() {
       {/* Tabs */}
       <div className={styles.tabs}>
         <button className={`${styles.tabBtn} ${styles.active}`}>Tất cả</button>
-        <button className={styles.tabBtn}>Mới</button>
+        <button className={styles.tabBtn}>Chờ xử lý</button>
         <button className={styles.tabBtn}>Đang xử lý</button>
-        <button className={styles.tabBtn}>Đang vận chuyển</button>
+        <button className={styles.tabBtn}>Đang giao</button>
+        <button className={styles.tabBtn}>Đã giao</button>
         <button className={styles.tabBtn}>Hoàn thành</button>
-        <button className={styles.tabBtn}>Hủy</button>
+        <button className={styles.tabBtn}>Đã hủy</button>
       </div>
 
       {/* Search */}

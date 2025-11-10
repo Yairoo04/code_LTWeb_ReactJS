@@ -1,15 +1,17 @@
 .wrapper {
   background: #fff;
-  padding: 20px;
+  padding: 24px;
   border: 1px solid #eee;
-  border-radius: 6px;
+  border-radius: 10px;
   max-width: 700px;
+  margin: 0 auto;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  color: #333;
 }
 
 .form {
@@ -24,62 +26,96 @@
   gap: 15px;
 
   label {
-    width: 150px;
+    width: 160px;
     font-weight: 500;
+    color: #222;
   }
 
-  input,
-  select {
+  input {
     flex: 1;
     padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     font-size: 14px;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #d32f2f;
+    }
   }
 
   input:disabled {
-    background: #f9f9f9;
-    color: #555;
+    background: #f5f5f5;
+    color: #777;
   }
 }
 
-.radioGroup {
-  display: flex;
-  gap: 20px;
-
-  label {
-    font-weight: 400;
-  }
-}
-
-.birthday {
-  display: flex;
-  gap: 10px;
-
-  select {
-    flex: 1;
-  }
-}
-
-.action {
-  margin-top: 20px;
-  text-align: left;
-}
-
+/* ==== Nút lưu ==== */
 .formActions {
-  text-align: center; 
+  text-align: center;
+  margin-top: 15px;
 }
 
-.submitBtn {
+.saveBtn {
   background: #d32f2f;
   color: #fff;
   border: none;
   padding: 10px 25px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  transition: background 0.2s;
 
   &:hover {
     background: #b71c1c;
   }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }
+
+.radioWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 24px; /* khoảng cách giữa Nam / Nữ / Khác */
+}
+
+.radioItem {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* khoảng cách giữa nút tròn và chữ */
+  font-size: 15px;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Reset style trong phạm vi module */
+.radioItem input[type='radio'] {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  accent-color: #d32f2f;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  cursor: pointer;
+  appearance: auto !important;
+  scale: 1 !important;
+}
+
+/* Reset toàn cục – dùng :global() để tránh lỗi */
+:global(input[type='radio']) {
+  margin: 0 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.radioItem input[type='radio'] {
+  position: relative;
+  top: 1px;
+}
+
