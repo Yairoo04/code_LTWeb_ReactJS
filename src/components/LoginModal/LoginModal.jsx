@@ -82,7 +82,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
 
       const userData = {
         id: data.user?.id,
-        fullname: data.user?.fullname || "Người dùng Google",
+        fullname: data.user?.fullname || data.user?.username || "Người dùng Google",
         email: data.user?.email,
         phone: data.user?.phone || "",
         role: data.user?.role || "Customer",

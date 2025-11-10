@@ -4,16 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
-import { FaUser as ReactFaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
-
-// THÊM IMPORT SEARCHBO
-import SearchBox from '../Search/SearchBox'; // Đảm bảo đường dẫn đúng
+import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
+import SearchBox from '../Search/SearchBox';
 
 export default function Header() {
   const pathname = usePathname();
@@ -25,7 +23,7 @@ export default function Header() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const headerRef = useRef(null);
 
-  // Tô đậm menu khi đang ở trang hiện tại
+  // Tô đậm menu
   useEffect(() => {
     document.querySelectorAll('#menu-list-showroom li a').forEach((link) => {
       const linkPath = new URL(link.href, window.location.origin).pathname;
@@ -33,48 +31,41 @@ export default function Header() {
     });
   }, [pathname]);
 
-  // Khi login thành công
+  // Login success
   const handleLoginSuccess = (userData) => {
-    // Nếu fullname rỗng => gán "Người dùng"
-    const name = userData.fullname && userData.fullname.trim() !== ""
-      ? userData.fullname
-      : "Người dùng";
-
+    const name = userData.fullname?.trim() || "Người dùng";
     const data = {
       name,
       email: userData.email || "",
       phone: userData.phone || "",
       role: userData.role || "Customer",
     };
-
     localStorage.setItem("user", JSON.stringify(data));
     setUser(data);
     setIsLoginOpen(false);
   };
 
-  // Lấy thông tin user đã lưu
+  // Load user
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
-  // Đăng xuất
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
     setDropdownOpen(false);
   };
 
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
-
-  // Sticky header logic
+  // Sticky header
   useEffect(() => {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight);
     }
 
     const handleScroll = () => {
-      setIsSticky(window.scrollY > 0);
+      setIsSticky(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -83,83 +74,83 @@ export default function Header() {
 
   return (
     <header className={styles.mainHeader}>
-      {/* Banner top */}
-      <div className={styles.listBanner}>
+      {/* Banner top (nếu có) */}
+      <div className={styles.topBanner}>
         <ContainerFluid>
-          <div className={styles.topBanner}>
-            <img src="/images/top-banner.gif" alt="Top Banner" className={styles.imgBanner} />
-          </div>
+          <img src="/images/top-banner.gif" alt="Top Banner" className={styles.bannerImg} />
         </ContainerFluid>
       </div>
 
       {/* Header chính */}
       <div
         ref={headerRef}
-        className={`${styles['main-header--top']} ${isSticky ? styles.sticky : ''}`}
+        className={`${styles.headerTop} ${isSticky ? styles.sticky : ''}`}
       >
         <ContainerFluid>
-          <div className={styles.menu}>
-            <Link href={config.routes.home}>
-              <img src="/images/logo.jpg" alt="GTN Logo" className={styles.imgLogo} />
+          <div className={styles.headerInner}>
+            {/* Logo */}
+            <Link href={config.routes.home} className={styles.logo}>
+              <img src="/images/logo.jpg" alt="GTN" />
             </Link>
 
-            <div className={styles.category}>
-              <FontAwesomeIcon icon={faBars} /> Danh mục
+            {/* Danh mục */}
+            <div className={styles.categoryMenu}>
+              <FontAwesomeIcon icon={faBars} />
+              <span>Danh mục</span>
             </div>
 
-            {/* THAY THẾ PHẦN SEARCH CŨ BẰNG SEARCHBOX */}
-            <div className={styles.searchContainer}>
+            {/* Thanh tìm kiếm */}
+            <div className={styles.searchWrapper}>
               <SearchBox />
             </div>
-            {/* KẾT THÚC */}
 
+            {/* Hotline */}
             <div className={styles.hotline}>
               <FontAwesomeIcon icon={faPhone} />
-              <div className={styles.hotlineText}>
+              <div>
                 <span>Hotline</span>
-                <span>1900.1000</span>
+                <strong>1900.5301</strong>
               </div>
             </div>
 
-            <Link href={config.routes.showroom}>
-              <div className={styles.showroomSystem}>
-                <FontAwesomeIcon icon={faStore} />
-                <div className={styles.showroomSystemText}>
-                  <span>Hệ thống</span>
-                  <span>Showroom</span>
-                </div>
+            {/* Hệ thống showroom */}
+            <Link href={config.routes.showroom} className={styles.showroom}>
+              <FontAwesomeIcon icon={faStore} />
+              <div>
+                <span>Hệ thống</span>
+                <strong>Showroom</strong>
               </div>
             </Link>
 
-            <div className={styles.trackOder}>
+            {/* Tra cứu đơn hàng */}
+            <div className={styles.trackOrder}>
               <FontAwesomeIcon icon={faTruck} />
-              <div className={styles.trackOderText}>
+              <div>
                 <span>Tra cứu</span>
-                <span>đơn hàng</span>
+                <strong>đơn hàng</strong>
               </div>
             </div>
 
-            <Link href={config.routes.cart}>
-              <div className={styles.userCart}>
-                <div className={styles.iconCart}>
-                  <FontAwesomeIcon icon={faShoppingCart} />
-                  <span className={styles.quantity}>0</span>
-                </div>
-                <div className={styles.userCartText}>
-                  <span>Giỏ</span>
-                  <span>hàng</span>
-                </div>
+            {/* Giỏ hàng */}
+            <Link href={config.routes.cart} className={styles.cart}>
+              <div className={styles.cartIcon}>
+                <FontAwesomeIcon icon={faShoppingCart} />
+                <span className={styles.cartCount}>0</span>
+              </div>
+              <div>
+                <span>Giỏ</span>
+                <strong>hàng</strong>
               </div>
             </Link>
 
-            {/* User Menu */}
-            <nav className={styles.nav}>
+            {/* Tài khoản */}
+            <div className={styles.account}>
               {!user ? (
-                <button onClick={() => setIsLoginOpen(true)} className={styles.login}>
+                <button onClick={() => setIsLoginOpen(true)} className={styles.loginBtn}>
                   <FontAwesomeIcon icon={faUser} />
-                  <div className={styles.titleLogin}>
-                    <span>Đăng </span>
-                    <span>nhập</span>
+                  <div>
+                    <span>Đăng</span>
+                    <strong>nhập</strong>
                   </div>
                 </button>
               ) : (
@@ -168,15 +159,21 @@ export default function Header() {
                   onMouseEnter={() => setDropdownOpen(true)}
                   onMouseLeave={() => setDropdownOpen(false)}
                 >
-                  {/*Hiển thị fullname nếu có, ngược lại hiển thị "Người dùng" */}
-                  <span className={styles.userName} onClick={toggleDropdown}>
-                    Xin chào {user.name}
+                  <span className={styles.userGreeting}>
+                    <span className={styles.greetingBox}>
+                      <span className={styles.wave}>👋</span>
+                      <div className={styles.textWrapper}>
+                        <span className={styles.helloText}>Xin chào</span>
+                        <strong className={styles.username}>{user.name}</strong>
+                      </div>
+                    </span>
                   </span>
+
 
                   {dropdownOpen && (
                     <div className={styles.dropdown}>
                       <Link href="/tai-khoan/thong-tin" className={styles.dropdownItem}>
-                        <ReactFaUser className={styles.icon} /> Thông tin tài khoản
+                        <FaUser className={styles.icon} /> Thông tin tài khoản
                       </Link>
                       <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
                         <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
@@ -184,40 +181,42 @@ export default function Header() {
                       <Link href="/tai-khoan/san-pham-da-xem" className={styles.dropdownItem}>
                         <FaEye className={styles.icon} /> Đã xem gần đây
                       </Link>
-                      <p className={styles.dropdownItem} onClick={handleLogout}>
+                      <div className={styles.dropdownItem} onClick={handleLogout}>
                         <FaSignOutAlt className={styles.icon} /> Đăng xuất
-                      </p>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
-            </nav>
-
-            {/* Modal */}
-            <LoginModal
-              isOpen={isLoginOpen}
-              onClose={() => setIsLoginOpen(false)}
-              onSwitchToRegister={() => {
-                setIsLoginOpen(false);
-                setIsRegisterOpen(true);
-              }}
-              onLoginSuccess={handleLoginSuccess}
-            />
-
-            <RegisterModal
-              isOpen={isRegisterOpen}
-              onClose={() => setIsRegisterOpen(false)}
-              onSwitchToLogin={() => {
-                setIsRegisterOpen(false);
-                setIsLoginOpen(true);
-              }}
-            />
+            </div>
           </div>
         </ContainerFluid>
       </div>
+
+      {/* Placeholder khi sticky */}
       <div
         className={`${styles.headerPlaceholder} ${isSticky ? styles.active : ''}`}
-        style={{ height: `${headerHeight}px` }}
+        style={{ height: isSticky ? `${headerHeight}px` : '0' }}
+      />
+
+      {/* Modal */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSwitchToRegister={() => {
+          setIsLoginOpen(false);
+          setIsRegisterOpen(true);
+        }}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onSwitchToLogin={() => {
+          setIsRegisterOpen(false);
+          setIsLoginOpen(true);
+        }}
       />
     </header>
   );
