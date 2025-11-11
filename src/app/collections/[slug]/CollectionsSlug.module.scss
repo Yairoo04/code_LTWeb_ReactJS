@@ -1,0 +1,303 @@
+.mainCollections {
+  padding: 0 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .breadcrumbWrap {
+    background: transparent;
+    overflow: hidden;
+    flex-wrap: wrap;
+    padding: 14px 0px;
+
+    .breadcrumbList {
+      font-size: 14px;
+      color: #666;
+      display: flex;
+
+      a {
+        color: #007bff;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .breadcrumbArrow {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        .icon {
+          color: #1250dc;
+          margin-right: 8px;
+        }
+
+        li {
+          color: #6D6E72;
+          display: flex;
+          align-items: center;
+
+          &:not(:last-child)::after {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 12px;
+            margin: 0 8px;
+            background-image: url("data:image/svg+xml,%3Csvg width='5' height='12' viewBox='0 0 5 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.97791 0.554644C4.99721 0.50084 5.00396 0.444304 4.99778 0.388264C4.99159 0.332224 4.97259 0.277777 4.94185 0.228032C4.91112 0.178287 4.86925 0.134218 4.81865 0.0983413C4.76804 0.0624647 4.70969 0.0354829 4.64692 0.0189366C4.58415 0.00239027 4.51819 -0.00339659 4.45282 0.00190639C4.38744 0.00720936 4.32392 0.0234984 4.26588 0.0498433C4.20785 0.0761883 4.15644 0.112073 4.11458 0.155449C4.07273 0.198826 4.04125 0.248843 4.02194 0.302647L0.0220929 11.4454C-0.0168925 11.554 -0.00392229 11.6715 0.0581499 11.772C0.120222 11.8724 0.226312 11.9476 0.353081 11.9811C0.47985 12.0145 0.616913 12.0034 0.734119 11.9502C0.851324 11.8969 0.939072 11.806 0.978058 11.6974L4.97791 0.554644Z' fill='%231250dc'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+          }
+
+          a {
+            color: #2563eb;
+            text-decoration: none;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+
+          strong {
+            font-weight: 400;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Filter Bar (only sort in this page) */
+.filterBar {
+  padding: 10px 0; // Reduced padding for tighter layout
+  margin-bottom: 20px; // Space below the bar
+
+  .filterWrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .filterSelect {
+    background: #FFFFFF;
+    border: 1px solid #CFCFCF;
+    cursor: pointer;
+    border-radius: 4px;
+    height: 36px;
+    padding: 4px 28px 4px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 3;
+
+    &:after {
+      content: '▼';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: #666;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #aaa;
+    }
+  }
+
+  .collectionSortby {
+    display: flex;
+    justify-content: flex-end; // Align sort to the right
+  }
+
+  .selectWrapper {
+    position: relative;
+    display: inline-block;
+    min-width: 180px; // Ensure enough width for dropdown
+
+    .listboxButton {
+      display: flex;
+      align-items: center;
+      padding: 4px 28px 4px 10px;
+      border: 1px solid #CFCFCF;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #fff;
+      height: 36px;
+      font-size: 14px;
+      color: #333;
+      width: 100%; // Full width of wrapper
+
+      &.active {
+        background-color: #f0f0f0;
+        border-color: #aaa;
+      }
+
+      svg {
+        margin-right: 8px;
+      }
+    }
+
+    .sortbyControl {
+      display: flex;
+      align-items: center;
+      position: relative;
+      width: 100%;
+    }
+
+    .listboxText {
+      margin-right: 4px;
+      font-size: 14px;
+    }
+
+    .listboxValue {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .dropdownIcon {
+      position: absolute;
+      right: -25%;
+      top: 30%;
+      transform: translateY(-50%);
+      color: #666;
+      font-size: 13px;
+      pointer-events: none;
+    }
+  }
+
+  .dropdownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    background-color: #fff;
+    border: 1px solid #CFCFCF;
+    border-radius: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0 0; // Slight space from button
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .dropdownItem {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    &.selected {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+  }
+}
+
+.collectionsContainer {
+  background-color: #fff;
+  padding: 20px;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  margin-bottom: 20px; // Space before load more
+
+  .notFoundProduct {
+    grid-column: span 5; // Span full width
+    text-align: center; // Center text
+    padding: 40px 0; // More padding for empty state
+    font-size: 16px;
+    color: #666;
+  }
+}
+
+/* Load More */
+.loadMoreContainer {
+  text-align: center;
+  margin: 20px 0 40px; // More bottom margin
+
+  .loadMoreButton {
+    background-color: #fff;
+    color: #2a83e9;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 64px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid #2a83e9;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+      background-color: #2a83e9;
+      color: #fff;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .productGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .filterBar {
+    padding: 10px 0;
+  }
+
+  .loadMoreContainer {
+    margin: 15px 0 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .productGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .breadcrumbWrap {
+    padding: 10px 0;
+
+    .breadcrumbList {
+      font-size: 12px;
+    }
+  }
+
+  .filterBar .selectWrapper {
+    min-width: 100%; // Full width on mobile
+  }
+
+  .loadMoreButton {
+    width: 100%; // Full width button on mobile
+    padding: 4px 0;
+  }
+}

@@ -1,4 +1,3 @@
-// app/(components)/Product/ProductCard.tsx
 'use client';
 
 import React from 'react';
@@ -12,10 +11,9 @@ type FrontendProduct = {
   description?: string;
   price: number;
   discountPrice?: number | null;
-  category?: string | null;
+  categoryId?: number | null; // Sync with collection
   stock?: number;
   image_url?: string;
-  created_at?: string;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -61,7 +59,7 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
   const discountPercent = hasDiscount ? Math.round(((product.price - discountPrice) / product.price) * 100) : 0;
 
   const handleClick = async () => {
-    // Hardcode userId = 1 as per your example
+    // Hardcode userId = 1 as per your example (consider making dynamic)
     await addToRecentView(1, product.id);
   };
 
