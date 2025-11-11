@@ -1,178 +1,60 @@
+// Component MegaMenu (giữ nguyên href với /search, không replace nữa)
+
 import React from "react";
+import { megaMenuData } from "../../../lib/data"; // Import từ data.js (thay đường dẫn nếu cần)
 import styles from "./MegaMenu.module.scss";
 
-const MegaMenuColumn = ({ title, items }) => (
-    <div className={styles["megamenu-column"]}>
-        <h4>{title}</h4>
-        {items.map((item, index) => (
-            <a key={index} href={item.href}>
-                {item.text}
-            </a>
-        ))}
-    </div>
-);
-
-const CommonMegaMenuContent = () => (
-    <>
-        <MegaMenuColumn
-            title="PC RTX 50 SERIES"
-            items={[
-                { href: "#", text: "PC RTX 5090" },
-                { href: "#", text: "PC RTX 5080" },
-                { href: "#", text: "PC RTX 5070Ti" },
-                { href: "#", text: "PC RTX 5070" },
-                { href: "#", text: "PC RTX 5060Ti" },
-                { href: "#", text: "PC RTX 5060 (HOT)" },
-            ]}
-        />
-        <MegaMenuColumn
-            title="PC HOT CHIẾN HỎ"
-            items={[
-                { href: "#", text: "I5 - 5060 - chỉ từ 18tr" },
-                { href: "#", text: "I5 - 4060 - 17TR" },
-                { href: "#", text: "I5 - 3060 - 15TR" },
-                { href: "#", text: "I3 - 3050 - 11TR" },
-                { href: "#", text: "I3 - RX6500XT - 10TR" },
-            ]}
-        />
-        <MegaMenuColumn
-            title="PC khuyến mãi KHỦNG"
-            items={[
-                { href: "#", text: "BUILD PC TẶNG MÀN 240HZ" },
-                { href: "#", text: "GVN x MSI - Tặng màn hình OLED" },
-                { href: "#", text: "GVN x CORSAIR - Tặng tản nhiệt 5TR" },
-                { href: "#", text: "GVN x ASUS - MAX SETTING" },
-            ]}
-        />
-        <MegaMenuColumn
-            title="PC theo cấu hình VGA"
-            items={[
-                { href: "#", text: "PC RTX 3050" },
-                { href: "#", text: "PC RX6500XT" },
-                { href: "#", text: "PC RTX 3060 (12GB)" },
-                { href: "#", text: "PC RTX 4060" },
-                { href: "#", text: "PC RTX 4070 Super" },
-            ]}
-        />
-        <MegaMenuColumn
-            title="A.I PC - GVN"
-            items={[
-                { href: "#", text: "PC GVN x ASUS - PBA" },
-                { href: "#", text: "PC GVN x MSI" },
-            ]}
-        />
-        <MegaMenuColumn
-            title="PC theo CPU Intel"
-            items={[
-                { href: "#", text: "PC Core I3" },
-                { href: "#", text: "PC Core I5" },
-                { href: "#", text: "PC Core I7" },
-                { href: "#", text: "PC Core I9" },
-            ]}
-        />
-        <MegaMenuColumn
-            title="PC theo CPU AMD"
-            items={[
-                { href: "#", text: "PC Ryzen 3" },
-                { href: "#", text: "PC Ryzen 5" },
-                { href: "#", text: "PC Ryzen 7" },
-                { href: "#", text: "PC Ryzen 9" },
-            ]}
-        />
-    </>
+const MegaMenuColumn = ({ subItem }) => (
+  <div className={styles["sub-megamenu-item"]}>
+    <a className={styles["sub-megamenu-item-name"]} href={subItem.nameHref || "/search?q=laptop"}>
+      {subItem.name}
+    </a>
+    {subItem.filters.map((filter, index) => (
+      <a key={index} className={styles["sub-megamenu-item-filter"]} href={filter.href}>
+        {filter.text}
+      </a>
+    ))}
+  </div>
 );
 
 const MegaMenu = () => {
-  const menuItems = [
-    {
-      icon: "bx bx-desktop",
-      title: "PC Gaming",
-      className: "megamenu-nav-1",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Laptop Gaming",
-      className: "megamenu-nav-2",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Laptop Văn Phòng",
-      className: "megamenu-nav-3",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Main, CPU, VGA",
-      className: "megamenu-nav-4",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Case, Nguồn, Tản",
-      className: "megamenu-nav-5",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Ổ cứng, RAM",
-      className: "megamenu-nav-6",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Loa, Webcam",
-      className: "megamenu-nav-7",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Màn hình",
-      className: "megamenu-nav-8",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Bàn phím",
-      className: "megamenu-nav-9",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Chuột GTN",
-      className: "megamenu-nav-10",
-      content: <CommonMegaMenuContent />,
-    },
-    {
-      icon: "bx bx-desktop",
-      title: "Tai nghe",
-      className: "megamenu-nav-11",
-      content: <CommonMegaMenuContent />,
-    },
-  ];
-
   return (
     <>
-      <div className="megamenu-nav">
-        <ul className="megamenu-nav-main">
-          {menuItems.map((item, index) => (
-            <li key={index} className={item.className}>
-              <i className={item.icon}></i>
-              <span>{item.title}</span>
-              <i className="bx bx-chevron-right"></i>
-              <div className={`megamenu-content megamenu-content-${index + 1}`}>
-                {item.content}
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className={styles["megamenu-nav-container"]}>
+        <nav className={styles["megamenu-nav"]}>
+          <ul className={styles["megamenu-nav-main"]}>
+            {megaMenuData.map((item, index) => (
+              <li key={index} className={`${styles["megamenu-item"]} ${styles[`mg-${index + 1}`]}`}>
+                <a className={styles["megamenu-link"]} href={item.href}>
+                  <span
+                    className={styles["megamenu-icon"]}
+                    data-hover={item.title.toLowerCase().replace(/ /g, "-")}
+                    dangerouslySetInnerHTML={{ __html: item.icon }}
+                  ></span>
+                  <span className={styles["megamenu-name"]}>{item.title}</span>
+                  <span className={styles["megamenu-ic-right"]}>
+                    <svg viewBox="0 0 6 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1.5 1.5L4.5 4L1.5 6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </a>
+                <div className={`${styles["megamenu-content"]} ${styles["absolute-center"]} ${styles["level0"]} ${styles["xlab_grid_container"]}`}>
+                  <div className={`${styles.column} ${styles.xlab_column_5_5}`}>
+                    {item.subItems.map((subItem, subIndex) => (
+                      <MegaMenuColumn key={subIndex} subItem={subItem} />
+                    ))}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
-      <div className="main-banner">
-        <div className="small-banner">
+      <div className={styles["main-banner"]}>
+        <div className={styles["small-banner"]}>
           <img src="./images/right-small-banner1.gif" alt="Banner 1" />
         </div>
-        <div className="small-banner">
+        <div className={styles["small-banner"]}>
           <img src="./images/right-small-banner1.gif" alt="Banner 2" />
         </div>
       </div>
