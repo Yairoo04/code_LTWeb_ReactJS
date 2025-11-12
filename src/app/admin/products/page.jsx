@@ -30,7 +30,7 @@ export default function ProductPage() {
     discountPrice: "",
     stockQuantity: "",
     categoryId: "",
-    imageUrl: "",
+    images: [], // Đổi từ imageUrl sang images array
     sku: "",
   });
 
@@ -89,6 +89,17 @@ export default function ProductPage() {
 
   function openEditModal(product) {
     setEditingProduct(product);
+    // Parse images từ ImageUrl (giả sử lưu dạng comma-separated hoặc JSON array)
+    let imagesList = [];
+    if (product.ImageUrl) {
+      try {
+        // Thử parse JSON array trước
+        imagesList = JSON.parse(product.ImageUrl);
+      } catch {
+        // Nếu không phải JSON, coi như string đơn
+        imagesList = product.ImageUrl.split(',').filter(Boolean);
+      }
+    }
     setFormData({
       productName: product.ProductName || "",
       description: product.Description || "",
@@ -96,7 +107,7 @@ export default function ProductPage() {
       discountPrice: product.DiscountPrice || "",
       stockQuantity: product.StockQuantity || "",
       categoryId: product.CategoryId || "",
-      imageUrl: product.ImageUrl || "",
+      images: imagesList.map(url => ({ url, uploaded: true })),
       sku: product.SKU || "",
     });
   }
@@ -110,7 +121,7 @@ export default function ProductPage() {
       discountPrice: "",
       stockQuantity: "",
       categoryId: "",
-      imageUrl: "",
+      images: [],
       sku: "",
     });
   }
@@ -125,48 +136,69 @@ export default function ProductPage() {
       discountPrice: "",
       stockQuantity: "",
       categoryId: "",
-      imageUrl: "",
+      images: [],
       sku: "",
     });
   }
 
   async function handleImageUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
     try {
       setUploading(true);
-      const formDataUpload = new FormData();
-      formDataUpload.append("file", file);
+      const uploadPromises = files.map(async (file) => {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
 
-      const res = await fetch(`${API_BASE}/api/upload`, {
-        method: "POST",
-        body: formDataUpload,
+        const res = await fetch(`${API_BASE}/api/upload`, {
+          method: "POST",
+          body: formDataUpload,
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          return { url: data.imageUrl, uploaded: true };
+        } else {
+          throw new Error(data.error || "Upload failed");
+        }
       });
-      const data = await res.json();
 
-      if (data.success) {
-        setFormData({ ...formData, imageUrl: data.imageUrl });
-      } else {
-        alert("Upload ảnh thất bại: " + (data.error || "Unknown error"));
-      }
+      const uploadedImages = await Promise.all(uploadPromises);
+      setFormData(prev => ({ 
+        ...prev, 
+        images: [...prev.images, ...uploadedImages] 
+      }));
     } catch (error) {
       console.error("Failed to upload image:", error);
-      alert("Upload ảnh thất bại!");
+      alert("Upload ảnh thất bại: " + error.message);
     } finally {
       setUploading(false);
     }
   }
 
+  function deleteImage(index) {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  }
+
   async function saveProduct() {
     if (!editingProduct) return;
     try {
+      // Chuyển images array thành JSON string để lưu vào DB
+      const imageUrlString = JSON.stringify(formData.images.map(img => img.url));
+      
       const res = await fetch(`${API_BASE}/api/admin/products`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: editingProduct.ProductId,
-          data: formData,
+          data: {
+            ...formData,
+            imageUrl: imageUrlString, // Backend vẫn nhận imageUrl
+          },
         }),
       });
       const data = await res.json();
@@ -188,10 +220,15 @@ export default function ProductPage() {
       return;
     }
     try {
+      const imageUrlString = JSON.stringify(formData.images.map(img => img.url));
+      
       const res = await fetch(`${API_BASE}/api/admin/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          imageUrl: imageUrlString,
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -332,7 +369,7 @@ export default function ProductPage() {
                   />
                 </div>
                 <div className={styles.content}>
-                  <div className={styles.title} title={p.ProductName}>
+                  <div className={styles.title}>
                     {p.ProductName}
                   </div>
                   <div className={styles.metaRow}>
@@ -417,21 +454,38 @@ export default function ProductPage() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Ảnh sản phẩm</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                />
-                {uploading && <span style={{ fontSize: "12px", color: "#2563eb" }}>Đang upload...</span>}
-                {formData.imageUrl && (
-                  <div style={{ marginTop: "8px" }}>
-                    <img 
-                      src={formData.imageUrl} 
-                      alt="Preview" 
-                      style={{ maxWidth: "200px", maxHeight: "150px", objectFit: "contain", border: "1px solid #e5e7eb", borderRadius: "8px" }}
-                    />
+                <label>Ảnh sản phẩm (có thể chọn nhiều)</label>
+                <div className={styles.imageUploadZone}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                  <svg className={styles.uploadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <div className={styles.uploadText}>Nhấp để chọn hoặc kéo thả ảnh vào đây</div>
+                  <div className={styles.uploadHint}>Hỗ trợ: JPG, PNG, GIF (Tối đa 5MB mỗi ảnh)</div>
+                </div>
+                {uploading && (
+                  <div className={styles.uploadingIndicator}>Đang upload ảnh...</div>
+                )}
+                {formData.images.length > 0 && (
+                  <div className={styles.imagesPreviewGrid}>
+                    {formData.images.map((img, index) => (
+                      <div key={index} className={styles.imagePreviewCard}>
+                        <img src={img.url} alt={`Preview ${index + 1}`} />
+                        <button
+                          className={styles.deleteImageBtn}
+                          onClick={() => deleteImage(index)}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -532,20 +586,46 @@ export default function ProductPage() {
               </div>
               <div className={styles.formGroup}>
                 <label>Ảnh sản phẩm</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                />
-                {uploading && <span style={{ fontSize: "12px", color: "#2563eb" }}>Đang upload...</span>}
-                {formData.imageUrl && (
-                  <div style={{ marginTop: "8px" }}>
-                    <img 
-                      src={formData.imageUrl} 
-                      alt="Preview" 
-                      style={{ maxWidth: "200px", maxHeight: "150px", objectFit: "contain", border: "1px solid #e5e7eb", borderRadius: "8px" }}
-                    />
+                <div className={styles.imageUploadZone}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                  {uploading ? (
+                    <div className={styles.uploadingIndicator}>
+                      <div className={styles.spinner}></div>
+                      <div>Đang tải lên...</div>
+                    </div>
+                  ) : (
+                    <>
+                      <svg className={styles.uploadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <div>
+                        <div>Nhấp để chọn hoặc kéo thả ảnh vào đây</div>
+                        <div className={styles.uploadHint}>Hỗ trợ nhiều ảnh, tối đa 5MB mỗi file</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {formData.images.length > 0 && (
+                  <div className={styles.imagesPreviewGrid}>
+                    {formData.images.map((img, index) => (
+                      <div key={index} className={styles.imagePreviewCard}>
+                        <img src={img.url} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className={styles.deleteImageBtn}
+                          onClick={() => deleteImage(index)}
+                          title="Xóa ảnh"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
