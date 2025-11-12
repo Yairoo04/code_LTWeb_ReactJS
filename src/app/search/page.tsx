@@ -33,6 +33,7 @@ type FrontendProduct = {
   category?: string | null;
   stock?: number;
   image_url?: string;
+  ImageUrl?: string; // Thêm để support parse nhiều ảnh
   created_at?: string;
 };
 
@@ -45,6 +46,7 @@ const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => ({
   description: product.Description,
   price: product.Price,
   discountPrice: product.DiscountPrice ?? null,
+  ImageUrl: product.ImageUrl, // Thêm ImageUrl để ProductCard parse được
   image_url: product.ImageUrl,
   stock: product.Stock ?? 0,
 });
@@ -54,10 +56,11 @@ const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => ({
 // ===============================
 async function fetchSearchResults(query: string) {
   if (!query) return [];
-  const res = await fetch(`http://localhost:4000/api/products/search?q=${encodeURIComponent(query)}`);
+  // Sửa endpoint: dùng /api/products với keyword param
+  const res = await fetch(`http://localhost:4000/api/products?keyword=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error('Failed to fetch search results');
-  const { data } = await res.json();
-  return data || [];
+  const json = await res.json();
+  return json.success ? json.data : [];
 }
 
 // ===============================

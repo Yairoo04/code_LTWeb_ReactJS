@@ -75,12 +75,120 @@
     .productImages {
       flex: 1 1 50%;
       max-width: 50%;
-
-      .mainImage {
+      
+      .mainImageContainer {
+        position: relative;
         width: 100%;
-        height: auto;
-        border: 1px solid #ddd;
+        margin-bottom: 16px;
+        background: #f8f9fa;
         border-radius: 8px;
+        overflow: hidden;
+        
+        .mainImage {
+          width: 100%;
+          height: auto;
+          max-height: 600px;
+          object-fit: contain;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          display: block;
+          background: white;
+        }
+        
+        .imageNav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(0, 0, 0, 0.5);
+          color: white;
+          border: none;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          font-size: 24px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s;
+          z-index: 2;
+          
+          &:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: translateY(-50%) scale(1.1);
+          }
+          
+          &.imagePrev {
+            left: 10px;
+          }
+          
+          &.imageNext {
+            right: 10px;
+          }
+        }
+      }
+      
+      .thumbnailsContainer {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 8px 0;
+        
+        .thumbnail {
+          flex-shrink: 0;
+          width: 80px;
+          height: 80px;
+          border: 2px solid #ddd;
+          border-radius: 6px;
+          overflow: hidden;
+          cursor: pointer;
+          background: none;
+          padding: 0;
+          transition: all 0.3s;
+          
+          &:hover {
+            border-color: #2563eb;
+          }
+          
+          &.active {
+            border-color: #2563eb;
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+          }
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+      }
+      
+      .dotsContainer {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+        
+        .dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #ddd;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          transition: all 0.3s;
+          
+          &:hover {
+            background: #999;
+          }
+          
+          &.active {
+            background: #2563eb;
+            width: 12px;
+            height: 12px;
+          }
+        }
       }
     }
 

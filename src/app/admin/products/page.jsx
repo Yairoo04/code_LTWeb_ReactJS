@@ -34,6 +34,24 @@ export default function ProductPage() {
     sku: "",
   });
 
+  // Helper function to get first image from ImageUrl
+  function getFirstImageUrl(imageUrl) {
+    if (!imageUrl) return "/images/products/keychron_k2.jpg";
+    
+    try {
+      // Try parsing as JSON array
+      const parsed = JSON.parse(imageUrl);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed[0];
+      }
+      return imageUrl;
+    } catch {
+      // If not JSON, try splitting by comma
+      const images = imageUrl.split(',').filter(Boolean);
+      return images[0] || imageUrl;
+    }
+  }
+
   // Fetch products từ API khi component mount
   useEffect(() => {
     fetchProducts();
@@ -360,7 +378,7 @@ export default function ProductPage() {
                     <span className={styles.badgeInactive}>Đã ẩn</span>
                   ) : null}
                   <img
-                    src={p.ImageUrl || "/images/products/keychron_k2.jpg"}
+                    src={getFirstImageUrl(p.ImageUrl)}
                     alt={p.ProductName}
                     loading="lazy"
                     onError={(e) => {

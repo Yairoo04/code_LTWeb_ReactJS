@@ -14,6 +14,7 @@ type FrontendProduct = {
   categoryId?: number | null; // Sync with collection
   stock?: number;
   image_url?: string;
+  ImageUrl?: string; // Add this to support backend's ImageUrl field
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -21,6 +22,24 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000'
 function formatVND(n?: number) {
   if (typeof n !== 'number') return '';
   return new Intl.NumberFormat('vi-VN').format(n) + '₫';
+}
+
+// Parse ImageUrl to get first image
+function getFirstImage(imageUrl?: string): string {
+  if (!imageUrl) return '/images/placeholder.png';
+  
+  try {
+    // Try parsing as JSON array
+    const parsed = JSON.parse(imageUrl);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed[0];
+    }
+    return imageUrl;
+  } catch {
+    // If not JSON, try splitting by comma
+    const images = imageUrl.split(',').filter(Boolean);
+    return images[0] || imageUrl;
+  }
 }
 
 async function addToRecentView(userId: number, productId: number) {
@@ -48,9 +67,18 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
     );
   }
 
-  const imgSrc = product.image_url
-    ? `${API_BASE}${product.image_url}`
-    : '/images/placeholder.png';
+  // Support both image_url and ImageUrl fields
+  const imageField = product.ImageUrl || product.image_url;
+  const firstImage = getFirstImage(imageField);
+  
+  // Ảnh đã được upload vào frontend public folder, không cần API_BASE
+  // Chỉ thêm API_BASE nếu là external URL (bắt đầu bằng http)
+  const imgSrc = firstImage.startsWith('http') ? firstImage : firstImage;
+  
+  // Debug log
+  if (!imageField) {
+    console.warn('Product missing images:', product.id, product.name);
+  }
 
   const inStock = (product.stock ?? 0) > 0;
 
@@ -70,6 +98,10 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
           src={imgSrc}
           alt={product.name || 'Unnamed product'}
           loading="lazy"
+          onError={(e) => {
+            // Fallback nếu ảnh lỗi
+            e.currentTarget.src = '/images/products/keychron_k2.jpg';
+          }}
         />
         <div className={styles.info}> {/* Nếu cần, thêm styles.info */}
           <div

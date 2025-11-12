@@ -10,6 +10,7 @@ import ContainerFluid from '@/pages/main_Page/ContainerFluid/container-fluid';
 import RecentView from '@/pages/main_Page/RecentViewProducts/RecentView';
 import SectionCollection from '@/pages/main_Page/sectionCollection/SectionCollection';
 import SpecsTable from './SpecsTable'; // Import the new client component
+import ProductImageGallery from './ProductImageGallery'; // New component
 
 // Function to fetch product data including specs
 async function fetchProduct(productId: string) {
@@ -25,11 +26,25 @@ async function fetchProduct(productId: string) {
   return data;
 }
 
+// Parse ImageUrl thành array
+function parseImages(imageUrl: string): string[] {
+  if (!imageUrl) return [];
+  try {
+    // Thử parse JSON array
+    const parsed = JSON.parse(imageUrl);
+    return Array.isArray(parsed) ? parsed : [imageUrl];
+  } catch {
+    // Nếu không phải JSON, tách bằng dấu phẩy
+    return imageUrl.split(',').filter(Boolean);
+  }
+}
+
 export default async function ProductDetailPage({ params }: { params: Promise<{ productId: string }> }) {
   const resolvedParams = await params;
   const data = await fetchProduct(resolvedParams.productId);
   const product = data.product;
   const specs = data.specs || []; // Default to empty array if no specs
+  const images = parseImages(product.ImageUrl); // Parse images from ImageUrl
 
   return (
     <>
@@ -52,16 +67,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
         {/* Product Header Section */}
         <section className={styles.productHeader}>
-          <div className={styles.productImages}>
-            <Image
-              src={product.ImageUrl}
-              alt={product.Name}
-              width={600}
-              height={600}
-              className={styles.mainImage}
-            />
-            {/* Add thumbnail carousel if multiple images */}
-          </div>
+          <ProductImageGallery images={images} productName={product.Name} />
           <div className={styles.productInfo}>
             <h1>{product.Name}</h1>
             <div className={styles.price}>
