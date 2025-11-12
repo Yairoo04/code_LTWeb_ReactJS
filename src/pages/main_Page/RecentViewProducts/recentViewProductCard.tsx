@@ -15,8 +15,26 @@ function calculateDiscountPercent(price: number, discountPrice: number): string 
   return `-${rounded}%`;
 }
 
+// Parse ImageUrl to get first image
+function getFirstImage(imageUrl?: string | null): string {
+  if (!imageUrl) return '/images/placeholder.png';
+  
+  try {
+    // Try parsing as JSON array
+    const parsed = JSON.parse(imageUrl);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed[0];
+    }
+    return imageUrl;
+  } catch {
+    // If not JSON, try splitting by comma
+    const images = imageUrl.split(',').filter(Boolean);
+    return images[0] || imageUrl;
+  }
+}
+
 export default function RecentViewProductCard({ product }: { product: RecentViewProduct }) {
-  const imgSrc = product.ImageUrl ?? '/images/placeholder.png';
+  const imgSrc = getFirstImage(product.ImageUrl);
 
   const hasDiscount = product.DiscountPrice !== null && product.DiscountPrice < product.Price;
   const displayPrice = hasDiscount ? product.DiscountPrice : product.Price;
@@ -26,7 +44,14 @@ export default function RecentViewProductCard({ product }: { product: RecentView
 
   return (
     <div className="recentViewProductCard">
-      <img src={imgSrc} alt={product.Name} loading="lazy" />
+      <img 
+        src={imgSrc} 
+        alt={product.Name} 
+        loading="lazy"
+        onError={(e) => {
+          e.currentTarget.src = '/images/placeholder.png';
+        }}
+      />
       <div className="text">
         <div className="recentViewProductCard__name" title={product.Name}>
           {displayedName}
