@@ -1,4 +1,3 @@
-// Cart.jsx - Component cho trang giỏ hàng (Cập nhật: Modify fetch để handle không có cartId nếu user logged in, lưu cartId nếu có)
 'use client';
 
 import Link from 'next/link';
@@ -19,24 +18,16 @@ export default function Cart() {
 
   useEffect(() => {
     const fetchCart = async () => {
-      const cartId = localStorage.getItem('cartId');
-      const token = localStorage.getItem('token');
-      let url = '/api/carts';
-
-      if (!token && !cartId) {
-        // Nếu không logged in và không có cartId, giỏ hàng trống
-        setCartItems([]);
+      let cartId = localStorage.getItem('cartId');
+      if (!cartId) {
         setLoading(false);
         return;
       }
 
-      if (cartId && !token) {
-        // Nếu không logged in nhưng có cartId, fetch với cartId
-        url = `/api/carts?cartId=${cartId}`;
-      }
-      // Nếu logged in (có token), fetch '/api/carts' mà không cần cartId, backend sẽ xử lý cart của user
+      const url = `/api/carts?cartId=${cartId}`;
 
       try {
+        const token = localStorage.getItem('token');
         const response = await fetch(url, {
           headers: {
             ...(token && { Authorization: `Bearer ${token}` }),
@@ -47,12 +38,14 @@ export default function Cart() {
           throw new Error('Failed to fetch cart');
         }
 
-        const json = await response.json(); // Sửa: Không destructuring { data }, giả định response trực tiếp là object với items, cartId
-        console.log("CART FETCH:", json); // Debug như code fix
+        const json = await response.json(); // 🔥 FIX
+        console.log("CART FETCH:", json);
+
         if (json.cartId) {
           localStorage.setItem('cartId', json.cartId);
         }
-        setCartItems(json.items || []);
+
+        setCartItems(json.items || []); // 🔥 FIX
       } catch (error) {
         alert('Lỗi khi tải giỏ hàng: ' + error.message);
       } finally {
@@ -88,9 +81,10 @@ export default function Cart() {
         }),
       });
 
-      const json = await response.json(); // Sửa: Không destructuring { data }
+      const json = await response.json(); // 🔥 FIX
+
       if (!response.ok) {
-        throw new Error(json.message || 'Failed to place order');
+        throw new Error(json.message);
       }
 
       alert('Đơn hàng đã được đặt thành công! Order ID: ' + json.orderId);
@@ -112,15 +106,15 @@ export default function Cart() {
         <ContainerFluid>
           <div className={styles.breadcrumbCart}>
             <Link href="/collections/all" className={styles.backLink}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.5 12L5.5 8L10.5 4" stroke="#1982F9" strokeLinecap="round" strokeLinejoin="round"></path>
+              <svg width="16" height="16">
+                <path d="M10.5 12L5.5 8L10.5 4" stroke="#1982F9"></path>
               </svg>
               Mua thêm sản phẩm khác
             </Link>
           </div>
 
           <div className={styles.cardMain}>
-            {/* Progress bar với các bước */}
+            {/* Các bước */}
             <section className={styles.sectionSteps}>
               <div className={styles.progressBar}>
                 <div className={styles.stepActive} data-box="cart-buy-order-box">
@@ -174,7 +168,7 @@ export default function Cart() {
                   <div className={styles.emptyCart}>
                     <p>Giỏ hàng của bạn đang trống</p>
                     <Link href="/" className={styles.continueButton}>
-                      <i className="fa fa-reply"></i> Tiếp tục mua hàng
+                      Tiếp tục mua hàng
                     </Link>
                   </div>
                 ) : (
@@ -182,12 +176,16 @@ export default function Cart() {
                     <h2>Sản phẩm trong giỏ hàng</h2>
                     <ul>
                       {cartItems.map((item, idx) => (
-                        <li key={`${item.ProductId || item.CartItemId}-${idx}`}> {/* Sửa: Key linh hoạt, ưu tiên CartItemId nếu có, fallback ProductId + idx */}
-                          {item.Name || item.ProductName} - Số lượng: {item.Quantity} - Giá: {item.PriceAtAdded.toLocaleString()}đ {/* Sửa: Linh hoạt Name hoặc ProductName */}
+                        <li key={`${item.ProductId}-${idx}`}>
+                          {item.Name} - Số lượng: {item.Quantity} -
+                          Giá: {item.PriceAtAdded.toLocaleString()}đ
                         </li>
                       ))}
                     </ul>
-                    <button onClick={() => setShowCheckoutModal(true)}>Đặt hàng</button>
+
+                    <button onClick={() => setShowCheckoutModal(true)}>
+                      Đặt hàng
+                    </button>
                   </div>
                 )}
               </div>
@@ -197,24 +195,26 @@ export default function Cart() {
               <div className={styles.modalOverlay}>
                 <div className={styles.modalContent}>
                   <h2>Thông tin giao hàng</h2>
+
                   <input
                     type="text"
                     placeholder="Tên người nhận"
                     value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
+                    onChange={e => setRecipientName(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Số điện thoại"
                     value={recipientPhone}
-                    onChange={(e) => setRecipientPhone(e.target.value)}
+                    onChange={e => setRecipientPhone(e.target.value)}
                   />
                   <input
                     type="text"
                     placeholder="Địa chỉ"
                     value={recipientAddress}
-                    onChange={(e) => setRecipientAddress(e.target.value)}
+                    onChange={e => setRecipientAddress(e.target.value)}
                   />
+
                   <button onClick={handlePlaceOrder} disabled={checkoutLoading}>
                     {checkoutLoading ? 'Đang đặt hàng...' : 'Xác nhận đặt hàng'}
                   </button>
