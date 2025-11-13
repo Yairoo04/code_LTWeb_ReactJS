@@ -1,3 +1,4 @@
+// app/gio-hang/page.tsx or wherever Cart is placed, but assuming it's Cart.jsx as component
 'use client';
 
 import Link from 'next/link';
@@ -9,13 +10,9 @@ import ContainerFluid from '../../main_Page/ContainerFluid/container-fluid';
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [recipientName, setRecipientName] = useState('');
-  const [recipientPhone, setRecipientPhone] = useState('');
-  const [recipientAddress, setRecipientAddress] = useState('');
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const router = useRouter();
 
+  // --- FETCH CART ---
   useEffect(() => {
     const fetchCart = async () => {
       let cartId = localStorage.getItem('cartId');
@@ -24,30 +21,27 @@ export default function Cart() {
         return;
       }
 
+      const token = localStorage.getItem('token');
       const url = `/api/carts?cartId=${cartId}`;
 
       try {
-        const token = localStorage.getItem('token');
         const response = await fetch(url, {
-          headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch cart');
-        }
+        const json = await response.json();
 
-        const json = await response.json(); // 🔥 FIX
-        console.log("CART FETCH:", json);
+        if (!response.ok) {
+          throw new Error(json.message || 'Failed to fetch cart');
+        }
 
         if (json.cartId) {
           localStorage.setItem('cartId', json.cartId);
         }
 
-        setCartItems(json.items || []); // 🔥 FIX
+        setCartItems(json.items || []);
       } catch (error) {
-        alert('Lỗi khi tải giỏ hàng: ' + error.message);
+        alert("Lỗi khi tải giỏ hàng: " + error.message);
       } finally {
         setLoading(false);
       }
@@ -56,46 +50,14 @@ export default function Cart() {
     fetchCart();
   }, []);
 
-  const handlePlaceOrder = async () => {
-    if (!recipientName || !recipientPhone || !recipientAddress) {
-      alert('Vui lòng nhập đầy đủ thông tin giao hàng!');
+  const handleCheckout = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bạn phải đăng nhập để đặt hàng!");
+      router.push("/dang-nhap");
       return;
     }
-
-    setCheckoutLoading(true);
-    try {
-      const cartId = localStorage.getItem('cartId');
-      const token = localStorage.getItem('token');
-
-      const response = await fetch('/api/order/from-cart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          cartId,
-          recipientName,
-          recipientPhone,
-          recipientAddress,
-        }),
-      });
-
-      const json = await response.json(); // 🔥 FIX
-
-      if (!response.ok) {
-        throw new Error(json.message);
-      }
-
-      alert('Đơn hàng đã được đặt thành công! Order ID: ' + json.orderId);
-      localStorage.removeItem('cartId');
-      setShowCheckoutModal(false);
-      router.push('/orders');
-    } catch (error) {
-      alert('Lỗi khi đặt hàng: ' + error.message);
-    } finally {
-      setCheckoutLoading(false);
-    }
+    router.push("/thong-tin-dat-hang");
   };
 
   const isEmpty = cartItems.length === 0;
@@ -177,51 +139,18 @@ export default function Cart() {
                     <ul>
                       {cartItems.map((item, idx) => (
                         <li key={`${item.ProductId}-${idx}`}>
-                          {item.Name} - Số lượng: {item.Quantity} -
-                          Giá: {item.PriceAtAdded.toLocaleString()}đ
+                          {item.Name} - SL: {item.Quantity} - Giá: {item.PriceAtAdded.toLocaleString()}đ
                         </li>
                       ))}
                     </ul>
 
-                    <button onClick={() => setShowCheckoutModal(true)}>
+                    <button onClick={handleCheckout}>
                       Đặt hàng
                     </button>
                   </div>
                 )}
               </div>
             </section>
-
-            {showCheckoutModal && (
-              <div className={styles.modalOverlay}>
-                <div className={styles.modalContent}>
-                  <h2>Thông tin giao hàng</h2>
-
-                  <input
-                    type="text"
-                    placeholder="Tên người nhận"
-                    value={recipientName}
-                    onChange={e => setRecipientName(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Số điện thoại"
-                    value={recipientPhone}
-                    onChange={e => setRecipientPhone(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Địa chỉ"
-                    value={recipientAddress}
-                    onChange={e => setRecipientAddress(e.target.value)}
-                  />
-
-                  <button onClick={handlePlaceOrder} disabled={checkoutLoading}>
-                    {checkoutLoading ? 'Đang đặt hàng...' : 'Xác nhận đặt hàng'}
-                  </button>
-                  <button onClick={() => setShowCheckoutModal(false)}>Hủy</button>
-                </div>
-              </div>
-            )}
           </div>
         </ContainerFluid>
       </div>

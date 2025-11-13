@@ -1,6 +1,13 @@
 export const saveAuth = (user, token) => {
   if (typeof window === "undefined") return;
-  if (user) localStorage.setItem("user", JSON.stringify(user));
+
+  if (!user) return;
+
+  localStorage.setItem("user", JSON.stringify(user));
+
+  // Lưu shortcut để FE dùng nhanh
+  if (user.userId) localStorage.setItem("userId", String(user.userId));
+
   if (token) localStorage.setItem("token", token);
 };
 
