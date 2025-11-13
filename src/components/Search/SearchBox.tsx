@@ -21,16 +21,25 @@ type FrontendProduct = {
 
 const API_URL = 'http://localhost:4000/api/products/search'; // Sử dụng URL đầy đủ của backend và route đúng
 
-const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => ({
-  id: product.ProductId,
-  name: product.Name,
-  description: product.Description,
-  price: product.Price,
-  category: (product as any).CategoryName || null, // Sử dụng CategoryName từ response
-  stock: product.Stock,
-  image_url: product.ImageUrl,
-  created_at: product.CreatedAt,
-});
+const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => {
+  let imageUrls: string[] = [];
+  try {
+    imageUrls = JSON.parse(product.ImageUrl); // Parse string thành array
+  } catch (error) {
+    console.error('Error parsing ImageUrl:', error);
+  }
+
+  return {
+    id: product.ProductId,
+    name: product.Name,
+    description: product.Description,
+    price: product.Price,
+    category: (product as any).CategoryName || null, // Sử dụng CategoryName từ response
+    stock: product.Stock,
+    image_url: imageUrls[0] || '/images/placeholder.jpg', // Lấy ảnh đầu tiên, fallback nếu không có
+    created_at: product.CreatedAt,
+  };
+};
 
 export default function SearchBox() {
   const [query, setQuery] = useState('');

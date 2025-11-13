@@ -69,7 +69,7 @@ $error: #e63946;
       padding: 10px 12px;
       border-radius: 8px;
       cursor: pointer;
-      &:hover { background-color: darken($primary, 8%); }
+      &:hover { background-color: color.adjust($primary, $lightness: -8%); }
     }
   }
 

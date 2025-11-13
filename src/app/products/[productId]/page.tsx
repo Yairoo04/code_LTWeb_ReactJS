@@ -1,4 +1,4 @@
-// app/products/[productId]/page.tsx
+// app/products/[productId]/page.tsx (Hoàn chỉnh: Không thay đổi lớn)
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,10 +11,13 @@ import RecentView from '@/pages/main_Page/RecentViewProducts/RecentView';
 import SectionCollection from '@/pages/main_Page/sectionCollection/SectionCollection';
 import SpecsTable from './SpecsTable'; // Import the new client component
 import ProductImageGallery from './ProductImageGallery'; // New component
+import AddToCartButton from './AddToCartButton'; // New client component for Add to Cart
+import BuyNowButton from './BuyNowButton'; // New client component for Buy Now
 
 // Function to fetch product data including specs
 async function fetchProduct(productId: string) {
-  const res = await fetch(`http://localhost:4000/api/products?productId=${productId}&details=true`);
+  const apiUrl = process.env.NODE_ENV === 'production' ? 'https://your-production-backend.com' : 'http://localhost:4000';
+  const res = await fetch(`${apiUrl}/api/products?productId=${productId}&details=true`);
   if (!res.ok) {
     throw new Error('Failed to fetch product');
   }
@@ -81,8 +84,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               )}
             </div>
             <div className={styles.actions}>
-              <button>MUA NGAY</button>
-              <button>TRẢ GÓP</button>
+              <BuyNowButton productId={product.ProductId} /> {/* Sử dụng client component cho Buy Now */}
+              <button>TRẢ GÓP</button> {/* Giữ nguyên, có thể thêm logic sau */}
+              <AddToCartButton productId={product.ProductId} /> {/* Sử dụng client component cho Add to Cart */}
             </div>
             <div className={styles.promotions}>
               <h3>Ưu đãi khi mua kèm PC</h3>

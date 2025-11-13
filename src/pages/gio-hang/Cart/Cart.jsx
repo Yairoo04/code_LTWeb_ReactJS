@@ -1,13 +1,110 @@
-// Cart.jsx - Component cho trang giỏ hàng
+// Cart.jsx - Component cho trang giỏ hàng (Cập nhật: Modify fetch để handle không có cartId nếu user logged in, lưu cartId nếu có)
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './Cart.module.scss';
-import ContainerFluid from '../../main_Page/ContainerFluid/container-fluid'; // Giả sử bạn có component này
+import ContainerFluid from '../../main_Page/ContainerFluid/container-fluid';
 
 export default function Cart() {
-  // Giả sử giỏ hàng đang trống, bạn có thể thay bằng state thực tế từ context hoặc API
-  const isEmpty = true; // Thay đổi thành false nếu có sản phẩm
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [recipientName, setRecipientName] = useState('');
+  const [recipientPhone, setRecipientPhone] = useState('');
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const cartId = localStorage.getItem('cartId');
+      const token = localStorage.getItem('token');
+      let url = '/api/carts';
+
+      if (!token && !cartId) {
+        // Nếu không logged in và không có cartId, giỏ hàng trống
+        setCartItems([]);
+        setLoading(false);
+        return;
+      }
+
+      if (cartId && !token) {
+        // Nếu không logged in nhưng có cartId, fetch với cartId
+        url = `/api/carts?cartId=${cartId}`;
+      }
+      // Nếu logged in (có token), fetch '/api/carts' mà không cần cartId, backend sẽ xử lý cart của user
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart');
+        }
+
+        const json = await response.json(); // Sửa: Không destructuring { data }, giả định response trực tiếp là object với items, cartId
+        console.log("CART FETCH:", json); // Debug như code fix
+        if (json.cartId) {
+          localStorage.setItem('cartId', json.cartId);
+        }
+        setCartItems(json.items || []);
+      } catch (error) {
+        alert('Lỗi khi tải giỏ hàng: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  const handlePlaceOrder = async () => {
+    if (!recipientName || !recipientPhone || !recipientAddress) {
+      alert('Vui lòng nhập đầy đủ thông tin giao hàng!');
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const cartId = localStorage.getItem('cartId');
+      const token = localStorage.getItem('token');
+
+      const response = await fetch('/api/order/from-cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          cartId,
+          recipientName,
+          recipientPhone,
+          recipientAddress,
+        }),
+      });
+
+      const json = await response.json(); // Sửa: Không destructuring { data }
+      if (!response.ok) {
+        throw new Error(json.message || 'Failed to place order');
+      }
+
+      alert('Đơn hàng đã được đặt thành công! Order ID: ' + json.orderId);
+      localStorage.removeItem('cartId');
+      setShowCheckoutModal(false);
+      router.push('/orders');
+    } catch (error) {
+      alert('Lỗi khi đặt hàng: ' + error.message);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const isEmpty = cartItems.length === 0;
 
   return (
     <main className={styles.wrapperMain_content}>
@@ -71,7 +168,9 @@ export default function Cart() {
             {/* Nội dung giỏ hàng */}
             <section className={styles.sectionOrder}>
               <div className={styles.cartOrder}>
-                {isEmpty ? (
+                {loading ? (
+                  <p>Đang tải giỏ hàng...</p>
+                ) : isEmpty ? (
                   <div className={styles.emptyCart}>
                     <p>Giỏ hàng của bạn đang trống</p>
                     <Link href="/" className={styles.continueButton}>
@@ -80,12 +179,49 @@ export default function Cart() {
                   </div>
                 ) : (
                   <div className={styles.cartContent}>
-                    {/* Thêm logic hiển thị sản phẩm ở đây nếu cần */}
-                    <p>Có sản phẩm trong giỏ hàng (mở rộng logic).</p>
+                    <h2>Sản phẩm trong giỏ hàng</h2>
+                    <ul>
+                      {cartItems.map((item, idx) => (
+                        <li key={`${item.ProductId || item.CartItemId}-${idx}`}> {/* Sửa: Key linh hoạt, ưu tiên CartItemId nếu có, fallback ProductId + idx */}
+                          {item.Name || item.ProductName} - Số lượng: {item.Quantity} - Giá: {item.PriceAtAdded.toLocaleString()}đ {/* Sửa: Linh hoạt Name hoặc ProductName */}
+                        </li>
+                      ))}
+                    </ul>
+                    <button onClick={() => setShowCheckoutModal(true)}>Đặt hàng</button>
                   </div>
                 )}
               </div>
             </section>
+
+            {showCheckoutModal && (
+              <div className={styles.modalOverlay}>
+                <div className={styles.modalContent}>
+                  <h2>Thông tin giao hàng</h2>
+                  <input
+                    type="text"
+                    placeholder="Tên người nhận"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Số điện thoại"
+                    value={recipientPhone}
+                    onChange={(e) => setRecipientPhone(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Địa chỉ"
+                    value={recipientAddress}
+                    onChange={(e) => setRecipientAddress(e.target.value)}
+                  />
+                  <button onClick={handlePlaceOrder} disabled={checkoutLoading}>
+                    {checkoutLoading ? 'Đang đặt hàng...' : 'Xác nhận đặt hàng'}
+                  </button>
+                  <button onClick={() => setShowCheckoutModal(false)}>Hủy</button>
+                </div>
+              </div>
+            )}
           </div>
         </ContainerFluid>
       </div>

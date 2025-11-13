@@ -1,3 +1,4 @@
+// app/products/[productId]/ProductImageGallery.tsx (Hoàn chỉnh: Không thay đổi lớn)
 'use client';
 
 import { useState } from 'react';
