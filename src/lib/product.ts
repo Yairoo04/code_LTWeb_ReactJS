@@ -12,4 +12,8 @@ export type Product = {
   CreatedAt: string;
   UpdatedAt: string | null;
   Category?: string;
+
+  // Flash sale (từ FlashSaleItems)
+  FlashPrice?: number | null;
+  StockLimit?: number | null;
 };

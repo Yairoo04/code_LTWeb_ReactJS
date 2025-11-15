@@ -1,4 +1,58 @@
+.flash-sale-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+
+  .countdown {
+    display: flex;
+    align-items: center;
+    background-color: #0056d2; // Màu nền xanh giống hình
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: monospace; // Để số trông giống đồng hồ kỹ thuật số
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff; // Màu dấu : trắng
+
+    span {
+      background-color: #ffffff;
+      color: #0056d2; // Số màu xanh matching nền
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin: 0 4px;
+      min-width: 40px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    // Xử lý phần "ngày" nếu hiển thị
+    #days {
+      margin-right: 4px;
+    }
+
+    // Dấu : giữa các span
+    & > :not(span) { // Chọn text nodes như :, nhưng trong SCSS dùng pseudo hoặc điều chỉnh
+      margin: 0 4px;
+    }
+
+    // Nếu có "ngày ", style nó trắng
+    & > span + span:not(#hours, #minutes, #seconds) {
+      color: #ffffff;
+      margin-left: 4px;
+    }
+  }
+
+  h2 {
+    margin-left: 16px;
+    font-size: 24px;
+    color: #000000;
+  }
+}
+
+// Nếu cần override cho flash-sale-content, nhưng countdown ở header
 .flash-sale-content {
+  // Các style hiện có của bạn
   .product-slider {
     .product-card {
       .product-name {

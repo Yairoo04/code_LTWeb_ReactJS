@@ -22,11 +22,24 @@ export default function Home() {
         <Slider />
         {/* <MenuList /> */}
         <SubBanner />
-        <RecentView/>
+        <RecentView />
         {/* <!-- Nhóm fsl 2 --> */}
-        <FlashSale className="flash-sale-1" h2Title="⚡ FLASH SALE 10H MỖI NGÀY" showImg_Sale={false} showDotActive={false} />
+        <FlashSale
+          className="flash-sale-1"
+          h2Title="⚡ FLASH SALE 10H MỖI NGÀY"
+          showImg_Sale={false}
+          showDotActive={false}
+          campaignCode="FLASH_10H"
+        />
         {/* <!-- Nhóm fsl 2 --> */}
-        <FlashSale className="flash-sale-2" h2Title="⚡ GEAR ARENA WEEK" showTitle={false} showReadMore={false}/>
+        <FlashSale
+          className="flash-sale-2"
+          h2Title="⚡ GEAR ARENA WEEK"
+          showTitle={false}
+          showReadMore={false}
+          campaignCode="GEAR_ARENA_WEEK"
+        />
+
         <MidBanner />
         <SectionCollection />
       </main>

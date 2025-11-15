@@ -4,6 +4,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import styles from './ProductDetail.module.scss';
+
 export default function BuyNowButton({ productId }: { productId: number }) {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -59,15 +61,39 @@ export default function BuyNowButton({ productId }: { productId: number }) {
       <button onClick={() => setShowModal(true)}>MUA NGAY</button>
 
       {showModal && (
-        <div className="modal">
-          <input placeholder="Tên người nhận" value={recipientName} onChange={e => setRecipientName(e.target.value)} />
-          <input placeholder="Số điện thoại" value={recipientPhone} onChange={e => setRecipientPhone(e.target.value)} />
-          <input placeholder="Địa chỉ" value={recipientAddress} onChange={e => setRecipientAddress(e.target.value)} />
-          <button disabled={loading} onClick={handleBuyNow}>
-            {loading ? "Đang xử lý..." : "Xác nhận mua ngay"}
-          </button>
+        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeBtn} onClick={() => setShowModal(false)}>×</button>
+
+            <h2>Thông tin giao hàng</h2>
+
+            <input
+              placeholder="Tên người nhận"
+              value={recipientName}
+              onChange={e => setRecipientName(e.target.value)}
+            />
+            <input
+              placeholder="Số điện thoại"
+              value={recipientPhone}
+              onChange={e => setRecipientPhone(e.target.value)}
+            />
+            <input
+              placeholder="Địa chỉ"
+              value={recipientAddress}
+              onChange={e => setRecipientAddress(e.target.value)}
+            />
+
+            <button
+              className={styles.confirmBtn}
+              disabled={loading}
+              onClick={handleBuyNow}
+            >
+              {loading ? "Đang xử lý..." : "XÁC NHẬN MUA NGAY"}
+            </button>
+          </div>
         </div>
       )}
+
     </>
   );
 }
