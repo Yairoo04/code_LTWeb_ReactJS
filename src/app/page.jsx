@@ -8,6 +8,7 @@ import FlashSale from "../pages/main_Page/FlashSale/FlashSale.tsx";
 import MidBanner from "../pages/main_Page/MidBanner.jsx";
 import SectionCollection from "../pages/main_Page/sectionCollection/SectionCollection.tsx";
 import SubHeader from "../pages/main_Page/SubHeader.jsx";
+import { Children } from "react";
 // import MenuList from "../pages/main_Page/MenuList.jsx";
 // import { publicRoutes } from '../routes/routes.js';
 

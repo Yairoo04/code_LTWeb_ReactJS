@@ -1,72 +1,88 @@
-// app/(components)/RecentView/RecentViewProductSlider.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react'; // Thêm useEffect để log khi mount
+import React, { useState, useEffect, useCallback } from 'react';
 import RecentViewProductCard from './recentViewProductCard';
 import { RecentViewProduct } from '@/lib/recent-view-product';
 import styles from './RecentViewProductSlider.module.scss';
-import { useRecentView } from './RecentViewContext'; // Import context
-import { useRouter } from 'next/navigation'; // Import router
+import { useRecentView } from './RecentViewContext';
+import { useRouter } from 'next/navigation';
+import { getAuth } from '@/lib/auth';
 
 type Props = {
-  products: RecentViewProduct[];
+  products?: RecentViewProduct[]; // CHO PHÉP NULL ĐỂ LOAD TỪ API
   itemsPerPage?: number;
   className?: string;
   title?: string;
 };
 
 export default function RecentViewProductSlider({
-  products,
+  products: initialProducts,
   itemsPerPage = 4,
   className = '',
   title = 'Sản phẩm đã xem',
 }: Props) {
+  const [products, setProducts] = useState<RecentViewProduct[]>(initialProducts || []);
+  const [loading, setLoading] = useState(!initialProducts);
   const totalSlides = Math.ceil(products.length / itemsPerPage);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { addRecentView } = useRecentView(); // Lấy addRecentView từ context
-  const router = useRouter(); // Router để navigate
+  const { addRecentView } = useRecentView();
+  const router = useRouter();
 
-  // Log khi component mount hoặc products thay đổi
+  // === LẤY userId ===
+  const { userId } = getAuth();
+
+  // === LOAD SẢN PHẨM TỪ API ===
   useEffect(() => {
-    console.log('[RecentViewProductSlider] Component mounted or products changed:', {
-      productsLength: products.length,
-      totalSlides,
-      currentSlide,
-    });
-  }, [products, totalSlides, currentSlide]);
+    if (initialProducts || !userId) return;
 
-  const goToSlide = (index: number) => {
-    console.log('[RecentViewProductSlider] Going to slide:', index);
-    setCurrentSlide(index);
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        console.log('[RecentViewProductSlider] Gọi API với userId:', userId);
+        const res = await fetch(`/api/recentviewProducts?userId=${userId}&limit=20`);
+        const data = await res.json();
+
+        if (data.success) {
+          setProducts(data.data);
+          console.log('[RecentViewProductSlider] Load thành công:', data.data.length, 'sản phẩm');
+        } else {
+          console.warn('[RecentViewProductSlider] API lỗi:', data.error);
+          setProducts([]);
+        }
+      } catch (err) {
+        console.error('[RecentViewProductSlider] Lỗi fetch:', err);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [userId, initialProducts]);
+
+  // === XỬ LÝ CLICK ===
+  const handleProductClick = async (productId: number) => {
+    console.log('[Slider] Click productId:', productId);
+    try {
+      await addRecentView(productId); // SẼ DÙNG userId ĐÚNG
+      router.push(`/products/${productId}`);
+    } catch (err) {
+      router.push(`/products/${productId}`);
+    }
   };
 
-  const prev = () => {
-    const newSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-    console.log('[RecentViewProductSlider] Previous slide:', newSlide);
-    setCurrentSlide(newSlide);
-  };
+  // === LOADING ===
+  if (loading) {
+    return (
+      <div className={`${styles.slider} ${className}`}>
+        <h2 className={styles.title}>{title}</h2>
+        <p className={styles.empty}>Đang tải...</p>
+      </div>
+    );
+  }
 
-  const next = () => {
-    const newSlide = (currentSlide + 1) % totalSlides;
-    console.log('[RecentViewProductSlider] Next slide:', newSlide);
-    setCurrentSlide(newSlide);
-  };
-
-  // Handle click: add/update recent view và navigate đến detail
-  const handleProductClick = (productId: number) => {
-    console.log('[RecentViewProductSlider] Product clicked, starting addRecentView:', productId);
-    addRecentView(productId) // Thêm mới nếu chưa có, update nếu có
-      .then(() => {
-        console.log('[RecentViewProductSlider] addRecentView completed successfully for productId:', productId);
-        router.push(`/products/${productId}`);
-      })
-      .catch((err) => {
-        console.error('[RecentViewProductSlider] Error in addRecentView:', err);
-      });
-  };
-
+  // === KHÔNG CÓ SẢN PHẨM ===
   if (products.length === 0) {
-    console.log('[RecentViewProductSlider] No products available');
     return (
       <div className={`${styles.slider} ${className}`}>
         <h2 className={styles.title}>{title}</h2>
@@ -75,18 +91,13 @@ export default function RecentViewProductSlider({
     );
   }
 
-  console.log('[RecentViewProductSlider] Rendering slider with products:', products.length);
-
+  // === HIỂN THỊ SLIDER ===
   return (
     <div className={`${styles.slider} ${className}`}>
       <h2 className={styles.title}>{title}</h2>
 
       {currentSlide > 0 && (
-        <button
-          className={styles.prev}
-          onClick={prev}
-          aria-label="Previous slide"
-        >
+        <button className={styles.prev} onClick={() => setCurrentSlide(p => p - 1)}>
           &#10094;
         </button>
       )}
@@ -100,10 +111,10 @@ export default function RecentViewProductSlider({
       >
         {products.map((product) => (
           <div
+            key={product.ProductId}
             className={styles.item}
-            key={product.Id}
             style={{ flex: `0 0 ${100 / itemsPerPage}%` }}
-            onClick={() => handleProductClick(product.ProductId)} // Thêm onClick ở đây
+            onClick={() => handleProductClick(product.ProductId)}
           >
             <RecentViewProductCard product={product} />
           </div>
@@ -111,11 +122,7 @@ export default function RecentViewProductSlider({
       </div>
 
       {currentSlide < totalSlides - 1 && (
-        <button
-          className={styles.next}
-          onClick={next}
-          aria-label="Next slide"
-        >
+        <button className={styles.next} onClick={() => setCurrentSlide(p => p + 1)}>
           &#10095;
         </button>
       )}
@@ -126,8 +133,7 @@ export default function RecentViewProductSlider({
             <button
               key={i}
               className={`${styles.dot} ${i === currentSlide ? styles.active : ''}`}
-              onClick={() => goToSlide(i)}
-              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => setCurrentSlide(i)}
             />
           ))}
         </div>

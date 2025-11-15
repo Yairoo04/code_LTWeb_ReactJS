@@ -1,25 +1,35 @@
 export const saveAuth = (user, token) => {
   if (typeof window === "undefined") return;
-
   if (!user) return;
 
+  // Lưu user object
   localStorage.setItem("user", JSON.stringify(user));
 
-  // Lưu shortcut để FE dùng nhanh
-  if (user.userId) localStorage.setItem("userId", String(user.userId));
+  // LƯU userId CHUẨN HÓA (hỗ trợ nhiều key)
+  const userId = user.userId || user.UserId || user.id;
+  if (userId != null) {
+    localStorage.setItem("userId", String(userId));
+  }
 
-  if (token) localStorage.setItem("token", token);
+  // Lưu token
+  if (token) {
+    localStorage.setItem("token", token);
+  }
 };
 
+/**
+ * Lấy thông tin auth từ localStorage
+ * @returns {{ user: Object, token: string|null, userId: number|null }}
+ */
 export const getAuth = () => {
-  if (typeof window === "undefined") return { user: {}, token: null };
+  if (typeof window === "undefined") {
+    return { user: {}, token: null, userId: null };
+  }
+
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
-  return { user, token };
-};
+  const userIdStr = localStorage.getItem("userId");
+  const userId = userIdStr ? parseInt(userIdStr, 10) : null;
 
-export const clearAuth = () => {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
+  return { user, token, userId };
 };

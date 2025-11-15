@@ -1,21 +1,21 @@
-// components/Header/Header.jsx (Cập nhật: Thêm logic fetch cart count, update khi path/user thay đổi, và sau login)
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser } from '@fortawesome/free-solid-svg-icons';
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
-import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaBoxOpen, FaSignOutAlt } from 'react-icons/fa';
 import SearchBox from '../Search/SearchBox';
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter(); // DÙNG ĐỂ CHUYỂN TRANG
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -23,6 +23,7 @@ export default function Header() {
   const [isSticky, setIsSticky] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // MODAL XÁC NHẬN
   const headerRef = useRef(null);
 
   // Tô đậm menu
@@ -76,7 +77,7 @@ export default function Header() {
     }
     setUser(data);
     setIsLoginOpen(false);
-    updateCartCount(); // Update cart sau login để merge/load cart của user
+    updateCartCount();
   };
 
   // Load user
@@ -85,14 +86,25 @@ export default function Header() {
     if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
-  // Logout
-  const handleLogout = () => {
+  // === XỬ LÝ ĐĂNG XUẤT ===
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true); // HIỆN MODAL
+    setDropdownOpen(false); // ĐÓNG DROPDOWN
+  };
+
+  const confirmLogout = () => {
+    // XÓA TẤT CẢ
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    localStorage.removeItem('cartId'); // Xóa cartId khi logout
+    localStorage.removeItem('userId');
+    localStorage.removeItem('cartId');
+
     setUser(null);
-    setDropdownOpen(false);
     setCartCount(0);
+    setShowLogoutModal(false);
+
+    // CHUYỂN VỀ TRANG CHỦ
+    router.push('/');
   };
 
   // Sticky header
@@ -111,7 +123,7 @@ export default function Header() {
 
   return (
     <header className={styles.mainHeader}>
-      {/* Banner top (nếu có) */}
+      {/* Banner top */}
       <div className={styles.topBanner}>
         <ContainerFluid>
           <img src="/images/top-banner.gif" alt="Top Banner" className={styles.bannerImg} />
@@ -214,10 +226,8 @@ export default function Header() {
                       <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
                         <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
                       </Link>
-                      <Link href="/tai-khoan/san-pham-da-xem" className={styles.dropdownItem}>
-                        <FaEye className={styles.icon} /> Đã xem gần đây
-                      </Link>
-                      <div className={styles.dropdownItem} onClick={handleLogout}>
+                      {/* ĐĂNG XUẤT */}
+                      <div className={styles.dropdownItem} onClick={handleLogoutClick}>
                         <FaSignOutAlt className={styles.icon} /> Đăng xuất
                       </div>
                     </div>
@@ -235,7 +245,24 @@ export default function Header() {
         style={{ height: isSticky ? `${headerHeight}px` : '0' }}
       />
 
-      {/* Modal */}
+      {/* === MODAL ĐĂNG XUẤT === */}
+      {showLogoutModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowLogoutModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <p>Bạn muốn thoát tài khoản?</p>
+            <div className={styles.modalActions}>
+              <button onClick={() => setShowLogoutModal(false)} className={styles.cancelBtn}>
+                Không
+              </button>
+              <button onClick={confirmLogout} className={styles.confirmBtn}>
+                Đồng ý
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Login/Register */}
       <LoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
