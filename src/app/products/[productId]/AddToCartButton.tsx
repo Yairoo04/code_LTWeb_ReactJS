@@ -11,35 +11,28 @@ export default function AddToCartButton({ productId }: { productId: number }) {
     setLoading(true);
 
     try {
-      const cartId = localStorage.getItem("cartId");
       const token = localStorage.getItem("token");
-      const userIdStr = localStorage.getItem("userId");
+      const userIdFromStorage = localStorage.getItem("userId"); // ← Lấy từ chỗ đã lưu chắc chắn
 
-      // 🚨 Nếu chưa login → không được Add-to-cart (tránh userId = null)
-      if (!token || !userIdStr) {
+      if (!token || !userIdFromStorage) {
         alert("Bạn phải đăng nhập để thêm sản phẩm vào giỏ hàng.");
-        router.push("/dang-nhap"); // hoặc /login tùy site
-        return;
-      }
-
-      const userId = Number(userIdStr);
-
-      // 🚨 Nếu parse lỗi hoặc userId 0
-      if (!userId || isNaN(userId)) {
-        alert("Lỗi xác thực người dùng. Vui lòng đăng nhập lại.");
         router.push("/dang-nhap");
         return;
       }
+
+      const userId = Number(userIdFromStorage);
+
+      const cartId = localStorage.getItem("cartId") || null;
 
       const response = await fetch("/api/carts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // luôn gửi token
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          cartId: cartId || null,
-          userId: userId,
+          cartId,
+          userId,
           productId,
           quantity: 1,
         }),
@@ -48,17 +41,22 @@ export default function AddToCartButton({ productId }: { productId: number }) {
       const json = await response.json();
 
       if (!response.ok) {
-        throw new Error(json.message || "Không thể thêm vào giỏ hàng.");
+        throw new Error(json.message || "Thêm giỏ hàng thất bại");
       }
 
-      // Lưu lại cartId do backend trả về
       if (json.cartId) {
         localStorage.setItem("cartId", json.cartId);
       }
 
+      // Tăng ngay lập tức số giỏ hàng
+      window.dispatchEvent(new Event("cart-updated"));
+
+      // Bạn có thể chọn: chuyển trang hoặc ở lại + toast
       router.push("/gio-hang");
+      // hoặc: alert("Đã thêm vào giỏ hàng!");
+
     } catch (err: any) {
-      alert("Lỗi thêm giỏ hàng: " + err.message);
+      alert("Lỗi: " + err.message);
     } finally {
       setLoading(false);
     }
