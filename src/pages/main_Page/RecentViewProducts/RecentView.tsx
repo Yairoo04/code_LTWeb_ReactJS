@@ -1,4 +1,3 @@
-// app/(components)/RecentView/RecentView.tsx
 'use client';
 
 import React from 'react';
@@ -8,7 +7,12 @@ import styles from './RecentView.module.scss';
 import { useRecentView } from './RecentViewContext';
 
 export default function RecentView() {
-  const { products } = useRecentView();
+  const { products, loading } = useRecentView();
+
+  // Ẩn nếu chưa có sản phẩm
+  if (loading || products.length === 0) {
+    return null;
+  }
 
   return (
     <ContainerFluid>

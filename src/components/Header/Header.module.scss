@@ -239,3 +239,101 @@
   transition: height 0.3s ease;
   &.active { height: auto; }
 }
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal p {
+  margin: 0 0 20px;
+  font-size: 16px;
+  color: #333;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modalActions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn {
+  background: #f0f0f0;
+  color: #333;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+.confirmBtn {
+  background: #e60012;
+  color: white;
+
+  &:hover {
+    background: #cc0010;
+  }
+}
+
+.wave {
+  font-size: 24px;
+  margin-right: 8px;
+  display: inline-block;
+  animation: waveHand 1.6s infinite;
+  transform-origin: 70% 70%;
+  user-select: none;
+  line-height: 1;
+}
+
+@keyframes waveHand {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-8deg); }
+  45% { transform: rotate(14deg); }
+  60% { transform: rotate(-4deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.greetingBox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.helloText {
+  font-size: 13px;
+  color: #666;
+}
+
+.username {
+  color: #e60012;
+  font-weight: 600;
+}
