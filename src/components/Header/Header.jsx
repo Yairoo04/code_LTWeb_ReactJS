@@ -1,29 +1,37 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser } from '@fortawesome/free-solid-svg-icons';
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
 import config from '../../config';
 import LoginModal from '../LoginModal/LoginModal';
 import RegisterModal from '../RegisterModal/RegisterModal';
 import styles from './Header.module.scss';
-import { FaUser, FaBoxOpen, FaEye, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaBoxOpen, FaSignOutAlt } from 'react-icons/fa';
 import SearchBox from '../Search/SearchBox';
+
+// HÀM KIỂM TRA GUID HỢP LỆ – BẢO VỆ TUYỆT ĐỐI localStorage
+const isValidGuid = (str) => {
+  return typeof str === 'string' && /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(str);
+};
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const headerRef = useRef(null);
 
-  // Tô đậm menu
+  // Tô đậm menu showroom
   useEffect(() => {
     document.querySelectorAll('#menu-list-showroom li a').forEach((link) => {
       const linkPath = new URL(link.href, window.location.origin).pathname;
@@ -31,31 +39,109 @@ export default function Header() {
     });
   }, [pathname]);
 
-  // Login success
-  const handleLoginSuccess = (userData) => {
-    const name = userData.fullname?.trim() || "Người dùng";
-    const data = {
-      name,
-      email: userData.email || "",
-      phone: userData.phone || "",
-      role: userData.role || "Customer",
-    };
-    localStorage.setItem("user", JSON.stringify(data));
-    setUser(data);
-    setIsLoginOpen(false);
-  };
+  // CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG – ĐÃ FIX 100% KHÔNG LÀM MẤT USER
+  const updateCartCount = useCallback(async () => {
+    try {
+      let cartId = localStorage.getItem('cartId');
+      if (cartId && !isValidGuid(cartId)) {
+        console.warn('cartId không hợp lệ → xóa để tạo mới');
+        localStorage.removeItem('cartId');
+        cartId = null;
+      }
 
-  // Load user
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) setUser(JSON.parse(savedUser));
+      const url = cartId ? `/api/carts?cartId=${cartId}` : '/api/carts';
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        console.warn('Cart API lỗi:', response.status);
+        setCartCount(0);
+        return;
+      }
+
+      const json = await response.json();
+      const data = json?.data || json?.cart || json || {};
+
+      // Tính tổng số lượng
+      let count = 0;
+      if (data.totalQuantity !== undefined) {
+        count = data.totalQuantity;
+      } else if (Array.isArray(data.items)) {
+        count = data.items.reduce((sum, item) => sum + (item.Quantity || item.quantity || 0), 0);
+      }
+
+      setCartCount(count);
+
+      // CHỈ LƯU cartId NẾU LÀ GUID HỢP LỆ → TUYỆT ĐỐI KHÔNG GHI ĐÈ BẰNG NULL!
+      if (data.cartId && isValidGuid(data.cartId)) {
+        localStorage.setItem('cartId', data.cartId);
+      }
+
+    } catch (err) {
+      console.error('Lỗi lấy số lượng giỏ hàng:', err);
+      setCartCount(0);
+    }
   }, []);
 
-  // Logout
-  const handleLogout = () => {
+  // Cập nhật khi có sự kiện từ các trang khác
+  useEffect(() => {
+    const handler = () => updateCartCount();
+    window.addEventListener('cart-updated', handler);
+    return () => window.removeEventListener('cart-updated', handler);
+  }, [updateCartCount]);
+
+  // Load giỏ hàng khi mount + khi user thay đổi
+  useEffect(() => {
+    updateCartCount();
+  }, [user, updateCartCount]);
+
+  // Login thành công
+  const handleLoginSuccess = (userData) => {
+    const realUserId = userData.id || userData._id || userData.userId || userData.customerId;
+    const name = (userData.fullname || userData.name || userData.email || 'Người dùng').trim();
+
+    localStorage.setItem('user', JSON.stringify({ ...userData, name }));
+    if (userData.token) localStorage.setItem('token', userData.token);
+    if (realUserId) localStorage.setItem('userId', String(realUserId));
+
+    setUser({ ...userData, name });
+    setIsLoginOpen(false);
+    updateCartCount();
+  };
+
+  // Load user khi mount
+  useEffect(() => {
+    const saved = localStorage.getItem('user');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const name = (parsed.fullname || parsed.name || parsed.email || 'Người dùng').trim();
+        setUser({ ...parsed, name });
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
+    }
+  }, []);
+
+  // Đăng xuất
+  const confirmLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('cartId');
+
     setUser(null);
-    setDropdownOpen(false);
+    setCartCount(0);
+    setShowLogoutModal(false);
+    router.push('/');
   };
 
   // Sticky header
@@ -63,48 +149,35 @@ export default function Header() {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight);
     }
-
-    const handleScroll = () => {
-      setIsSticky(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setIsSticky(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header className={styles.mainHeader}>
-      {/* Banner top (nếu có) */}
       <div className={styles.topBanner}>
         <ContainerFluid>
           <img src="/images/top-banner.gif" alt="Top Banner" className={styles.bannerImg} />
         </ContainerFluid>
       </div>
 
-      {/* Header chính */}
-      <div
-        ref={headerRef}
-        className={`${styles.headerTop} ${isSticky ? styles.sticky : ''}`}
-      >
+      <div ref={headerRef} className={`${styles.headerTop} ${isSticky ? styles.sticky : ''}`}>
         <ContainerFluid>
           <div className={styles.headerInner}>
-            {/* Logo */}
             <Link href={config.routes.home} className={styles.logo}>
               <img src="/images/logo.jpg" alt="GTN" />
             </Link>
 
-            {/* Danh mục */}
             <div className={styles.categoryMenu}>
               <FontAwesomeIcon icon={faBars} />
               <span>Danh mục</span>
             </div>
 
-            {/* Thanh tìm kiếm */}
             <div className={styles.searchWrapper}>
               <SearchBox />
             </div>
 
-            {/* Hotline */}
             <div className={styles.hotline}>
               <FontAwesomeIcon icon={faPhone} />
               <div>
@@ -113,7 +186,6 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Hệ thống showroom */}
             <Link href={config.routes.showroom} className={styles.showroom}>
               <FontAwesomeIcon icon={faStore} />
               <div>
@@ -122,7 +194,6 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Tra cứu đơn hàng */}
             <div className={styles.trackOrder}>
               <FontAwesomeIcon icon={faTruck} />
               <div>
@@ -131,11 +202,10 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Giỏ hàng */}
             <Link href={config.routes.cart} className={styles.cart}>
               <div className={styles.cartIcon}>
                 <FontAwesomeIcon icon={faShoppingCart} />
-                <span className={styles.cartCount}>0</span>
+                {cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}
               </div>
               <div>
                 <span>Giỏ</span>
@@ -143,7 +213,6 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Tài khoản */}
             <div className={styles.account}>
               {!user ? (
                 <button onClick={() => setIsLoginOpen(true)} className={styles.loginBtn}>
@@ -164,11 +233,10 @@ export default function Header() {
                       <span className={styles.wave}>👋</span>
                       <div className={styles.textWrapper}>
                         <span className={styles.helloText}>Xin chào</span>
-                        <strong className={styles.username}>{user.name}</strong>
+                        <strong className={styles.username}>{user.name || 'Người dùng'}</strong>
                       </div>
                     </span>
                   </span>
-
 
                   {dropdownOpen && (
                     <div className={styles.dropdown}>
@@ -178,10 +246,7 @@ export default function Header() {
                       <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
                         <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
                       </Link>
-                      <Link href="/tai-khoan/san-pham-da-xem" className={styles.dropdownItem}>
-                        <FaEye className={styles.icon} /> Đã xem gần đây
-                      </Link>
-                      <div className={styles.dropdownItem} onClick={handleLogout}>
+                      <div className={styles.dropdownItem} onClick={() => { setShowLogoutModal(true); setDropdownOpen(false); }}>
                         <FaSignOutAlt className={styles.icon} /> Đăng xuất
                       </div>
                     </div>
@@ -193,31 +258,23 @@ export default function Header() {
         </ContainerFluid>
       </div>
 
-      {/* Placeholder khi sticky */}
-      <div
-        className={`${styles.headerPlaceholder} ${isSticky ? styles.active : ''}`}
-        style={{ height: isSticky ? `${headerHeight}px` : '0' }}
-      />
+      <div className={`${styles.headerPlaceholder} ${isSticky ? styles.active : ''}`} style={{ height: isSticky ? `${headerHeight}px` : '0' }} />
 
-      {/* Modal */}
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSwitchToRegister={() => {
-          setIsLoginOpen(false);
-          setIsRegisterOpen(true);
-        }}
-        onLoginSuccess={handleLoginSuccess}
-      />
+      {/* Modal xác nhận đăng xuất */}
+      {showLogoutModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowLogoutModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <p>Bạn muốn thoát tài khoản?</p>
+            <div className={styles.modalActions}>
+              <button onClick={() => setShowLogoutModal(false)} className={styles.cancelBtn}>Không</button>
+              <button onClick={confirmLogout} className={styles.confirmBtn}>Đồng ý</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <RegisterModal
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
-        onSwitchToLogin={() => {
-          setIsRegisterOpen(false);
-          setIsLoginOpen(true);
-        }}
-      />
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSwitchToRegister={() => { setIsLoginOpen(false); setIsRegisterOpen(true); }} onLoginSuccess={handleLoginSuccess} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} onSwitchToLogin={() => { setIsRegisterOpen(false); setIsLoginOpen(true); }} />
     </header>
   );
 }

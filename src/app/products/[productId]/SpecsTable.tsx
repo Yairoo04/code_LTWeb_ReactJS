@@ -23,7 +23,7 @@ export default function SpecsTable({ specs }: { specs: Spec[] }) {
           position: 'relative',
         }}
       >
-        <table>
+        <table className={styles.specsTable}>
           <thead>
             <tr>
               <th>Linh kiện</th>

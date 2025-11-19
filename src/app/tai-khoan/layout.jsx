@@ -16,7 +16,6 @@ export default function AccountLayout({ children }) {
         { href: '/tai-khoan/thong-tin', label: 'Thông tin tài khoản' },
         { href: '/tai-khoan/dia-chi', label: 'Sổ địa chỉ' },
         { href: '/tai-khoan/don-hang', label: 'Quản lý đơn hàng' },
-        { href: '/tai-khoan/san-pham-da-xem', label: 'Sản phẩm đã xem' },
     ];
 
     useEffect(() => {

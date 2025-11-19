@@ -1,12 +1,11 @@
 // app/(components)/FlashSale.tsx
 'use client';
 
-import { api } from '@/lib/api';
 import { Product } from '@/lib/product';
 import ProductSlider from '../ProductSlider/ProductSlider';
 import ContainerFluid from '../ContainerFluid/container-fluid';
-import '../../../styles/globals.scss';
 import './FlashSale.module.scss';
+import '../../../styles/globals.scss';
 import React from 'react';
 import { useRecentView } from '../RecentViewProducts/RecentViewContext';
 
@@ -18,6 +17,16 @@ type FlashSaleProps = {
   showReadMore?: boolean;
   showDotActive?: boolean;
   limit?: number;
+
+  // Mã campaign để biết block này đang hiển thị flash sale nào
+  campaignCode: string;
+};
+
+type Countdown = {
+  days: string;
+  hours: string;
+  minutes: string;
+  seconds: string;
 };
 
 export default function FlashSale({
@@ -28,59 +37,112 @@ export default function FlashSale({
   showReadMore = true,
   showDotActive = true,
   limit = 12,
+  campaignCode,
 }: FlashSaleProps) {
   const [products, setProducts] = React.useState<Product[]>([]);
-  const { addRecentView } = useRecentView();
+  const [campaign, setCampaign] = React.useState<any | null>(null);
+  const [countdown, setCountdown] = React.useState<Countdown>({
+    days: '00',
+    hours: '00',
+    minutes: '00',
+    seconds: '00',
+  });
 
-  React.useEffect(() => {
-    async function getFlashProducts() {
-      try {
-        const res = await fetch('/api/products', {
-          cache: 'no-store',
-        });
+  const { addRecentView } = useRecentView(); // nếu sau này muốn log sản phẩm đã xem
 
-        if (!res.ok) {
-          console.error('Fetch /api/products failed:', res.status);
-          return [];
-        }
-        const json = await res.json() as { success: boolean; data: any[] };
-        if (!json?.success || !Array.isArray(json.data)) return [];
+  // ==========================
+  // 1. Fetch danh sách sản phẩm theo campaignCode
+  // ==========================
+ React.useEffect(() => {
+  async function getFlashProducts() {
+    try {
+      // ĐÚNG URL: /api/flash-sale (không cần code)
+      const res = await fetch('/api/flash-sale', { cache: 'no-store' });
 
-        const mapped = json.data.map(item => ({
-          ProductId: item.ProductId ?? 0,
-          Name: item.Name ?? 'N/A',
-          Description: item.Description ?? 'N/A',
-          Price: item.Price ?? 0,
-          Stock: item.Stock ?? 0,
-          ImageUrl: item.ImageUrl ?? '',
-          CreatedAt: item.CreatedAt ?? new Date().toISOString(),
-          DiscountPrice: item.DiscountPrice ?? null,
-          CategoryId: item.CategoryId ?? null,
-          SKU: item.SKU ?? '',
-          IsPublished: item.IsPublished ?? true,
-          UpdatedAt: item.UpdatedAt ?? null,
-        })) as Product[];
-
-        return mapped
-          .sort((a, b) => +new Date(b.CreatedAt) - +new Date(a.CreatedAt))
-          .slice(0, limit);
-      } catch (error) {
-        console.error('Lỗi fetch products:', error);
-        return [];
+      if (!res.ok) {
+        console.error('Fetch /api/flash-sale failed:', res.status);
+        setProducts([]);
+        setCampaign(null);
+        return;
       }
-    }
 
-    getFlashProducts().then(setProducts);
-  }, [limit]);
+      const data = await res.json();
+
+      setCampaign(data.campaign);
+      setProducts(data.products || []);
+
+    } catch (error) {
+      console.error('Lỗi fetch flash sale:', error);
+      setProducts([]);
+      setCampaign(null);
+    }
+  }
+
+  getFlashProducts();
+}, []);
+
+  // ==========================
+  // 2. Countdown theo thời gian campaign (EndTime) – có cả ngày
+  // ==========================
+  React.useEffect(() => {
+    if (!campaign) return;
+
+    // Tùy MSSQL đặt tên cột, đề phòng EndTime / endTime
+    const endTimeRaw = campaign.EndTime || campaign.endTime;
+    if (!endTimeRaw) return;
+
+    const endTime = new Date(endTimeRaw).getTime();
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const diff = endTime - now;
+
+      if (diff <= 0) {
+        setCountdown({
+          days: '00',
+          hours: '00',
+          minutes: '00',
+          seconds: '00',
+        });
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setCountdown({
+        days: String(days).padStart(2, '0'),
+        hours: String(hours).padStart(2, '0'),
+        minutes: String(minutes).padStart(2, '0'),
+        seconds: String(seconds).padStart(2, '0'),
+      });
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(timer);
+  }, [campaign]);
 
   return (
     <ContainerFluid>
       <section className={className}>
         <div className="flash-sale-header">
           <div className="countdown">
-            <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+            {countdown.days !== '00' && (
+              <>
+                <span id="days">{countdown.days}</span> ngày{' '}
+              </>
+            )}
+            <span id="hours">{countdown.hours}</span>:
+            <span id="minutes">{countdown.minutes}</span>:
+            <span id="seconds">{countdown.seconds}</span>
           </div>
-          <h2>{h2Title}</h2>
+          <h2>{h2Title ?? campaign?.Title ?? 'Flash Sale'}</h2>
         </div>
 
         <div className="flash-sale-content">

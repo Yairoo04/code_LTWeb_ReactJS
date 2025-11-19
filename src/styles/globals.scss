@@ -81,123 +81,6 @@ li {
   height: 40px;
 }
 
-// .list-banner {
-//   background-color: #bae7fb;
-// }
-
-// .main-header--top {
-//   background-color: var(--color-primary);
-// }
-
-// .menu {
-//   width: 100%;
-//   height: 90px;
-//   gap: 25px;
-//   background: var(--color-primary);
-//   font-size: 16px;
-//   color: white;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-// }
-
-// .img-logo {
-//   width: 60px;
-//   height: 50px;
-//   cursor: pointer;
-// }
-
-// .category {
-//   font-size: 16px;
-//   background-color: #be1529;
-//   padding: 15px;
-//   border-radius: 5px;
-//   font-weight: 600;
-//   gap: 10px;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   cursor: pointer;
-// }
-
-// .search-box {
-//   display: flex;
-//   align-items: center;
-//   position: relative;
-// }
-
-// .search {
-//   min-width: 350px;
-//   height: 42px;
-//   padding: 8px 50px 8px 15px;
-//   border: none;
-//   outline: none;
-//   border-radius: 4px;
-//   font-size: 16px;
-// }
-
-// .button-search {
-//   position: absolute;
-//   right: 2px;
-//   padding: 10px;
-//   border: none;
-//   outline: none;
-//   background: #fff;
-//   color: black;
-//   border-radius: 4px;
-//   cursor: pointer;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-// }
-
-// .hotline,
-// .showroom-system,
-// .track-oder,
-// .user-cart,
-// .login {
-//   display: flex;
-//   align-items: center;
-//   gap: 10px;
-// }
-
-// .hotline-text,
-// .showroom-system-text,
-// .track-oder-text,
-// .user-cart-text,
-// .login-text {
-//   display: flex;
-//   flex-direction: column;
-// }
-
-// .showroom-system {
-//   display: flex;
-//   align-items: center;
-//   gap: 10px;
-//   color: white;
-//   /* thêm để đồng bộ với Hotline */
-// }
-
-// .showroom-system-text {
-//   display: flex;
-//   flex-direction: column;
-// }
-
-// .login {
-//   font-size: 16px;
-//   font-weight: 600;
-//   color: #fff;
-//   gap: 10px;
-//   background-color: #be1529;
-//   padding: 8px 15px;
-//   border-radius: 5px;
-//   cursor: pointer;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   border: none;
-// }
-
 .sub-header {
   padding: 10px;
   background: #fff;
@@ -651,6 +534,42 @@ footer {
   border-radius: 8px;
 }
 
+.countdown {
+  display: flex;
+  align-items: center;
+  background-color: #0056d2; // Màu nền xanh giống hình
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: monospace; // Để số trông giống đồng hồ kỹ thuật số
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff; // Màu dấu : trắng
+
+  span {
+    background-color: #ffffff;
+    color: #0056d2; // Số màu xanh matching nền
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 4px;
+    min-width: 40px;
+    text-align: center;
+    display: inline-block;
+  }
+
+  #days {
+    margin-right: 4px;
+  }
+
+  &> :not(span) {
+    margin: 0 4px;
+  }
+
+  &>span+span:not(#hours, #minutes, #seconds) {
+    color: #ffffff;
+    margin-left: 4px;
+  }
+}
+
 .flash-sale-2 .flash-sale-header {
   margin-top: 20px;
   padding: 20px 16px 16px;
@@ -965,4 +884,3 @@ footer {
     }
   }
 }
-

@@ -8,6 +8,7 @@ import FlashSale from "../pages/main_Page/FlashSale/FlashSale.tsx";
 import MidBanner from "../pages/main_Page/MidBanner.jsx";
 import SectionCollection from "../pages/main_Page/sectionCollection/SectionCollection.tsx";
 import SubHeader from "../pages/main_Page/SubHeader.jsx";
+import { Children } from "react";
 // import MenuList from "../pages/main_Page/MenuList.jsx";
 // import { publicRoutes } from '../routes/routes.js';
 
@@ -21,11 +22,24 @@ export default function Home() {
         <Slider />
         {/* <MenuList /> */}
         <SubBanner />
-        <RecentView/>
+        <RecentView />
         {/* <!-- Nhóm fsl 2 --> */}
-        <FlashSale className="flash-sale-1" h2Title="⚡ FLASH SALE 10H MỖI NGÀY" showImg_Sale={false} showDotActive={false} />
+        <FlashSale
+          className="flash-sale-1"
+          h2Title="⚡ FLASH SALE 10H MỖI NGÀY"
+          showImg_Sale={false}
+          showDotActive={false}
+          campaignCode="FLASH_10H"
+        />
         {/* <!-- Nhóm fsl 2 --> */}
-        <FlashSale className="flash-sale-2" h2Title="⚡ GEAR ARENA WEEK" showTitle={false} showReadMore={false}/>
+        <FlashSale
+          className="flash-sale-2"
+          h2Title="⚡ GEAR ARENA WEEK"
+          showTitle={false}
+          showReadMore={false}
+          campaignCode="GEAR_ARENA_WEEK"
+        />
+
         <MidBanner />
         <SectionCollection />
       </main>
