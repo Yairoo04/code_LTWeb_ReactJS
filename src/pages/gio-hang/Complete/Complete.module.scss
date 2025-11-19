@@ -1,19 +1,23 @@
 .wrapperMain_content {
   background: #f5f5f5;
   min-height: 100vh;
-  padding: 16px 0;
+  padding: 24px 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .cartBox {
   max-width: 1200px;
   margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .containerFluid {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 0 24px;
+  margin: 0 auto;
 
   @media (max-width: 768px) {
     padding: 0 16px;
@@ -22,282 +26,224 @@
 
 /* BREADCRUMB */
 .breadcrumbCart {
-  padding: 20px 0;
-  border-bottom: 1px solid #eee;
-}
+  margin-bottom: 16px;
 
-.sectionSteps {
-  background: #fdf4f4;
-  padding: 12px 0;
-}
+  .backLink {
+    color: #1982f9;
+    font-size: 14px;
+    text-decoration: none;
 
-.backLink {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #1982f9;
-  font-size: 14px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
-.cardMain {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
-}
-
-.sectionSteps {
-  background: #fdf4f4;
-  padding: 12px 0;
-}
-
+/* PROGRESS BAR */
 .progressBar {
   display: flex;
   justify-content: center;
   gap: 40px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
+
+  .step, .stepCompleted, .stepActive {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #535353;
+  }
+
+  .stepCompleted .stepIcon,
+  .stepActive .stepIcon,
+  .step .stepIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stepActive {
+    color: #e30019;
+    font-weight: 600;
+  }
+
+  .stepText {
+    text-align: center;
+    font-size: 12px;
+    max-width: 80px;
+  }
 }
 
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: #535353;
-  font-size: 13px;
-}
-
-.stepCompleted {
-  @extend .step;
-}
-
-.stepActive {
-  @extend .step;
-  color: #e30019;
-  font-weight: 600;
-}
-
-.stepIcon {
-  width: 28px;
-  height: 28px;
-}
-
-/* NỘI DUNG */
-.sectionOrder {
-  padding: 0 24px 40px;
-}
-
-.cartOrder {
-  width: 100%;
-  margin: 0 auto;
-}
-
-.cartContent {
-  flex: 1;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* === ORDER FORM BOX === */
-.orderFormBox {
-  background: #f9f9f9;
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #eee;
-}
-
-/* Success Header */
+/* SUCCESS HEADER */
 .successHeader {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 
-  h2 {
-    margin: 16px 0 8px;
-    font-size: 24px;
-    color: #00bfa5;
+  .successIcon {
+    width: 60px; /* thu nhỏ icon */
+    height: 60px;
+    margin: 0 auto 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin-bottom: 8px;
+    color: #00bfa5; /* đồng bộ màu Cart */
     font-weight: 700;
   }
 
-  .orderCode {
-    font-size: 16px;
-    color: #333;
-    margin: 0;
-
-    strong {
-      color: #E30019;
-      font-weight: 700;
-    }
-  }
-}
-
-.successIcon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto;
-}
-
-/* === ORDER SUMMARY === */
-.orderSummary {
-  margin-bottom: 24px;
-
-  h3 {
-    font-size: 18px;
-    margin: 0 0 12px;
-    color: #333;
-    font-weight: 600;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
-  }
-
   p {
-    margin: 8px 0;
-    font-size: 15px;
-    display: flex;
-    justify-content: space-between;
-
-    strong {
-      color: #333;
-      min-width: 120px;
-    }
-  }
-}
-
-/* === DANH SÁCH SẢN PHẨM – ĐỒNG NHẤT VỚI THANH TOÁN === */
-.itemsList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.cartItem {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #eee;
-}
-
-.itemImage {
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f5f5f5;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.itemInfo {
-  flex: 1;
-  min-width: 0;
-
-  .productName {
-    margin: 0 0 4px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .price {
-    margin: 0;
-    font-size: 14px;
-    color: #E30019;
-    font-weight: 600;
-  }
-}
-
-.itemActions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  font-size: 14px;
-
-  .quantity {
-    color: #666;
-    margin: 0;
-  }
-
-  .lineTotal {
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-  }
-}
-
-/* === TỔNG KẾT === */
-.summary {
-  margin b: 20px 0 0;
-  padding-top: 16px;
-  border-top: 1px dashed #ddd;
-}
-
-.totalRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 16px;
-
-  span {
+    margin: 4px 0;
     color: #333;
   }
 
   strong {
+    color: #e30019; /* nổi bật mã đơn hàng */
+  }
+}
+
+/* THÔNG TIN GIAO HÀNG */
+.infoBox {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+
+  h3 {
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  div {
+    margin: 4px 0;
+    color: #555;
+  }
+}
+
+/* DANH SÁCH SẢN PHẨM */
+.itemsList {
+  h3 {
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  .cartItem {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px dashed #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .itemImage img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f5f5f5;
+  }
+
+  .itemInfo {
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: #333;
+    }
+
+    p {
+      font-size: 14px;
+      color: #E30019;
+      font-weight: 600;
+    }
+  }
+
+  .itemActions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+
+    span {
+      font-size: 14px;
+      color: #666;
+    }
+
+    strong {
+      font-size: 16px;
+      font-weight: 700;
+      color: #E30019;
+    }
+  }
+}
+
+/* TỔNG KẾT ĐƠN HÀNG */
+.summary {
+  background: #fff9f9;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #ffccbc;
+  margin-top: 24px;
+
+  .totalRow {
+    display: flex;
+    justify-content: space-between;
     font-size: 18px;
-    color: #E30019;
-    font-weight: 700;
+    font-weight: 600;
+    margin-bottom: 16px;
+
+    strong {
+      color: #E30019;
+    }
   }
 }
 
-/* === NÚT CTA === */
-.checkoutBtn {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  background: #E30019;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 16px;
-  transition: background 0.2s;
+/* ACTION BUTTONS */
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
 
-  &:hover {
-    background: #c80016;
+  .ctaBtn, .secondaryBtn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
   }
 
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+  .primaryBtn {
+    background-color: #e30019;
+    color: #fff;
+
+    &:hover {
+      background-color: #c80016;
+    }
+  }
+
+  .secondaryBtn {
+    background-color: #f0f0f0;
+    color: #333;
+
+    &:hover {
+      background-color: #e0e0e0;
+    }
   }
 }
 
-/* === LOADING === */
+/* LOADING */
 .loadingCart {
   text-align: center;
-  padding: 40px 20px;
-  color: #666;
+  padding: 60px 20px;
 
   .spinner {
     width: 40px;
@@ -308,61 +254,26 @@
     animation: spin 1s linear infinite;
     margin: 0 auto 16px;
   }
-
-  p {
-    margin: 0;
-    font-size: 15px;
-  }
 }
 
-.error {
-  color: #dc3545;
-  text-align: center;
-  padding: 16px;
-  font-size: 15px;
-}
-
-/* === ANIMATION === */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* === RESPONSIVE === */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  .containerFluid {
-    padding: 16px;
-  }
-
-  .cartOrder {
-    flex-direction: column;
-  }
-
-  .progressBar {
-    flex-wrap: wrap;
-    gap: 16px;
-
-    &::before {
-      display: none;
-    }
-  }
-
-  .step {
-    flex: none;
-  }
-
-  .stepText {
-    font-size: 12px;
-  }
-
-  .cartItem {
-    flex-direction: column;
-    align-items: flex-start;
+  .itemsList .cartItem {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .itemActions {
     align-items: flex-start;
-    flex-direction: row;
-    gap: 12px;
+  }
+
+  .actionButtons {
+    flex-direction: column;
   }
 }
