@@ -117,7 +117,6 @@ export default function Payment() {
           cartId,
           addressId: orderInfo.addressId,
           selectedProductIds, // Đúng format cho backend
-          paymentMethod: orderInfo.paymentMethod || 'COD', // Truyền phương thức thanh toán
         }),
       });
 

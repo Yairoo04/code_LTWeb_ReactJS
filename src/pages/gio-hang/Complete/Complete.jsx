@@ -40,36 +40,31 @@ export default function Complete() {
         }
 
         const d = result.data;
-
-        // ĐÚNG 100% VỚI BACKEND THẬT CỦA BẠN
+        // Map đúng trường backend trả về
         const normalized = {
-          orderId: d.orderId,
-          recipientName: d.customerName || d.recipientName || 'Khách lẻ',
-          recipientPhone: d.phone || d.recipientPhone || '—',
-          recipientAddress: d.address || d.recipientAddress || '—',
-          totalAmount: Number(d.total || d.totalAmount || 0),
-
-          items: (d.orderItems || d.items || []).map((item, idx) => {
-            const product = item.product || {};
+          orderId: d.OrderId,
+          recipientName: d.RecipientName || 'Khách lẻ',
+          recipientPhone: d.RecipientPhone || '—',
+          recipientAddress: d.RecipientAddress || '—',
+          totalAmount: Number(d.TotalAmount || 0),
+          items: (d.items || []).map((item, idx) => {
             let imageUrl = '/images/placeholder.png';
-
-            try {
-              if (product.imageUrl) {
-                const arr = JSON.parse(product.imageUrl);
+            // Nếu backend trả về ImageUrl dạng JSON, parse lấy ảnh đầu tiên
+            if (item.ImageUrl) {
+              try {
+                const arr = JSON.parse(item.ImageUrl);
                 imageUrl = arr && arr[0] ? arr[0] : imageUrl;
-              }
-            } catch (e) {}
-
+              } catch (e) {}
+            }
             return {
-              key: item.id || item.cartItemId || idx,
-              ProductName: product.name || product.productName || 'Sản phẩm',
+              key: item.ProductId || idx,
+              ProductName: item.ProductName || 'Sản phẩm',
               ImageUrl: imageUrl,
-              PriceAtAdded: Number(item.price || product.price || 0),
-              Quantity: Number(item.quantity || item.qty || 1),
+              PriceAtAdded: Number(item.Price || 0),
+              Quantity: Number(item.Quantity || 1),
             };
           }),
         };
-
         setOrderDetails(normalized);
       } catch (err) {
         alert('Lỗi tải đơn hàng: ' + err.message);
