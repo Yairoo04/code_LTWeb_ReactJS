@@ -212,20 +212,21 @@ export default function Cart() {
       return;
     }
 
+    // Chuẩn bị dữ liệu sản phẩm đã chọn
     const checkoutData = cartItems
       .filter((i) => selectedItems.includes(i.UniqueId))
       .map((i) => ({
         CartItemId: i.CartItemId,
         ProductId: i.ProductId,
-        ProductName: i.ProductName,
         Quantity: i.Quantity,
         PriceAtAdded: i.PriceAtAdded,
         LineTotal: i.LineTotal,
         ImageUrl: i.ImageUrl,
       }));
 
-    sessionStorage.setItem('checkoutItems', JSON.stringify(checkoutData));
-    router.push('/thong-tin-dat-hang');
+    // Truyền qua router bằng query params
+    const encoded = encodeURIComponent(JSON.stringify(checkoutData));
+    router.push(`/thong-tin-dat-hang?items=${encoded}`);
   };
 
   const selectedTotal = cartItems

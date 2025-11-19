@@ -83,20 +83,25 @@ export default function Payment() {
 
     try {
       // SỬA CHÍNH Ở ĐÂY – CHỈ LẤY MÓN ĐÃ CHỌN
-      let selectedCartItemIds = [];
+      // Chuẩn bị selectedProductIds cho API
+      let selectedProductIds = [];
       const savedSelected = localStorage.getItem('cartSelectedUniqueIds');
       if (savedSelected) {
         try {
-          selectedCartItemIds = JSON.parse(savedSelected);
+          const selectedUniqueIds = JSON.parse(savedSelected);
+          // Lấy ProductId từ cartItems dựa trên UniqueId
+          selectedProductIds = cartItems
+            .filter(item => selectedUniqueIds.includes(`${item.CartItemId}|${item.ProductId}`))
+            .map(item => item.ProductId);
         } catch (e) {
           console.error('Parse lỗi cartSelectedUniqueIds');
         }
       }
-      if (selectedCartItemIds.length === 0) {
-        selectedCartItemIds = cartItems.map(item => item.CartItemId);
+      if (selectedProductIds.length === 0) {
+        selectedProductIds = cartItems.map(item => item.ProductId);
       }
 
-      if (selectedCartItemIds.length === 0) {
+      if (selectedProductIds.length === 0) {
         alert('Không có sản phẩm nào để đặt hàng!');
         setLoading(false);
         return;
@@ -111,7 +116,8 @@ export default function Payment() {
         body: JSON.stringify({
           cartId,
           addressId: orderInfo.addressId,
-          selectedCartItemIds, // BÂY GIỜ CHỈ LÀ NHỮNG MÓN ĐÃ CHỌN THẬT SỰ
+          selectedProductIds, // Đúng format cho backend
+          paymentMethod: orderInfo.paymentMethod || 'COD', // Truyền phương thức thanh toán
         }),
       });
 

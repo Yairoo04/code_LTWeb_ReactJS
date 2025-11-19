@@ -17,102 +17,38 @@ export default function OrderInfo() {
   useEffect(() => {
     const initData = async () => {
       const token = localStorage.getItem('token');
-
-      // Bắt buộc đăng nhập
       if (!token) {
         alert('Vui lòng đăng nhập để tiếp tục!');
         router.push('/dang-nhap');
         return;
       }
-
       try {
-        // === 1. LẤY DANH SÁCH SẢN PHẨM ĐÃ CHỌN ===
-        // Cart.jsx hiện tại lưu ở 2 nơi → lấy đúng thứ tự ưu tiên
-        let checkoutItemsStr =
-          sessionStorage.getItem('checkoutItems')      // ưu tiên cao nhất (mới nhất)
-          || localStorage.getItem('selectedCartItems') // cũ (nếu có)
-          || '[]';
-
-        let items = JSON.parse(checkoutItemsStr);
-
-        // Nếu vẫn rỗng → kiểm tra fallback từ cartSelectedUniqueIds (trường hợp reload trang)
-        if (!items || items.length === 0) {
-          const selectedUniqueIds = JSON.parse(localStorage.getItem('cartSelectedUniqueIds') || '[]');
-          if (selectedUniqueIds.length === 0) {
-            alert('Bạn chưa chọn sản phẩm để thanh toán!');
-            router.push('/gio-hang');
-            return;
-          }
-
-          // Lấy lại toàn bộ giỏ hàng để lọc theo UniqueId
-          const cartId = localStorage.getItem('cartId');
-          if (!cartId) {
-            alert('Không tìm thấy giỏ hàng!');
-            router.push('/gio-hang');
-            return;
-          }
-
-          const res = await fetch(`/api/carts/view?cartId=${cartId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const data = await res.json();
-          if (!data.success || !data.items) throw new Error('Lỗi tải giỏ hàng');
-
-          // Tạo UniqueId giống hệt Cart.jsx
-          const fullItems = data.items.map(item => ({
-            CartItemId: item.CartItemId,
-            ProductId: item.ProductId,
-            UniqueId: `${item.CartItemId}|${item.ProductId}`,
-            ProductName: item.ProductName,
-            ImageUrl: (() => {
-              try {
-                const arr = JSON.parse(item.ImageUrl || '[]');
-                return Array.isArray(arr) && arr.length > 0 ? arr[0] : '/images/placeholder.png';
-              } catch {
-                return item.ImageUrl?.startsWith('/') ? item.ImageUrl : '/images/placeholder.png';
-              }
-            })(),
-            PriceAtAdded: Number(item.PriceAtAdded),
-            Quantity: Number(item.Quantity),
-            LineTotal: Number(item.LineTotal),
-          }));
-
-          // Lọc ra những món người dùng đã chọn
-          items = fullItems
-            .filter(item => selectedUniqueIds.includes(item.UniqueId))
-            .map(({ UniqueId, ...rest }) => rest); // bỏ UniqueId đi, chỉ giữ dữ liệu cần
+        // LẤY DANH SÁCH SẢN PHẨM ĐÃ CHỌN TỪ QUERY PARAMS
+        const urlParams = new URLSearchParams(window.location.search);
+        let items = [];
+        if (urlParams.has('items')) {
+          try {
+            items = JSON.parse(decodeURIComponent(urlParams.get('items')));
+          } catch {}
         }
-
-        // Đảm bảo dữ liệu sạch
-        items = items.map(item => ({
-          CartItemId: Number(item.CartItemId),
-          ProductId: Number(item.ProductId),
-          ProductName: item.ProductName || 'Sản phẩm',
-          ImageUrl: item.ImageUrl || '/images/placeholder.png',
-          PriceAtAdded: Number(item.PriceAtAdded || 0),
-          Quantity: Math.max(1, Number(item.Quantity || 1)),
-          LineTotal: Number(item.LineTotal || item.PriceAtAdded * item.Quantity),
-        }));
-
-        if (items.length === 0) {
-          alert('Không có sản phẩm nào hợp lệ để thanh toán!');
+        // Nếu không có hoặc lỗi, fallback về rỗng
+        if (!Array.isArray(items) || items.length === 0) {
+          alert('Bạn chưa chọn sản phẩm để thanh toán!');
           router.push('/gio-hang');
           return;
         }
-
         setCartItems(items);
 
-        // === 2. LẤY THÔNG TIN NGƯỜI DÙNG ===
+        // LẤY THÔNG TIN NGƯỜI DÙNG
         const userStr = localStorage.getItem('user');
         const user = userStr ? JSON.parse(userStr) : {};
         setName(user.FullName || user.name || '');
         setPhone(user.Phone || user.phone || '');
 
-        // === 3. LẤY ĐỊA CHỈ ===
+        // LẤY ĐỊA CHỈ
         const addrRes = await fetch('/api/address', {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         if (addrRes.ok) {
           const raw = await addrRes.json();
           const formatted = raw.map(addr => {
@@ -124,15 +60,11 @@ export default function OrderInfo() {
               displayText: `${addr.ReceiverName} | ${addr.PhoneNumber} - ${full}`,
             };
           });
-
           setAddresses(formatted);
-
-          // Chọn mặc định
           const defaultAddr = formatted.find(a => a.IsDefault === true || a.IsDefault === 1);
           if (defaultAddr) setSelectedAddress(defaultAddr.fullAddress);
           else if (formatted.length > 0) setSelectedAddress(formatted[0].fullAddress);
         }
-
       } catch (err) {
         console.error(err);
         alert('Lỗi tải dữ liệu đặt hàng. Vui lòng thử lại!');
@@ -141,7 +73,6 @@ export default function OrderInfo() {
         setLoading(false);
       }
     };
-
     initData();
   }, [router]);
 
