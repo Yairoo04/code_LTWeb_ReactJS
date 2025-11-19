@@ -1,7 +1,7 @@
 "use client";
 import styles from "./LoadingSpinner.module.scss";
 
-export default function LoadingSpinner({ message = "Đang tải dữ liệu...", size = 60, minHeight = 300, fullscreen = false }) {
+export default function LoadingSpinner({ message = "Loading...", size = 60, minHeight = 300, fullscreen = false }) {
   const wrapperClass = fullscreen ? styles.fullscreen : styles.wrapper;
   return (
     <div className={wrapperClass} style={{ minHeight: fullscreen ? undefined : minHeight }}>

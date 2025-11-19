@@ -236,7 +236,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="admin-page">
-        <h2>📊 Trang chủ</h2>
+        <h2> Trang chủ</h2>
         <LoadingSpinner message="Đang tải dữ liệu tổng quan..." />
       </div>
     );
@@ -247,7 +247,7 @@ export default function DashboardPage() {
   // ===============================
   return (
     <div className="admin-page">
-      <h2>📊 Trang chủ</h2>
+      <h2> Trang chủ</h2>
 
       {/* --- Cards thống kê --- */}
       <div className="dashboard-stats">
@@ -298,7 +298,7 @@ export default function DashboardPage() {
       {/* --- Bảng dữ liệu nhanh --- */}
       <div className="tables-section">
         <div className="table-box">
-          <h3>📋 Đơn hàng gần nhất</h3>
+          <h3> Đơn hàng gần nhất</h3>
           <table>
             <thead>
               <tr>
@@ -324,7 +324,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="table-box">
-          <h3>🔥 Sản phẩm bán chạy</h3>
+          <h3> Sản phẩm bán chạy</h3>
           <table>
             <thead>
               <tr>

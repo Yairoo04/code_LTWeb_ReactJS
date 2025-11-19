@@ -5,9 +5,9 @@ import { useState } from 'react';
 import styles from './ProductDetail.module.scss'; // Reuse the same styles or create new if needed
 
 type Spec = {
-  component: string;
-  detail: string;
-  warranty: string;
+  SpecName: string;
+  SpecValue: string;
+  Warranty: string;
 };
 
 export default function SpecsTable({ specs }: { specs: Spec[] }) {
@@ -34,9 +34,9 @@ export default function SpecsTable({ specs }: { specs: Spec[] }) {
           <tbody>
             {specs.map((spec, index) => (
               <tr key={index}>
-                <td>{spec.component}</td>
-                <td>{spec.detail}</td>
-                <td>{spec.warranty}</td>
+                <td>{spec.SpecName}</td>
+                <td>{spec.SpecValue}</td>
+                <td>{spec.Warranty}</td>
               </tr>
             ))}
           </tbody>

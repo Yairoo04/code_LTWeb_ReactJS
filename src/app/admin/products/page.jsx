@@ -13,6 +13,61 @@ function currency(v) {
   }
 }
 
+// Specs templates cho từng danh mục
+const SPECS_TEMPLATES = {
+  1: [ // Laptop
+    { SpecName: 'CPU', SpecValue: '', Warranty: '' },
+    { SpecName: 'RAM', SpecValue: '', Warranty: '' },
+    { SpecName: 'VGA', SpecValue: '', Warranty: '' },
+    { SpecName: 'Ổ cứng', SpecValue: '', Warranty: '' },
+    { SpecName: 'Màn hình', SpecValue: '', Warranty: '' },
+    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
+    { SpecName: 'Trọng lượng', SpecValue: '', Warranty: '' },
+  ],
+  2: [ // PC
+    { SpecName: 'CPU', SpecValue: '', Warranty: '' },
+    { SpecName: 'Mainboard', SpecValue: '', Warranty: '' },
+    { SpecName: 'RAM', SpecValue: '', Warranty: '' },
+    { SpecName: 'VGA', SpecValue: '', Warranty: '' },
+    { SpecName: 'SSD', SpecValue: '', Warranty: '' },
+    { SpecName: 'HDD', SpecValue: '', Warranty: '' },
+    { SpecName: 'PSU', SpecValue: '', Warranty: '' },
+    { SpecName: 'Case', SpecValue: '', Warranty: '' },
+    { SpecName: 'Tản nhiệt', SpecValue: '', Warranty: '' },
+  ],
+  3: [ // Màn hình
+    { SpecName: 'Kích thước', SpecValue: '', Warranty: '' },
+    { SpecName: 'Độ phân giải', SpecValue: '', Warranty: '' },
+    { SpecName: 'Tấm nền', SpecValue: '', Warranty: '' },
+    { SpecName: 'Tần số quét', SpecValue: '', Warranty: '' },
+    { SpecName: 'Thời gian phản hồi', SpecValue: '', Warranty: '' },
+    { SpecName: 'Cổng kết nối', SpecValue: '', Warranty: '' },
+  ],
+  4: [ // Chuột
+    { SpecName: 'Sensor', SpecValue: '', Warranty: '' },
+    { SpecName: 'DPI', SpecValue: '', Warranty: '' },
+    { SpecName: 'Kết nối', SpecValue: '', Warranty: '' },
+    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
+    { SpecName: 'Trọng lượng', SpecValue: '', Warranty: '' },
+    { SpecName: 'Số nút', SpecValue: '', Warranty: '' },
+  ],
+  5: [ // Bàn phím
+    { SpecName: 'Switch', SpecValue: '', Warranty: '' },
+    { SpecName: 'Keycap', SpecValue: '', Warranty: '' },
+    { SpecName: 'Layout', SpecValue: '', Warranty: '' },
+    { SpecName: 'Kết nối', SpecValue: '', Warranty: '' },
+    { SpecName: 'LED', SpecValue: '', Warranty: '' },
+    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
+  ],
+  6: [ // Tai nghe
+    { SpecName: 'Driver', SpecValue: '', Warranty: '' },
+    { SpecName: 'Kết nối', SpecValue: '', Warranty: '' },
+    { SpecName: 'Tần số', SpecValue: '', Warranty: '' },
+    { SpecName: 'Micro', SpecValue: '', Warranty: '' },
+    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
+  ],
+};
+
 export default function ProductPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +78,8 @@ export default function ProductPage() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [specs, setSpecs] = useState([]); // State cho specs
+  const [loadingSpecs, setLoadingSpecs] = useState(false); // Loading state
   const [formData, setFormData] = useState({
     productName: "",
     description: "",
@@ -105,7 +162,7 @@ export default function ProductPage() {
     return list;
   }, [products, search, category, inStockOnly, sort]);
 
-  function openEditModal(product) {
+  async function openEditModal(product) {
     setEditingProduct(product);
     // Parse images từ ImageUrl (giả sử lưu dạng comma-separated hoặc JSON array)
     let imagesList = [];
@@ -128,6 +185,33 @@ export default function ProductPage() {
       images: imagesList.map(url => ({ url, uploaded: true })),
       sku: product.SKU || "",
     });
+
+    // Fetch specs cho sản phẩm
+    setLoadingSpecs(true);
+    try {
+      console.log('🔍 Fetching specs for ProductId:', product.ProductId);
+      const res = await fetch(`${API_BASE}/api/products?productId=${product.ProductId}&details=true`);
+      const data = await res.json();
+      console.log('📦 API Response:', data);
+      
+      if (data.success && data.data.specs) {
+        const loadedSpecs = data.data.specs.map(s => ({
+          SpecName: s.SpecName || '',
+          SpecValue: s.SpecValue || '',
+          Warranty: s.Warranty || ''
+        }));
+        console.log('✅ Loaded specs:', loadedSpecs);
+        setSpecs(loadedSpecs);
+      } else {
+        console.log('⚠️ No specs found in response');
+        setSpecs([]);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch specs:", error);
+      setSpecs([]);
+    } finally {
+      setLoadingSpecs(false);
+    }
   }
 
   function openAddModal() {
@@ -147,6 +231,7 @@ export default function ProductPage() {
   function closeModals() {
     setEditingProduct(null);
     setShowAddModal(false);
+    setSpecs([]); // Reset specs
     setFormData({
       productName: "",
       description: "",
@@ -157,6 +242,59 @@ export default function ProductPage() {
       images: [],
       sku: "",
     });
+  }
+
+  // Specs management functions
+  function loadSpecsTemplate(categoryId) {
+    const template = SPECS_TEMPLATES[categoryId];
+    if (template) {
+      // Get existing SpecNames to avoid duplicates
+      const existingSpecNames = specs.map(s => s.SpecName.trim().toLowerCase());
+      
+      // Filter out template specs that already exist
+      const newSpecs = template.filter(t => 
+        !existingSpecNames.includes(t.SpecName.trim().toLowerCase())
+      );
+      
+      // Merge existing specs with new template specs
+      setSpecs([...specs, ...newSpecs.map(t => ({ ...t }))]);
+      
+      console.log('📋 Merged specs template for category:', categoryId, '- Added', newSpecs.length, 'new specs');
+    } else {
+      console.log('⚠️ No template for category:', categoryId);
+    }
+  }
+
+  function addSpec() {
+    setSpecs([...specs, { SpecName: '', SpecValue: '', Warranty: '' }]);
+  }
+
+  function updateSpec(index, field, value) {
+    const newSpecs = [...specs];
+    newSpecs[index][field] = value;
+    setSpecs(newSpecs);
+  }
+
+  function removeSpec(index) {
+    setSpecs(specs.filter((_, i) => i !== index));
+  }
+
+  async function saveSpecs(productId) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/product-specs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, specs })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to save specs');
+      }
+      console.log('✅ Specs saved:', data.count);
+    } catch (error) {
+      console.error('❌ Error saving specs:', error);
+      alert('Lỗi lưu thông số kỹ thuật: ' + error.message);
+    }
   }
 
   async function handleImageUpload(e) {
@@ -221,10 +359,13 @@ export default function ProductPage() {
       });
       const data = await res.json();
       if (data.success) {
+        // Save specs sau khi save product thành công
+        await saveSpecs(editingProduct.ProductId);
+        
         // Refresh lại danh sách
         await fetchProducts();
         closeModals();
-        alert("Cập nhật sản phẩm thành công!");
+        alert("Cập nhật sản phẩm và thông số kỹ thuật thành công!");
       }
     } catch (error) {
       console.error("Failed to update product:", error);
@@ -349,7 +490,7 @@ export default function ProductPage() {
       </div>
 
       {loading ? (
-        <LoadingSpinner message="Đang tải sản phẩm..." minHeight={200} />
+        <LoadingSpinner message="Đang tải sản phẩm..." minHeight={200} cute={true} />
       ) : (
         <div className={styles.grid}>
           {filtered.map((p) => {
@@ -562,6 +703,87 @@ export default function ProductPage() {
                   value={formData.stockQuantity}
                   onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
                 />
+              </div>
+
+              {/* Thông số kỹ thuật */}
+              <div className={styles.specsSection}>
+                <div className={styles.specsHeader}>
+                  <label>Thông số kỹ thuật</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      className={styles.btnLoadTemplate} 
+                      onClick={() => {
+                        if (!formData.categoryId) {
+                          alert('Vui lòng chọn danh mục trước!');
+                          return;
+                        }
+                        loadSpecsTemplate(formData.categoryId);
+                      }}
+                    >
+                      📋 Tải mẫu theo danh mục
+                    </button>
+                    <button type="button" className={styles.btnAddSpec} onClick={addSpec}>
+                      + Thêm thông số
+                    </button>
+                  </div>
+                </div>
+                {loadingSpecs ? (
+                  <p style={{ color: '#2563eb', textAlign: 'center', padding: '20px', margin: 0 }}>
+                    ⏳ Đang tải thông số...
+                  </p>
+                ) : specs.length === 0 ? (
+                  <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px', margin: 0 }}>
+                    Chưa có thông số. Nhấn "Thêm thông số" để bắt đầu.
+                  </p>
+                ) : (
+                  <div className={styles.specsTable}>
+                    {/* Table Header */}
+                    <div className={styles.specsTableHeader}>
+                      <div className={styles.headerCell}>Linh kiện</div>
+                      <div className={styles.headerCell} style={{ flex: 2 }}>Chi tiết</div>
+                      <div className={styles.headerCell}>Bảo hành</div>
+                      <div className={styles.headerCell} style={{ width: '50px' }}></div>
+                    </div>
+                    {/* Table Body */}
+                    <div className={styles.specsList}>
+                      {specs.map((spec, index) => (
+                        <div key={index} className={styles.specRow}>
+                          <input
+                            type="text"
+                            placeholder="VD: CPU"
+                            value={spec.SpecName}
+                            onChange={(e) => updateSpec(index, 'SpecName', e.target.value)}
+                            className={styles.specInput}
+                          />
+                          <input
+                            type="text"
+                            placeholder="VD: Intel Core i5-1335U (10 nhân 12 luồng)"
+                            value={spec.SpecValue}
+                            onChange={(e) => updateSpec(index, 'SpecValue', e.target.value)}
+                            className={styles.specInput}
+                            style={{ flex: 2 }}
+                          />
+                          <input
+                            type="text"
+                            placeholder="VD: 24 tháng"
+                            value={spec.Warranty}
+                            onChange={(e) => updateSpec(index, 'Warranty', e.target.value)}
+                            className={styles.specInput}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeSpec(index)}
+                            className={styles.btnRemoveSpec}
+                            title="Xóa thông số"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className={styles.modalFooter}>
