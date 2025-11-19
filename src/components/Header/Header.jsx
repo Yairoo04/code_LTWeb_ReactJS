@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation'; 
+import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faPhone, faStore, faTruck, faShoppingCart, faUser } from '@fortawesome/free-solid-svg-icons';
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
@@ -13,9 +13,14 @@ import styles from './Header.module.scss';
 import { FaUser, FaBoxOpen, FaSignOutAlt } from 'react-icons/fa';
 import SearchBox from '../Search/SearchBox';
 
+// HÀM KIỂM TRA GUID HỢP LỆ – BẢO VỆ TUYỆT ĐỐI localStorage
+const isValidGuid = (str) => {
+  return typeof str === 'string' && /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(str);
+};
+
 export default function Header() {
   const pathname = usePathname();
-  const router = useRouter(); // DÙNG ĐỂ CHUYỂN TRANG
+  const router = useRouter();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -23,7 +28,7 @@ export default function Header() {
   const [isSticky, setIsSticky] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [cartCount, setCartCount] = useState(0);
-  const [showLogoutModal, setShowLogoutModal] = useState(false); // MODAL XÁC NHẬN
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const headerRef = useRef(null);
 
   // Tô đậm menu showroom
@@ -34,137 +39,100 @@ export default function Header() {
     });
   }, [pathname]);
 
+  // CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG – ĐÃ FIX 100% KHÔNG LÀM MẤT USER
   const updateCartCount = useCallback(async () => {
-    const storedCartId = localStorage.getItem("cartId");
-    const url = storedCartId ? `/api/carts?cartId=${storedCartId}` : "/api/carts";
-
     try {
-      const token = localStorage.getItem("token");
+      let cartId = localStorage.getItem('cartId');
+      if (cartId && !isValidGuid(cartId)) {
+        console.warn('cartId không hợp lệ → xóa để tạo mới');
+        localStorage.removeItem('cartId');
+        cartId = null;
+      }
+
+      const url = cartId ? `/api/carts?cartId=${cartId}` : '/api/carts';
+      const token = localStorage.getItem('token');
 
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
+          'Content-Type': 'application/json',
           ...(token && { Authorization: `Bearer ${token}` }),
         },
+        cache: 'no-store',
       });
 
       if (!response.ok) {
-        console.warn("❌ Cart API nhận status:", response.status);
+        console.warn('Cart API lỗi:', response.status);
         setCartCount(0);
         return;
       }
 
       const json = await response.json();
+      const data = json?.data || json?.cart || json || {};
 
-      console.log("🔥 RAW CART RESPONSE:", json);
-
-      // ⛔ Backend KHÔNG trả { data: {...} }
-      // 👉 Ta tạo fallback để FE không bao giờ crash
-
-      const data =
-        json?.data ??      // backend dạng { data: {...} }
-        json?.cart ??      // backend dạng { cart: {...} }
-        json ??            // backend trả thẳng {...}
-        {};
-
-      console.log("🔥 NORMALIZED CART DATA:", data);
-
-      const count =
-        data.totalQuantity ??
-        (Array.isArray(data.items)
-          ? data.items.reduce(
-            (sum, item) => sum + (item.Quantity ?? item.quantity ?? 1),
-            0
-          )
-          : 0) ??
-        data.count ??
-        data.items?.length ??
-        0;
-
+      // Tính tổng số lượng
+      let count = 0;
+      if (data.totalQuantity !== undefined) {
+        count = data.totalQuantity;
+      } else if (Array.isArray(data.items)) {
+        count = data.items.reduce((sum, item) => sum + (item.Quantity || item.quantity || 0), 0);
+      }
 
       setCartCount(count);
 
-      if (data.cartId) {
-        localStorage.setItem("cartId", data.cartId);
+      // CHỈ LƯU cartId NẾU LÀ GUID HỢP LỆ → TUYỆT ĐỐI KHÔNG GHI ĐÈ BẰNG NULL!
+      if (data.cartId && isValidGuid(data.cartId)) {
+        localStorage.setItem('cartId', data.cartId);
       }
 
     } catch (err) {
-      console.error("❌ CART ERROR:", err);
+      console.error('Lỗi lấy số lượng giỏ hàng:', err);
       setCartCount(0);
     }
   }, []);
 
-  // Optimistic update + fetch lại để chắc chắn
+  // Cập nhật khi có sự kiện từ các trang khác
   useEffect(() => {
-    const handler = () => {
-      setCartCount((prev) => prev + 1);
-      updateCartCount(); // đồng bộ lại với server
-    };
-
-    window.addEventListener("cart-updated", handler);
-    return () => window.removeEventListener("cart-updated", handler);
+    const handler = () => updateCartCount();
+    window.addEventListener('cart-updated', handler);
+    return () => window.removeEventListener('cart-updated', handler);
   }, [updateCartCount]);
 
-  // Load cart khi mount / đổi trang / login/logout
+  // Load giỏ hàng khi mount + khi user thay đổi
   useEffect(() => {
     updateCartCount();
-  }, [pathname, user, updateCartCount]);
+  }, [user, updateCartCount]);
 
-  // Login success
-  // Login success – ĐÃ SỬA HOÀN HẢO (dòng này quyết định tất cả)
+  // Login thành công
   const handleLoginSuccess = (userData) => {
-    // === BƯỚC QUAN TRỌNG NHẤT: Luôn luôn lưu userId một cách chắc chắn ===
-    const realUserId =
-      userData.id ||
-      userData._id ||
-      userData.userId ||
-      userData.customerId ||
-      userData.user_id ||
-      userData.profile?.id ||
+    const realUserId = userData.id || userData._id || userData.userId || userData.customerId;
+    const name = (userData.fullname || userData.name || userData.email || 'Người dùng').trim();
 
-      localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem('user', JSON.stringify({ ...userData, name }));
+    if (userData.token) localStorage.setItem('token', userData.token);
+    if (realUserId) localStorage.setItem('userId', String(realUserId));
 
-    // Luôn luôn lưu token
-    if (userData.token) {
-      localStorage.setItem("token", userData.token);
-    }
-
-    // === BẮT BUỘC PHẢI CÓ DÒNG NÀY ===
-    if (realUserId) {
-      localStorage.setItem("userId", String(realUserId));
-    } else {
-      console.error("⚠️ Backend không tìm thấy userId từ backend:", userData);
-    }
-
-    const name = userData.fullname?.trim() || userData.name?.trim() || userData.email || "Người dùng";
     setUser({ ...userData, name });
     setIsLoginOpen(false);
     updateCartCount();
   };
 
-  // Load user từ localStorage khi mount
+  // Load user khi mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const saved = localStorage.getItem('user');
+    if (saved) {
       try {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        if (parsed.id || parsed._id) {
-          localStorage.setItem("userId", parsed.id || parsed._id);
-        }
+        const parsed = JSON.parse(saved);
+        const name = (parsed.fullname || parsed.name || parsed.email || 'Người dùng').trim();
+        setUser({ ...parsed, name });
       } catch (e) {
         localStorage.removeItem('user');
       }
     }
   }, []);
 
-  // === XỬ LÝ ĐĂNG XUẤT ===
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true); // HIỆN MODAL
-    setDropdownOpen(false); // ĐÓNG DROPDOWN
-  };
-
+  // Đăng xuất
   const confirmLogout = () => {
-    // XÓA TẤT CẢ
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
@@ -173,8 +141,6 @@ export default function Header() {
     setUser(null);
     setCartCount(0);
     setShowLogoutModal(false);
-
-    // CHUYỂN VỀ TRANG CHỦ
     router.push('/');
   };
 
@@ -183,48 +149,35 @@ export default function Header() {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight);
     }
-
-    const handleScroll = () => {
-      setIsSticky(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setIsSticky(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header className={styles.mainHeader}>
-      {/* Banner top */}
       <div className={styles.topBanner}>
         <ContainerFluid>
           <img src="/images/top-banner.gif" alt="Top Banner" className={styles.bannerImg} />
         </ContainerFluid>
       </div>
 
-      {/* Header chính */}
-      <div
-        ref={headerRef}
-        className={`${styles.headerTop} ${isSticky ? styles.sticky : ''}`}
-      >
+      <div ref={headerRef} className={`${styles.headerTop} ${isSticky ? styles.sticky : ''}`}>
         <ContainerFluid>
           <div className={styles.headerInner}>
-            {/* Logo */}
             <Link href={config.routes.home} className={styles.logo}>
               <img src="/images/logo.jpg" alt="GTN" />
             </Link>
 
-            {/* Danh mục */}
             <div className={styles.categoryMenu}>
               <FontAwesomeIcon icon={faBars} />
               <span>Danh mục</span>
             </div>
 
-            {/* Thanh tìm kiếm */}
             <div className={styles.searchWrapper}>
               <SearchBox />
             </div>
 
-            {/* Hotline */}
             <div className={styles.hotline}>
               <FontAwesomeIcon icon={faPhone} />
               <div>
@@ -233,7 +186,6 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Hệ thống showroom */}
             <Link href={config.routes.showroom} className={styles.showroom}>
               <FontAwesomeIcon icon={faStore} />
               <div>
@@ -242,7 +194,6 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Tra cứu đơn hàng */}
             <div className={styles.trackOrder}>
               <FontAwesomeIcon icon={faTruck} />
               <div>
@@ -251,7 +202,6 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Giỏ hàng */}
             <Link href={config.routes.cart} className={styles.cart}>
               <div className={styles.cartIcon}>
                 <FontAwesomeIcon icon={faShoppingCart} />
@@ -263,7 +213,6 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Tài khoản */}
             <div className={styles.account}>
               {!user ? (
                 <button onClick={() => setIsLoginOpen(true)} className={styles.loginBtn}>
@@ -297,8 +246,7 @@ export default function Header() {
                       <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
                         <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
                       </Link>
-                      {/* ĐĂNG XUẤT */}
-                      <div className={styles.dropdownItem} onClick={handleLogoutClick}>
+                      <div className={styles.dropdownItem} onClick={() => { setShowLogoutModal(true); setDropdownOpen(false); }}>
                         <FaSignOutAlt className={styles.icon} /> Đăng xuất
                       </div>
                     </div>
@@ -310,48 +258,23 @@ export default function Header() {
         </ContainerFluid>
       </div>
 
-      {/* Placeholder khi sticky */}
-      <div
-        className={`${styles.headerPlaceholder} ${isSticky ? styles.active : ''}`}
-        style={{ height: isSticky ? `${headerHeight}px` : '0' }}
-      />
+      <div className={`${styles.headerPlaceholder} ${isSticky ? styles.active : ''}`} style={{ height: isSticky ? `${headerHeight}px` : '0' }} />
 
-      {/* === MODAL ĐĂNG XUẤT === */}
+      {/* Modal xác nhận đăng xuất */}
       {showLogoutModal && (
         <div className={styles.modalOverlay} onClick={() => setShowLogoutModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <p>Bạn muốn thoát tài khoản?</p>
             <div className={styles.modalActions}>
-              <button onClick={() => setShowLogoutModal(false)} className={styles.cancelBtn}>
-                Không
-              </button>
-              <button onClick={confirmLogout} className={styles.confirmBtn}>
-                Đồng ý
-              </button>
+              <button onClick={() => setShowLogoutModal(false)} className={styles.cancelBtn}>Không</button>
+              <button onClick={confirmLogout} className={styles.confirmBtn}>Đồng ý</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Login/Register */}
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSwitchToRegister={() => {
-          setIsLoginOpen(false);
-          setIsRegisterOpen(true);
-        }}
-        onLoginSuccess={handleLoginSuccess}
-      />
-
-      <RegisterModal
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
-        onSwitchToLogin={() => {
-          setIsRegisterOpen(false);
-          setIsLoginOpen(true);
-        }}
-      />
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSwitchToRegister={() => { setIsLoginOpen(false); setIsRegisterOpen(true); }} onLoginSuccess={handleLoginSuccess} />
+      <RegisterModal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)} onSwitchToLogin={() => { setIsRegisterOpen(false); setIsLoginOpen(true); }} />
     </header>
   );
-} // <- Đã thêm dấu } và ; ở đây để chắc chắn không còn lỗi cú pháp nào
+}

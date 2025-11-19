@@ -53,65 +53,33 @@ export default function FlashSale({
   // ==========================
   // 1. Fetch danh sách sản phẩm theo campaignCode
   // ==========================
-  React.useEffect(() => {
-    async function getFlashProducts() {
-      try {
-        const res = await fetch(`/api/flash-sale/${campaignCode}`, {
-          cache: 'no-store',
-        });
+ React.useEffect(() => {
+  async function getFlashProducts() {
+    try {
+      // ĐÚNG URL: /api/flash-sale (không cần code)
+      const res = await fetch('/api/flash-sale', { cache: 'no-store' });
 
-        if (!res.ok) {
-          console.error('Fetch /api/flash-sale failed:', res.status);
-          setProducts([]);
-          setCampaign(null);
-          return;
-        }
-
-        const json = (await res.json()) as {
-          success: boolean;
-          campaign: any;
-          products: any[];
-        };
-
-        if (!json?.success) {
-          setProducts([]);
-          setCampaign(null);
-          return;
-        }
-
-        setCampaign(json.campaign);
-
-        const mapped = json.products.map((item) => ({
-          ProductId: item.ProductId ?? 0,
-          Name: item.Name ?? 'N/A',
-          Description: item.Description ?? 'N/A',
-          Price: Number(item.Price ?? 0),
-
-          // Ưu tiên FlashPrice nếu backend trả về, nếu không thì dùng DiscountPrice bình thường
-          DiscountPrice:
-            item.FlashPrice != null
-              ? Number(item.FlashPrice)
-              : item.DiscountPrice ?? null,
-
-          Stock: Number(item.Stock ?? 0),
-          ImageUrl: item.ImageUrl ?? '',
-          CreatedAt: item.CreatedAt ?? new Date().toISOString(),
-          CategoryId: item.CategoryId ?? null,
-          SKU: item.SKU ?? '',
-          IsPublished: item.IsPublished ?? true,
-          UpdatedAt: item.UpdatedAt ?? null,
-        })) as Product[];
-
-        setProducts(mapped.slice(0, limit));
-      } catch (error) {
-        console.error('Lỗi fetch flash sale products:', error);
+      if (!res.ok) {
+        console.error('Fetch /api/flash-sale failed:', res.status);
         setProducts([]);
         setCampaign(null);
+        return;
       }
-    }
 
-    getFlashProducts();
-  }, [campaignCode, limit]);
+      const data = await res.json();
+
+      setCampaign(data.campaign);
+      setProducts(data.products || []);
+
+    } catch (error) {
+      console.error('Lỗi fetch flash sale:', error);
+      setProducts([]);
+      setCampaign(null);
+    }
+  }
+
+  getFlashProducts();
+}, []);
 
   // ==========================
   // 2. Countdown theo thời gian campaign (EndTime) – có cả ngày
