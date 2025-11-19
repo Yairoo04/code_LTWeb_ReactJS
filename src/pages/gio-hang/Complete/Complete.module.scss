@@ -1,204 +1,368 @@
-// app/hoan-tat/Complete.module.scss (Adapted from Payment.module.scss)
 .wrapperMain_content {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 16px 0;
+}
+
+.cartBox {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.containerFluid {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
+}
+
+/* BREADCRUMB */
+.breadcrumbCart {
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.sectionSteps {
+  background: #fdf4f4;
+  padding: 12px 0;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1982f9;
+  font-size: 14px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.cardMain {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.sectionSteps {
+  background: #fdf4f4;
+  padding: 12px 0;
+}
+
+.progressBar {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #535353;
+  font-size: 13px;
+}
+
+.stepCompleted {
+  @extend .step;
+}
+
+.stepActive {
+  @extend .step;
+  color: #e30019;
+  font-weight: 600;
+}
+
+.stepIcon {
+  width: 28px;
+  height: 28px;
+}
+
+/* NỘI DUNG */
+.sectionOrder {
+  padding: 0 24px 40px;
+}
+
+.cartOrder {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.cartContent {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* === ORDER FORM BOX === */
+.orderFormBox {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #eee;
+}
+
+/* Success Header */
+.successHeader {
+  text-align: center;
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 16px 0 8px;
+    font-size: 24px;
+    color: #00bfa5;
+    font-weight: 700;
+  }
+
+  .orderCode {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+
+    strong {
+      color: #E30019;
+      font-weight: 700;
+    }
+  }
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+}
+
+/* === ORDER SUMMARY === */
+.orderSummary {
+  margin-bottom: 24px;
+
+  h3 {
+    font-size: 18px;
+    margin: 0 0 12px;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+  }
+
+  p {
+    margin: 8px 0;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+
+    strong {
+      color: #333;
+      min-width: 120px;
+    }
+  }
+}
+
+/* === DANH SÁCH SẢN PHẨM – ĐỒNG NHẤT VỚI THANH TOÁN === */
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.itemImage {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+
+  img {
     width: 100%;
     height: 100%;
-    // background-color: #f8f9fa; // Nền nhẹ giống HTML
+    object-fit: cover;
   }
-  
-  .cartBox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    margin: 20px auto;
-  
-    .cardMain {
-      width: 100%;
-      background-color: #fff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
-      max-width: 1200px; // Tăng chiều rộng để phù hợp form và summary side-by-side
-    }
-  
-    .breadcrumbCart {
-      margin-bottom: 20px;
-  
-      .backLink {
-        color: #1982f9;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-  
-        svg {
-          margin-right: 5px;
-        }
-  
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-  
-    .sectionSteps {
-      width: 100%;
-      margin-bottom: 20px;
-      padding: 10px;
-    }
-  
-    .progressBar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      background-color: #FFEDED;
-      border-bottom: 1px solid #eee;
-      padding: 20px 14px 16px;
-  
-      .stepActive,
-      .step {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        position: relative;
-        flex: 0 0 25%;
-        max-width: 25%;
-        padding: 0 10px; // Giảm padding để line fit hơn
-  
-        .stepIcon {
-          width: 28px;
-          height: 28px;
-          margin-bottom: 5px;
-          z-index: 1;
-  
-          svg {
-            width: 100%;
-            height: 100%;
-          }
-        }
-  
-        .stepText {
-          font-size: 12px;
-          color: #535353;
-        }
-      }
-  
-      .stepActive {
-        .stepText {
-          color: #e30019;
-          font-weight: bold;
-        }
-      }
-  
-      // Dòng kẻ giữa các bước (sử dụng pseudo-element, điều chỉnh để chính xác hơn)
-      .step:not(:first-child)::before {
-        content: "";
-        position: absolute;
-        top: 14px; // Căn giữa icon (icon height 28px / 2 = 14px)
-        left: -50%; // Bắt đầu từ giữa step trước
-        width: 100%; // Kéo dài đến giữa step hiện tại
-        border-top: 1px dashed #535353;
-        z-index: 0;
-      }
-    }
-  
-    .sectionOrder {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      gap: 20px;
-  
-      @media (max-width: 768px) {
-        flex-direction: column;
-      }
-    }
-  
-    .completeBox {
-      flex: 1;
-      max-width: 600px;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 4px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-      text-align: center;
-  
-      h2 {
-        font-size: 24px;
-        margin-bottom: 16px;
-        color: #28a745; // Màu xanh thành công
-      }
-  
-      p {
-        font-size: 16px;
-        margin-bottom: 20px;
-        color: #333;
-      }
-    }
-  
-    .orderSummary {
-      text-align: left;
-      margin-bottom: 20px;
-  
-      h3 {
-        font-size: 18px;
-        margin-bottom: 12px;
-      }
-  
-      p {
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: #333;
-  
-        strong {
-          font-weight: bold;
-        }
-      }
-  
-      h4 {
-        font-size: 16px;
-        margin: 16px 0 8px;
-      }
-  
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 16px;
-  
-        li {
-          padding: 8px 0;
-          border-bottom: 1px solid #eee;
-          font-size: 14px;
-          color: #333;
-  
-          &:last-child {
-            border-bottom: none;
-          }
-        }
-      }
-  
-      .total {
-        font-size: 16px;
-        font-weight: bold;
-        text-align: right;
-        margin-top: 10px;
-      }
-    }
-  
-    .homeButton {
-      cursor: pointer;
-      padding: 12px 24px;
-      font-weight: 600;
-      color: #fff;
-      background: #1982f9;
-      border: none;
-      text-transform: uppercase;
-      border-radius: 4px;
-      font-size: 14px;
-      text-decoration: none;
-      display: inline-block;
-  
-      &:hover {
-        background-color: #0f6cd6;
-      }
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+
+  .productName {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .price {
+    margin: 0;
+    font-size: 14px;
+    color: #E30019;
+    font-weight: 600;
+  }
+}
+
+.itemActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 14px;
+
+  .quantity {
+    color: #666;
+    margin: 0;
+  }
+
+  .lineTotal {
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+}
+
+/* === TỔNG KẾT === */
+.summary {
+  margin b: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px dashed #ddd;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+
+  span {
+    color: #333;
+  }
+
+  strong {
+    font-size: 18px;
+    color: #E30019;
+    font-weight: 700;
+  }
+}
+
+/* === NÚT CTA === */
+.checkoutBtn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: #E30019;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #c80016;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+}
+
+/* === LOADING === */
+.loadingCart {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #E30019;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 15px;
+  }
+}
+
+.error {
+  color: #dc3545;
+  text-align: center;
+  padding: 16px;
+  font-size: 15px;
+}
+
+/* === ANIMATION === */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .containerFluid {
+    padding: 16px;
+  }
+
+  .cartOrder {
+    flex-direction: column;
+  }
+
+  .progressBar {
+    flex-wrap: wrap;
+    gap: 16px;
+
+    &::before {
+      display: none;
     }
   }
+
+  .step {
+    flex: none;
+  }
+
+  .stepText {
+    font-size: 12px;
+  }
+
+  .cartItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .itemActions {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 12px;
+  }
+}

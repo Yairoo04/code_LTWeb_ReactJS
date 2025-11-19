@@ -1,216 +1,246 @@
-// app/thanh-toan/Payment.module.scss (Adapted from OrderInfo.module.scss)
 .wrapperMain_content {
-    width: 100%;
-    height: 100%;
-    // background-color: #f8f9fa; // Nền nhẹ giống HTML
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 16px 0;
 }
 
 .cartBox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    margin: 20px auto;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    .cardMain {
-        width: 100%;
-        background-color: #fff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        max-width: 1200px; // Tăng chiều rộng để phù hợp form và summary side-by-side
-    }
+.containerFluid {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
 
-    .breadcrumbCart {
-        margin-bottom: 20px;
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
+}
 
-        .backLink {
-            color: #1982f9;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
+/* BREADCRUMB */
+.breadcrumbCart {
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
+}
 
-            svg {
-                margin-right: 5px;
-            }
+.sectionSteps {
+  background: #fdf4f4;
+  padding: 12px 0;
+}
 
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1982f9;
+  font-size: 14px;
+  text-decoration: none;
 
-    .sectionSteps {
-        width: 100%;
-        margin-bottom: 20px;
-        padding: 10px;
-    }
+  &:hover {
+    text-decoration: underline;
+  }
+}
 
-    .progressBar {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        background-color: #FFEDED;
-        border-bottom: 1px solid #eee;
-        padding: 20px 14px 16px;
+.cardMain {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
 
-        .stepActive,
-        .step {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            flex: 0 0 25%;
-            max-width: 25%;
-            padding: 0 10px; // Giảm padding để line fit hơn
+.sectionSteps {
+  background: #fdf4f4;
+  padding: 12px 0;
+}
 
-            .stepIcon {
-                width: 28px;
-                height: 28px;
-                margin-bottom: 5px;
-                z-index: 1;
+.progressBar {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
 
-                svg {
-                    width: 100%;
-                    height: 100%;
-                }
-            }
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #535353;
+  font-size: 13px;
+}
 
-            .stepText {
-                font-size: 12px;
-                color: #535353;
-            }
-        }
+.stepCompleted {
+  @extend .step;
+}
 
-        .stepActive {
-            .stepText {
-                color: #e30019;
-                font-weight: bold;
-            }
-        }
+.stepActive {
+  @extend .step;
+  color: #e30019;
+  font-weight: 600;
+}
 
-        // Dòng kẻ giữa các bước (sử dụng pseudo-element, điều chỉnh để chính xác hơn)
-        .step:not(:first-child)::before {
-            content: "";
-            position: absolute;
-            top: 14px; // Căn giữa icon (icon height 28px / 2 = 14px)
-            left: -50%; // Bắt đầu từ giữa step trước
-            width: 100%; // Kéo dài đến giữa step hiện tại
-            border-top: 1px dashed #535353;
-            z-index: 0;
-        }
-    }
+.stepIcon {
+  width: 28px;
+  height: 28px;
+}
 
-    .sectionOrder {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px;
-        gap: 20px;
+/* NỘI DUNG */
+.sectionOrder {
+  padding: 0 24px 40px;
+}
 
-        @media (max-width: 768px) {
-            flex-direction: column;
-        }
-    }
+.cartOrder {
+  width: 100%;
+  margin: 0 auto;
+}
 
-    .paymentBox {
-        flex: 1;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 4px;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+.cartContent h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    color: #333;
+}
 
-        h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
-            color: #333;
-        }
-    }
+.orderFormBox {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    margin-bottom: 24px;
+}
 
-    .orderSummary {
-        margin-bottom: 20px;
+.orderSummary {
+    margin-bottom: 20px;
 
-        p {
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #333;
-
-            strong {
-                font-weight: bold;
-                font-size: 16px;
-            }
-        }
-    }
-
-    .payButton {
-        cursor: pointer;
-        padding: 12px 24px;
-        font-weight: 600;
-        color: #fff;
-        background: #e30019;
-        border: none;
-        text-transform: uppercase;
-        border-radius: 4px;
+    p {
+        margin: 8px 0;
         font-size: 14px;
+    }
+
+    strong {
+        color: #333;
+    }
+}
+
+/* DANH SÁCH SẢN PHẨM */
+.itemsList {
+    .cartItem {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        gap: 16px;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px dashed #eee;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .itemImage img {
         width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .itemInfo {
+        .productName {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 0 0 4px;
+            color: #333;
+        }
+
+        .price {
+            font-size: 14px;
+            color: #E30019;
+            font-weight: 600;
+        }
+    }
+
+    .itemActions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+
+        .quantity {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .lineTotal {
+            font-size: 16px;
+            font-weight: 700;
+            color: #E30019;
+        }
+    }
+}
+
+/* TỔNG KẾT */
+.summary {
+    background: #fff9f9;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #ffccbc;
+    margin-top: 24px;
+
+    .totalRow {
+        display: flex;
+        justify-content: space-between;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+
+        strong {
+            color: #E30019;
+        }
+    }
+
+    .checkoutBtn {
+        width: 100%;
+        padding: 16px;
+        background: #E30019;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
 
         &:hover {
-            background-color: #c70015;
+            background: #c00;
         }
 
         &:disabled {
-            background-color: #ccc;
+            background: #ccc;
             cursor: not-allowed;
         }
     }
+}
 
-    .cartSummary {
-        flex: 1;
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 4px;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+/* LOADING */
+.loadingCart {
+    text-align: center;
+    padding: 60px 20px;
 
-        h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
-            color: #333;
-        }
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #E30019;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+}
 
-        p {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 16px;
-
-            li {
-                padding: 12px 0;
-                border-bottom: 1px solid #eee;
-                font-size: 14px;
-                color: #333;
-
-                &:last-child {
-                    border-bottom: none;
-                }
-            }
-        }
-
-        .total {
-            font-size: 16px;
-            text-align: right;
-            font-weight: 400;
-            margin-top: 10px;
-
-            .totalTitle {
-                font-weight: bold;
-                font-size: 18px;
-
-            }
-        }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }
