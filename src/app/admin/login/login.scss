@@ -1,9 +1,22 @@
 @use "sass:color";
 @use "../admin" as *;
 
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 .login-page {
   height: 100vh;
-  background: linear-gradient(135deg, #2b2d42, #8d99ae);
+  background: linear-gradient(120deg, #2b2d42, #8d99ae, #66a6ff, #ff357a);
+  background-size: 300% 300%;
+  animation: gradientMove 8s ease-in-out infinite;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,7 +29,10 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     width: 360px;
     text-align: center;
-    animation: fadeIn 0.6s ease;
+    animation: fadeIn 0.7s cubic-bezier(.36,.07,.19,.97);
+    .input-group {
+      position: relative;
+    }
 
     h2 {
       color: $dark;

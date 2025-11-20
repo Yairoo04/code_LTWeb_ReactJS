@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 export default function LoginPage() {
   const [username, setUser] = useState("");
   const [password, setPass] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState("");
   const [serverOtp, setServerOtp] = useState("");
   const [otpExpireTime, setOtpExpireTime] = useState(0);
@@ -170,7 +171,6 @@ export default function LoginPage() {
         {error && (
           <div className="error-box">
             {error}
-
           </div>
         )}
 
@@ -186,14 +186,35 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="input-group">
+            <div className="input-group" style={{ position: 'relative' }}>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Mật khẩu"
                 value={password}
                 onChange={(e) => setPass(e.target.value)}
                 disabled={!!lockUntil}
+                style={{ paddingRight: '38px' }}
               />
+              <span
+                onClick={() => setShowPassword((v) => !v)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  color: '#888',
+                  fontSize: '1.2em',
+                  userSelect: 'none',
+                }}
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              >
+                {showPassword ? (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-5 0-9.27-3.11-10.74-7.5a10.05 10.05 0 0 1 2.54-3.73"/><path d="M1 1l22 22"/><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c.96 0 1.84-.36 2.5-.95"/><path d="M14.47 14.47A3.5 3.5 0 0 0 12 8.5c-.96 0-1.84.36-2.5.95"/></svg>
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.61 7 4.5 12 4.5s9.27 3.11 10.74 7.5C21.27 16.39 17 19.5 12 19.5S2.73 16.39 1 12z"/><circle cx="12" cy="12" r="3.5"/></svg>
+                )}
+              </span>
             </div>
 
             <button type="submit" disabled={isSubmitting || !!lockUntil}>
@@ -218,6 +239,29 @@ export default function LoginPage() {
               />
             </div>
             <button type="submit">Xác nhận OTP</button>
+            {error && error.includes('Mã OTP đã hết hạn') && (
+              <button
+                type="button"
+                style={{
+                  marginTop: 12,
+                  background: '#fff',
+                  color: '#d90429',
+                  border: '1px solid #d90429',
+                  borderRadius: 6,
+                  padding: '6px 16px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  transition: 'background 0.2s',
+                  display: 'block',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                }}
+                onClick={sendOtp}
+              >
+                Gửi lại mã OTP
+              </button>
+            )}
           </>
         )}
       </form>
