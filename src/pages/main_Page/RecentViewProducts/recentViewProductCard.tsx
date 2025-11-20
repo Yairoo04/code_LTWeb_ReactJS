@@ -15,19 +15,16 @@ function calculateDiscountPercent(price: number, discountPrice: number): string 
   return `-${rounded}%`;
 }
 
-// Parse ImageUrl to get first image
 function getFirstImage(imageUrl?: string | null): string {
   if (!imageUrl) return '/images/placeholder.png';
   
   try {
-    // Try parsing as JSON array
     const parsed = JSON.parse(imageUrl);
     if (Array.isArray(parsed) && parsed.length > 0) {
       return parsed[0];
     }
     return imageUrl;
   } catch {
-    // If not JSON, try splitting by comma
     const images = imageUrl.split(',').filter(Boolean);
     return images[0] || imageUrl;
   }
@@ -36,9 +33,16 @@ function getFirstImage(imageUrl?: string | null): string {
 export default function RecentViewProductCard({ product }: { product: RecentViewProduct }) {
   const imgSrc = getFirstImage(product.ImageUrl);
 
-  const hasDiscount = product.DiscountPrice !== null && product.DiscountPrice < product.Price;
-  const displayPrice = hasDiscount ? product.DiscountPrice : product.Price;
-  const discountPercent = hasDiscount ? calculateDiscountPercent(product.Price, product.DiscountPrice!) : '';
+  // CHỈ SỬA ĐOẠN NÀY – GIẢI QUYẾT HOÀN TOÀN LỖI TS + HIỂN THỊ GIÁ ĐÚNG
+  const priceData = product as any;
+  const originalPrice = priceData.OriginalPrice ?? product.Price;
+  const discountPrice = product.DiscountPrice;
+  const displayPrice = priceData.DisplayPrice ?? 
+    (discountPrice !== null && discountPrice < originalPrice ? discountPrice : originalPrice);
+  const hasDiscount = discountPrice !== null && discountPrice < originalPrice;
+  const discountPercent = hasDiscount 
+    ? calculateDiscountPercent(originalPrice, discountPrice!)
+    : '';
 
   const displayedName = product.Name.length > 30 ? product.Name.slice(0, 30) + '...' : product.Name;
 
@@ -57,7 +61,7 @@ export default function RecentViewProductCard({ product }: { product: RecentView
           {displayedName}
         </div>
         <div className="recentViewProductCard__price">
-          {hasDiscount && <span className="original">{formatVND(product.Price)}</span>}
+          {hasDiscount && <span className="original">{formatVND(originalPrice)}</span>}
           <div className="recentViewProductCard__discountPrice">
             <span className="current">{formatVND(displayPrice)}</span>
             {hasDiscount && <span className="percent">{discountPercent}</span>}
