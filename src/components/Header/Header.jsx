@@ -57,6 +57,18 @@ export default function Header() {
     });
   }, [pathname]);
 
+  // ========= LẮNG NGHE YÊU CẦU MỞ LOGIN TỪ TOÀN APP =========
+  useEffect(() => {
+    const handleOpenLogin = () => {
+      setIsLoginOpen(true);
+    };
+
+    window.addEventListener('auth-open-login', handleOpenLogin);
+    return () => {
+      window.removeEventListener('auth-open-login', handleOpenLogin);
+    };
+  }, []);
+
   // CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG – ĐÃ FIX 100% KHÔNG LÀM MẤT USER
   const updateCartCount = useCallback(async () => {
     try {
@@ -161,6 +173,9 @@ export default function Header() {
     setUser(null);
     setCartCount(0);
     setShowLogoutModal(false);
+
+    window.dispatchEvent(new Event('auth-logout'));
+
     router.push('/');
   };
 

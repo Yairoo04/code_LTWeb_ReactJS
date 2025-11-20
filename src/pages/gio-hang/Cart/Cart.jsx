@@ -305,9 +305,9 @@ export default function Cart() {
               <section className={styles.sectionOrder}>
                 <div className={styles.cartOrder}>
                   <div className={styles.emptyCart}>
-                    <p>Giỏ hàng trống!</p>
-                    <Link href="/" className={styles.continueButton}>
-                      Mua sắm ngay
+                    <p>Giỏ hàng của bạn đang trống!</p>
+                    <Link href="/collections/all" className={styles.continueButton}>
+                      Tiếp tục mua hàng
                     </Link>
                   </div>
                 </div>

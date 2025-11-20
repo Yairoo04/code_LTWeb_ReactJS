@@ -16,7 +16,7 @@ export default function AddToCartButton({ productId }: { productId: number }) {
 
       if (!token || !userIdFromStorage) {
         alert("Bạn phải đăng nhập để thêm sản phẩm vào giỏ hàng.");
-        router.push("/dang-nhap");
+        window.dispatchEvent(new Event('auth-open-login'));
         return;
       }
 

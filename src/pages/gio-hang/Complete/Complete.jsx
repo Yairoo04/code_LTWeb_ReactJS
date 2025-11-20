@@ -22,7 +22,7 @@ export default function Complete() {
     const fetchOrder = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        router.push('/dang-nhap');
+        window.dispatchEvent(new Event('auth-open-login'));
         return;
       }
 

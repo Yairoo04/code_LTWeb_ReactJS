@@ -1,6 +1,6 @@
 .wrapperMain_content {
   background: #f5f5f5;
-  min-height: 100vh;
+  min-height: 50vh;
   padding: 16px 0;
 }
 
@@ -20,26 +20,30 @@
   color: #1982f9;
   font-size: 14px;
   text-decoration: none;
-  &:hover { text-decoration: underline; }
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .cardMain {
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
 }
 
 .sectionSteps {
-  background: #fdf4f4;
-  padding: 12px 0;
+  padding: 8px;
 }
 
 .progressBar {
   display: flex;
   justify-content: center;
-  gap: 40px;
+  gap: 70px;
   flex-wrap: wrap;
+  padding: 20px 14px 16px;
+  background: #fdf4f4;
 }
 
 .step {
@@ -74,20 +78,30 @@
 .emptyCart {
   text-align: center;
   padding: 60px 20px;
-  color: #999;
-  p { margin: 16px 0; }
+  // color: #999;
+
+  p {
+    margin-bottom: 30px;
+  }
 }
 
 .continueButton {
-  display: inline-block;
-  margin-top: 16px;
-  padding: 8px 24px;
-  background: #e60000;
-  color: #fff;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 500;
-  &:hover { background: #d83a1f; }
+  cursor: pointer;
+  padding: 10px 24px;
+  outline: none;
+  // font-weight: 600;
+  line-height: 22px;
+  color: #1982F9 !important;
+  background: #fff;
+  border: 1px solid #1982F9;
+  text-transform: uppercase;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #1982F9;
+    color: #fff !important;
+    transition: all 0.3s ease-in-out;
+  }
 }
 
 .cartContent h2 {
@@ -107,7 +121,10 @@
   gap: 12px;
   padding: 16px 0;
   border-bottom: 1px dashed #eee;
-  &:last-child { border-bottom: none; }
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .itemImage {
@@ -117,6 +134,7 @@
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #eee;
+
   img {
     width: 100%;
     height: 100%;
@@ -161,6 +179,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+
   button {
     width: 36px;
     height: 36px;
@@ -168,8 +187,13 @@
     background: #fff;
     font-size: 18px;
     cursor: pointer;
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
+
   input {
     width: 48px;
     height: 36px;
@@ -195,7 +219,11 @@
   border: none;
   cursor: pointer;
   padding: 4px;
-  svg { width: 18px; height: 18px; }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .summary {
@@ -207,7 +235,11 @@
   justify-content: space-between;
   font-size: 16px;
   margin-bottom: 16px;
-  strong { color: #e60000; font-size: 18px; }
+
+  strong {
+    color: #e60000;
+    font-size: 18px;
+  }
 }
 
 .checkoutBtn {
@@ -220,7 +252,10 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  &:hover { background: #d83a1f; }
+
+  &:hover {
+    background: #d83a1f;
+  }
 }
 
 .continueShopping {
@@ -230,7 +265,10 @@
   color: #1982f9;
   text-decoration: none;
   font-size: 14px;
-  &:hover { text-decoration: underline; }
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .loadingCart {
@@ -249,8 +287,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Cart.module.scss
