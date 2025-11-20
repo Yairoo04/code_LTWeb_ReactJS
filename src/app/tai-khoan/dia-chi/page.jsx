@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react';
 import styles from './AddressPage.module.scss';
 import { getAuth } from '../../../lib/auth';
 
+// Gửi sự kiện mở modal đăng nhập trên Header
+const openLoginModal = () => {
+  window.dispatchEvent(new CustomEvent('open-login-modal'));
+};
+
 export default function AddressPage() {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +44,37 @@ export default function AddressPage() {
     setShowForm(true);
   };
 
+  // Hàm fetch có xử lý 401 (hết hạn token)
+  const fetchWithAuth = async (url, options = {}) => {
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.status === 401) {
+      // Token hết hạn → xóa và mở modal đăng nhập ngay trên Header
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      openLoginModal(); // ← Đây là điểm quan trọng
+      throw new Error('Phiên đăng nhập đã hết hạn');
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Lỗi kết nối');
+    }
+
+    return res;
+  };
+
   // === FETCH ADDRESSES ===
   useEffect(() => {
     if (!token) {
-      alert('Vui lòng đăng nhập!');
-      // window.location.href = '/dang-nhap';
-      window.dispatchEvent(new Event('auth-open-login'));
+      openLoginModal();
       return;
     }
 
@@ -53,29 +83,16 @@ export default function AddressPage() {
     const fetchAddresses = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_URL}/api/address`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.status === 401) {
-          alert('Phiên hết hạn. Đăng nhập lại!');
-          localStorage.clear();
-          // window.location.href = '/dang-nhap';
-          window.dispatchEvent(new Event('auth-open-login'));
-          return;
-        }
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.message || 'Không thể tải địa chỉ');
-        }
-
+        const res = await fetchWithAuth(`${API_URL}/api/address`);
         const data = await res.json();
+
         if (isMounted) {
           setAddresses(Array.isArray(data) ? data : []);
         }
       } catch (err) {
-        if (isMounted) console.error(err);
+        if (isMounted && !err.message.includes('hết hạn')) {
+          alert(err.message || 'Không thể tải danh sách địa chỉ');
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -100,52 +117,42 @@ export default function AddressPage() {
       const url = `${API_URL}/api/address`;
       const method = editingAddress ? 'PUT' : 'POST';
 
-      // LOẠI BỎ UserId HOÀN TOÀN
-      const { UserId, ...cleanForm } = form;
-
       const body = editingAddress
-        ? { ...cleanForm, AddressId: editingAddress.AddressId }
-        : cleanForm;
+        ? { ...form, AddressId: editingAddress.AddressId }
+        : form;
 
-      const res = await fetch(url, {
+      await fetchWithAuth(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(body),
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || 'Lưu thất bại');
-      }
-
-      const refresh = await fetch(`${API_URL}/api/address`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await refresh.json();
+      const res = await fetchWithAuth(`${API_URL}/api/address`);
+      const data = await res.json();
       setAddresses(Array.isArray(data) ? data : []);
       setShowForm(false);
-      alert('Thành công!');
+      alert('Lưu địa chỉ thành công!');
     } catch (err) {
-      alert(err.message || 'Lỗi hệ thống');
+      if (!err.message.includes('hết hạn')) {
+        alert(err.message || 'Lưu địa chỉ thất bại');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   // === DELETE ===
-  const handleDelete = async (id) => {
-    if (!confirm('Xóa địa chỉ này?')) return;
+ const handleDelete = async (id) => {
+    if (!confirm('Bạn có chắc muốn xóa địa chỉ này?')) return;
+
     try {
-      await fetch(`${API_URL}/api/address?AddressId=${id}`, {
+      await fetchWithAuth(`${API_URL}/api/address?AddressId=${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      setAddresses(addresses.filter(a => a.AddressId !== id));
+      setAddresses(prev => prev.filter(a => a.AddressId !== id));
+      alert('Xóa thành công!');
     } catch (err) {
-      alert('Xóa thất bại');
+      if (!err.message.includes('hết hạn')) {
+        alert(err.message || 'Xóa thất bại');
+      }
     }
   };
 

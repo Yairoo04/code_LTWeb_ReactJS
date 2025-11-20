@@ -98,14 +98,18 @@ export default function RecentViewProductSlider({
     <div className={`${styles.slider} ${className}`}>
       <h2 className={styles.title}>{title}</h2>
 
-      {/* NÚT PREV */}
+      {/* NÚT TRÁI */}
       {currentSlide > 0 && (
         <button
           className={styles.prev}
           onClick={() => setCurrentSlide(prev => prev - 1)}
           aria-label="Xem trước"
         >
+<<<<<<< HEAD
+          <span className={styles.arrowCircle}>‹</span>
+=======
           &#10094;
+>>>>>>> origin/main
         </button>
       )}
 
@@ -131,14 +135,20 @@ export default function RecentViewProductSlider({
         </div>
       </div>
 
-      {/* NÚT NEXT */}
+
+
+      {/* NÚT PHẢI */}
       {currentSlide < totalSlides - 1 && (
         <button
           className={styles.next}
           onClick={() => setCurrentSlide(prev => prev + 1)}
           aria-label="Xem tiếp"
         >
+<<<<<<< HEAD
+          <span className={styles.arrowCircle}>›</span>
+=======
           &#10095;
+>>>>>>> origin/main
         </button>
       )}
 
