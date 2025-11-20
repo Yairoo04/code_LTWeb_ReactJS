@@ -174,6 +174,15 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+
+  useEffect(() => {
+    const handleOpenLogin = () => {
+      setIsLoginOpen(true);
+    };
+    window.addEventListener('open-login-modal', handleOpenLogin);
+    return () => window.removeEventListener('open-login-modal', handleOpenLogin);
+  }, []);
+
   return (
     <header className={styles.mainHeader}>
       <div className={styles.topBanner}>
