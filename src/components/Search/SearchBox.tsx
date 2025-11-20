@@ -109,7 +109,7 @@ export default function SearchBox() {
   const handleSelectProduct = (product: FrontendProduct) => {
     setQuery(product.name);
     setShowDropdown(false);
-    router.push(`/san-pham/${product.id}`);
+    router.push(`/products/${product.id}`);
   };
 
   return (
@@ -122,16 +122,40 @@ export default function SearchBox() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setShowDropdown(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (query.trim()) {
+                setShowDropdown(false);
+                router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+              }
+            }
+          }}
         />
+
+        {/* Nút Xóa - chỉ hiện khi có nội dung */}
         {query && (
-          <button className={styles['clear-btn']} onClick={handleClear} aria-label="Xóa tìm kiếm">
+          <button
+            className={styles['clear-btn']}
+            onClick={handleClear}
+            aria-label="Xóa tìm kiếm"
+            type="button"
+          >
             <FontAwesomeIcon icon={faTimes} />
           </button>
         )}
+
+        {/* ICON TÌM KIẾM LUÔN HIỆN - ĐẨY RA NGOÀI ĐIỀU KIỆN query && */}
         <button
           className={styles['search-btn']}
-          onClick={() => query && router.push(`/search?q=${encodeURIComponent(query)}`)}
+          onClick={() => {
+            if (query.trim()) {
+              setShowDropdown(false);
+              router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+            }
+          }}
           aria-label="Tìm kiếm"
+          type="button"
         >
           <FontAwesomeIcon icon={faSearch} />
         </button>
