@@ -640,12 +640,12 @@ export const megaMenuData = [
   },
   {
     title: "Màn hình",
-    href: "/pages/man-hinh",
+    href: "/collections/man-hinh",
     icon: '<svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 1.03226C1.44772 1.03226 1 1.47997 1 2.03226V10.3548C1 10.9071 1.44772 11.3548 2 11.3548H16C16.5523 11.3548 17 10.9071 17 10.3548V2.03226C17 1.47997 16.5523 1.03226 16 1.03226H2ZM2 0H16C16.5304 0 17.0391 0.217511 17.4142 0.604683C17.7893 0.991854 18 1.51697 18 2.06452V10.3226C18 10.8701 17.7893 11.3952 17.4142 11.7824C17.0391 12.1696 16.5304 12.3871 16 12.3871H2C1.46957 12.3871 0.960859 12.1696 0.585786 11.7824C0.210714 11.3952 0 10.8701 0 10.3226V2.06452C0 1.51697 0.210714 0.991854 0.585786 0.604683C0.960859 0.217511 1.46957 0 2 0Z" fill="currentcolor"/><rect x="8" y="11.871" width="2" height="4.12903" fill="currentcolor"/><path d="M5 15.4839L13 15.4839" stroke="currentcolor" stroke-linecap="round"/></svg>',
     subItems: [
       {
         name: "Hãng sản xuất",
-        nameHref: "/pages/man-hinh",
+        nameHref: "/collections/man-hinh",
         filters: [
           { href: "/collections/monitor-lg", text: "LG" },
           { href: "/collections/man-hinh-asus", text: "Asus" },
@@ -659,7 +659,7 @@ export const megaMenuData = [
       },
       {
         name: "Hãng sản xuất",
-        nameHref: "/pages/man-hinh",
+        nameHref: "/collections/man-hinh",
         filters: [
           { href: "/collections/man-hinh-msi", text: "MSI" },
           { href: "/collections/man-hinh-lenovo", text: "Lenovo" },
@@ -672,7 +672,7 @@ export const megaMenuData = [
       },
       {
         name: "Giá tiền",
-        nameHref: "/pages/man-hinh",
+        nameHref: "/collections/man-hinh",
         filters: [
           { href: "/collections/man-hinh-duoi-5-trieu", text: "Dưới 5 triệu" },
           { href: "/collections/man-hinh-tu-5-den-10-trieu", text: "Từ 5 triệu đến 10 triệu" },
@@ -683,7 +683,7 @@ export const megaMenuData = [
       },
       {
         name: "Độ Phân giải",
-        nameHref: "/pages/man-hinh",
+        nameHref: "/collections/man-hinh",
         filters: [
           { href: "/collections/do-phan-giai-full-hd-1080p", text: "Màn hình Full HD" },
           { href: "/collections/do-phan-giai-2k-1440p", text: "Màn hình 2K 1440p" },
@@ -714,7 +714,7 @@ export const megaMenuData = [
       },
       {
         name: "Kích thước",
-        nameHref: "/pages/man-hinh",
+        nameHref: "/collections/man-hinh",
         filters: [
           { href: "/collections/man-hinh-22-inch", text: "Màn hình 22\"" },
           { href: "/collections/man-hinh-24-inch", text: "Màn hình 24\"" },

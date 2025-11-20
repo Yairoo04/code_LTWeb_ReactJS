@@ -425,7 +425,7 @@ export default function ProductPage() {
   }
 
   async function deleteProduct(productId) {
-    if (!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+    if (!confirm("Cẩn trọng: Việc xóa sản phẩm này sẽ xóa toàn bộ dữ liệu liên quan (đơn hàng, giỏ hàng, thông số, doanh thu, ...). Bạn có chắc chắn muốn xóa?")) return;
     try {
       const res = await fetch(`${API_BASE}/api/admin/products?productId=${productId}`, {
         method: "DELETE"
