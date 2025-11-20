@@ -37,8 +37,8 @@
   transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid #eee;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   font-size: 18px;
   color: #333;
@@ -51,14 +51,20 @@
   transition: all 0.2s;
 
   &:hover {
-    background: #e60012;
-    color: white;
-    border-color: #e60012;
+    background: rgba(8, 8, 8, 0.7);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+    color: #fff;
   }
 }
 
-.prev { left: 12px; }
-.next { right: 12px; }
+.prev {
+  left: 12px;
+}
+
+.next {
+  right: 12px;
+}
 
 .dots {
   display: flex;

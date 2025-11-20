@@ -79,6 +79,7 @@ export default function InstallmentModal({
       if (!token) {
         alert("Vui lòng đăng nhập để làm trả góp!");
         onClose();
+        window.dispatchEvent(new Event('auth-open-login'));
         return;
       }
 

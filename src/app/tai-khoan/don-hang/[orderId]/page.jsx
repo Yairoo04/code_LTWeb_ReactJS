@@ -72,7 +72,7 @@ export default function DonHangDetailPage() {
 
   useEffect(() => {
     if (!token) {
-      router.push('/dang-nhap');
+      window.dispatchEvent(new Event('auth-open-login'));
       return;
     }
 

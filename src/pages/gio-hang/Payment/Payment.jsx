@@ -68,7 +68,7 @@ export default function Payment() {
     const token = localStorage.getItem('token');
     if (!token) {
       alert('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!');
-      router.push('/dang-nhap');
+      window.dispatchEvent(new Event('auth-open-login'));
       return;
     }
 

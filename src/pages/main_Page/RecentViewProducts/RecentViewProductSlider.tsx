@@ -105,7 +105,7 @@ export default function RecentViewProductSlider({
           onClick={() => setCurrentSlide(prev => prev - 1)}
           aria-label="Xem trước"
         >
-          Left Arrow
+          &#10094;
         </button>
       )}
 
@@ -138,7 +138,7 @@ export default function RecentViewProductSlider({
           onClick={() => setCurrentSlide(prev => prev + 1)}
           aria-label="Xem tiếp"
         >
-          Right Arrow
+          &#10095;
         </button>
       )}
 

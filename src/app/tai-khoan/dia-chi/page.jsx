@@ -43,7 +43,8 @@ export default function AddressPage() {
   useEffect(() => {
     if (!token) {
       alert('Vui lòng đăng nhập!');
-      window.location.href = '/dang-nhap';
+      // window.location.href = '/dang-nhap';
+      window.dispatchEvent(new Event('auth-open-login'));
       return;
     }
 
@@ -59,7 +60,8 @@ export default function AddressPage() {
         if (res.status === 401) {
           alert('Phiên hết hạn. Đăng nhập lại!');
           localStorage.clear();
-          window.location.href = '/dang-nhap';
+          // window.location.href = '/dang-nhap';
+          window.dispatchEvent(new Event('auth-open-login'));
           return;
         }
 
