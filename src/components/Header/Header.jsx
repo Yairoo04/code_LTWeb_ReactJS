@@ -30,6 +30,24 @@ export default function Header() {
   const [cartCount, setCartCount] = useState(0);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const headerRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+
+  const handleUserMenuEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setDropdownOpen(true);
+  };
+
+  const handleUserMenuLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setDropdownOpen(false);
+    }, 300);
+  };
 
   // Tô đậm menu showroom
   useEffect(() => {
@@ -117,6 +135,8 @@ export default function Header() {
     updateCartCount();
   };
 
+
+
   // Load user khi mount
   useEffect(() => {
     const saved = localStorage.getItem('user');
@@ -194,13 +214,15 @@ export default function Header() {
               </div>
             </Link>
 
-            <div className={styles.trackOrder}>
-              <FontAwesomeIcon icon={faTruck} />
+            <Link href="/tai-khoan/don-hang" className={styles.trackOrder}>
+              <div className={styles.trackIcon}>
+                <FontAwesomeIcon icon={faTruck} />
+              </div>
               <div>
                 <span>Tra cứu</span>
                 <strong>đơn hàng</strong>
               </div>
-            </div>
+            </Link>
 
             <Link href={config.routes.cart} className={styles.cart}>
               <div className={styles.cartIcon}>
@@ -225,8 +247,8 @@ export default function Header() {
               ) : (
                 <div
                   className={styles.userMenu}
-                  onMouseEnter={() => setDropdownOpen(true)}
-                  onMouseLeave={() => setDropdownOpen(false)}
+                  onMouseEnter={handleUserMenuEnter}
+                  onMouseLeave={handleUserMenuLeave}
                 >
                   <span className={styles.userGreeting}>
                     <span className={styles.greetingBox}>
@@ -238,19 +260,24 @@ export default function Header() {
                     </span>
                   </span>
 
-                  {dropdownOpen && (
-                    <div className={styles.dropdown}>
-                      <Link href="/tai-khoan/thong-tin" className={styles.dropdownItem}>
-                        <FaUser className={styles.icon} /> Thông tin tài khoản
-                      </Link>
-                      <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
-                        <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
-                      </Link>
-                      <div className={styles.dropdownItem} onClick={() => { setShowLogoutModal(true); setDropdownOpen(false); }}>
-                        <FaSignOutAlt className={styles.icon} /> Đăng xuất
-                      </div>
+                  {/* LUÔN render, chỉ bật/tắt class .open */}
+                  <div className={`${styles.dropdown} ${dropdownOpen ? styles.open : ''}`}>
+                    <Link href="/tai-khoan/thong-tin" className={styles.dropdownItem}>
+                      <FaUser className={styles.icon} /> Thông tin tài khoản
+                    </Link>
+                    <Link href="/tai-khoan/don-hang" className={styles.dropdownItem}>
+                      <FaBoxOpen className={styles.icon} /> Đơn hàng của tôi
+                    </Link>
+                    <div
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        setShowLogoutModal(true);
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      <FaSignOutAlt className={styles.icon} /> Đăng xuất
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
