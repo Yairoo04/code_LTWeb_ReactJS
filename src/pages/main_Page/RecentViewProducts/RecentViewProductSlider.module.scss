@@ -35,30 +35,64 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+<<<<<<< HEAD
+  background: rgba(87, 85, 85, 0.6);
+  color: #fff;
+  border: none;
+  width: 36px;
+  height: 36px;
+=======
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid #eee;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   font-size: 18px;
   color: #333;
   cursor: pointer;
   z-index: 10;
+>>>>>>> origin/main
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s;
+  cursor: pointer;
+  border-radius: 50%;
+  opacity: 0.7;
+  z-index: 10;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
 
   &:hover {
-    background: #e60012;
-    color: white;
-    border-color: #e60012;
+    background: rgba(8, 8, 8, 0.7);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+<<<<<<< HEAD
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+=======
+    color: #fff;
+>>>>>>> origin/main
   }
 }
 
-.prev { left: 12px; }
-.next { right: 12px; }
+.prev {
+<<<<<<< HEAD
+  left: 8px;
+}
+
+.next {
+  right: 8px;
+=======
+  left: 12px;
+}
+
+.next {
+  right: 12px;
+>>>>>>> origin/main
+}
 
 .dots {
   display: flex;

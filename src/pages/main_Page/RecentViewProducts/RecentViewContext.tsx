@@ -21,35 +21,72 @@ export function RecentViewProvider({ children }: { children: React.ReactNode }) 
   const [userId, setUserId] = useState<number | null>(null);
 
   const limit = 10;
-  const API_BASE = '/api';
 
-  // === THEO DÕI userId ===
+  // ============================
+  // 1) ĐỌC userId LẦN ĐẦU TỪ getAuth()
+  // ============================
   useEffect(() => {
     const { userId } = getAuth();
-    setUserId(userId);
-    console.log('[RecentViewContext] userId:', userId);
+    setUserId(userId ?? null);
+    console.log('[RecentViewContext] init userId:', userId);
   }, []);
 
-  // === REFETCH KHI userId THAY ĐỔI ===
+  // ============================
+  // 2) LẮNG NGHE auth-login & auth-logout
+  // ============================
   useEffect(() => {
-    if (userId === null) {
+    // Khi login xong, Header bắn event 'auth-login'
+    const handleAuthLogin = () => {
+      const { userId } = getAuth();
+      console.log('[RecentViewContext] auth-login, new userId:', userId);
+      setUserId(userId ?? null);
+    };
+
+    // Khi logout, Header bắn event 'auth-logout'
+    const handleAuthLogout = () => {
+      console.log('[RecentViewContext] auth-logout → clear state');
+      setUserId(null);
+      setProducts([]);
+      setError(null);
+      setLoading(false);
+    };
+
+    window.addEventListener('auth-login', handleAuthLogin);
+    window.addEventListener('auth-logout', handleAuthLogout);
+
+    return () => {
+      window.removeEventListener('auth-login', handleAuthLogin);
+      window.removeEventListener('auth-logout', handleAuthLogout);
+    };
+  }, []);
+
+  // ============================
+  // 3) REFETCH KHI userId THAY ĐỔI
+  // ============================
+  useEffect(() => {
+    if (userId == null) {
+      // Không có user → không fetch, clear list
       setProducts([]);
       setLoading(false);
       return;
     }
+    // Có user → fetch lịch sử
     refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const refetch = async () => {
-    if (!userId) return;
+    if (userId == null) return;
 
     setLoading(true);
     setError(null);
+
     try {
       console.log('[RecentViewContext] REFETCH với userId:', userId);
       const res = await fetch(`/api/recentviewProducts?userId=${userId}&limit=${limit}`, {
         cache: 'no-store',
       });
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
@@ -78,7 +115,7 @@ export function RecentViewProvider({ children }: { children: React.ReactNode }) 
   };
 
   const addRecentView = async (productId: number) => {
-    if (!userId) return;
+    if (userId == null) return;
 
     try {
       const res = await fetch('/api/recentviewProducts', {
@@ -89,14 +126,16 @@ export function RecentViewProvider({ children }: { children: React.ReactNode }) 
 
       if (!res.ok) throw new Error('Lỗi POST');
 
-      await refetch(); // BẮT BUỘC REFETCH
+      await refetch(); // Sau khi thêm thì refetch lại list
     } catch (err) {
       console.error('Lỗi addRecentView:', err);
     }
   };
 
   return (
-    <RecentViewContext.Provider value={{ products, loading, error, addRecentView, refetch }}>
+    <RecentViewContext.Provider
+      value={{ products, loading, error, addRecentView, refetch }}
+    >
       {children}
     </RecentViewContext.Provider>
   );

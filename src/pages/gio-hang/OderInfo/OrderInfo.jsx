@@ -19,7 +19,7 @@ export default function OrderInfo() {
       const token = localStorage.getItem('token');
       if (!token) {
         alert('Vui lòng đăng nhập để tiếp tục!');
-        router.push('/dang-nhap');
+        window.dispatchEvent(new Event('auth-open-login'));
         return;
       }
       try {
