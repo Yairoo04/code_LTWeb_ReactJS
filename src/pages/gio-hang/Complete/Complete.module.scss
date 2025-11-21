@@ -1,21 +1,22 @@
 .wrapperMain_content {
   background: #f5f5f5;
   min-height: 100vh;
-  padding: 24px 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 16px 0;
+  //font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .cartBox {
   max-width: 1200px;
   margin: 0 auto;
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  // background: #fff;
+  // border-radius: 12px;
+  // padding: 24px;
+  // box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .containerFluid {
   width: 100%;
+  max-width: 1200px;
   padding: 0 24px;
   margin: 0 auto;
 
@@ -26,9 +27,13 @@
 
 /* BREADCRUMB */
 .breadcrumbCart {
-  margin-bottom: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
 
   .backLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: #1982f9;
     font-size: 14px;
     text-decoration: none;
@@ -39,15 +44,26 @@
   }
 }
 
+.sectionSteps {
+  background: #fdf4f4;
+  padding: 12px 0;
+}
+
+.sectionOrder {
+  padding: 0 24px 40px;
+  background: white;
+}
+
 /* PROGRESS BAR */
 .progressBar {
   display: flex;
   justify-content: center;
   gap: 40px;
-  margin-bottom: 32px;
   flex-wrap: wrap;
 
-  .step, .stepCompleted, .stepActive {
+  .step,
+  .stepCompleted,
+  .stepActive {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -81,15 +97,18 @@
   margin-bottom: 32px;
 
   .successIcon {
-    width: 60px; /* thu nhỏ icon */
+    width: 60px;
+    /* thu nhỏ icon */
     height: 60px;
-    margin: 0 auto 16px;
+    margin-top: 20px;
+    //margin: 0 auto 16px;
   }
 
   h1 {
     font-size: 22px;
     margin-bottom: 8px;
-    color: #00bfa5; /* đồng bộ màu Cart */
+    color: #00bfa5;
+    /* đồng bộ màu Cart */
     font-weight: 700;
   }
 
@@ -99,7 +118,8 @@
   }
 
   strong {
-    color: #e30019; /* nổi bật mã đơn hàng */
+    color: #e30019;
+    /* nổi bật mã đơn hàng */
   }
 }
 
@@ -211,7 +231,8 @@
   margin-top: 24px;
   flex-wrap: wrap;
 
-  .ctaBtn, .secondaryBtn {
+  .ctaBtn,
+  .secondaryBtn {
     flex: 1;
     text-align: center;
     padding: 12px 0;
@@ -276,4 +297,18 @@
   .actionButtons {
     flex-direction: column;
   }
+}
+
+.cartOrder {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.cartContent h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 20px;
+  margin-bottom: 8px;
+  margin-top: 8px;
+  color: #00bfa5;
 }
