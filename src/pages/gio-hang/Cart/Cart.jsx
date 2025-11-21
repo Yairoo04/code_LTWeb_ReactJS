@@ -6,29 +6,72 @@ import { useRouter } from 'next/navigation';
 import styles from './Cart.module.scss';
 import ContainerFluid from '../../main_Page/ContainerFluid/container-fluid';
 
+// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP (giống hệt OrderInfo và Address)
+const openLoginModal = () => {
+  window.dispatchEvent(new CustomEvent('open-login-modal'));
+};
+
 // Kiểm tra GUID
 const isValidGuid = (str) =>
   typeof str === 'string' &&
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(str);
 
-// Tạo UniqueId = CartItemId|ProductId → mỗi món có ID duy nhất thật sự
+// Tạo UniqueId = CartItemId|ProductId
 const makeUniqueId = (cartItemId, productId) => `${cartItemId}|${productId}`;
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
-  const [selectedItems, setSelectedItems] = useState([]); // mảng UniqueId
+  const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [cartId, setCartId] = useState(null);
+  const [token, setToken] = useState('');
 
   const router = useRouter();
 
-  // Lấy cartId
+  // HÀM FETCH CÓ XỬ LÝ 401 – TỰ ĐỘNG MỞ MODAL ĐĂNG NHẬP
+  const fetchWithAuth = async (url, options = {}) => {
+    const currentToken = localStorage.getItem('token') || token;
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (res.status === 401) {
+      // Token hết hạn → xóa và mở modal ngay
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      setToken('');
+      openLoginModal(); // MỞ MODAL ĐĂNG NHẬP TRÊN HEADER
+      throw new Error('Phiên đăng nhập đã hết hạn');
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Lỗi kết nối server');
+    }
+
+    return res;
+  };
+
+  // Lấy cartId + token
   useEffect(() => {
     const id = localStorage.getItem('cartId');
-    if (id && isValidGuid(id)) setCartId(id);
-    else setLoading(false);
+    const currentToken = localStorage.getItem('token');
+    setToken(currentToken || '');
+
+    if (id && isValidGuid(id)) {
+      setCartId(id);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   // Load giỏ hàng
@@ -41,15 +84,10 @@ export default function Cart() {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/carts/view?cartId=${cartId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        cache: 'no-store',
-      });
+      const res = await fetchWithAuth(`/api/carts/view?cartId=${cartId}`);
 
-      if (!res.ok) throw new Error('Lỗi tải giỏ hàng');
       const data = await res.json();
-      if (!data.success) throw new Error(data.message);
+      if (!data.success) throw new Error(data.message || 'Lỗi tải giỏ hàng');
 
       // Cập nhật cartId nếu merge
       if (data.cartId && data.cartId !== cartId) {
@@ -58,14 +96,12 @@ export default function Cart() {
       }
 
       const items = data.items.map((item) => {
-        // Xử lý ImageUrl dạng JSON string → lấy ảnh đầu tiên
         let imageUrl = '/images/placeholder.png';
         if (item.ImageUrl) {
           try {
             const arr = JSON.parse(item.ImageUrl);
             if (Array.isArray(arr) && arr.length > 0) imageUrl = arr[0];
           } catch (e) {
-            // nếu parse lỗi thì giữ nguyên string (có thể đã là link rồi)
             if (typeof item.ImageUrl === 'string' && item.ImageUrl.startsWith('/')) {
               imageUrl = item.ImageUrl;
             }
@@ -87,7 +123,7 @@ export default function Cart() {
 
       setCartItems(items);
 
-      // Khôi phục selected từ localStorage
+      // Khôi phục selected
       const saved = localStorage.getItem('cartSelectedUniqueIds');
       let restored = [];
       if (saved) {
@@ -104,9 +140,13 @@ export default function Cart() {
       setSelectAll(restored.length === items.length && items.length > 0);
       localStorage.setItem('cartSelectedUniqueIds', JSON.stringify(restored));
     } catch (err) {
-      console.error(err);
-      alert('Lỗi tải giỏ hàng');
-      setCartItems([]);
+      console.error('Lỗi load giỏ hàng:', err);
+      if (err.message.includes('hết hạn')) {
+        // Đã mở modal rồi → không alert thêm
+        setCartItems([]);
+      } else {
+        alert(err.message || 'Không thể tải giỏ hàng');
+      }
     } finally {
       setLoading(false);
     }
@@ -116,7 +156,7 @@ export default function Cart() {
     loadCart();
   }, [loadCart]);
 
-  // Chọn/bỏ chọn 1 món
+  // Chọn/bỏ chọn
   const toggleSelect = (uniqueId) => {
     setSelectedItems((prev) => {
       const updated = prev.includes(uniqueId)
@@ -128,7 +168,6 @@ export default function Cart() {
     });
   };
 
-  // Chọn/bỏ chọn tất cả
   const toggleSelectAll = () => {
     if (selectAll) {
       setSelectedItems([]);
@@ -149,13 +188,10 @@ export default function Cart() {
 
     setUpdatingId(cartItemId);
     try {
-      const res = await fetch('/api/carts/update', {
+      await fetchWithAuth('/api/carts/update', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cartId, productId, quantity: newQty }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || 'Cập nhật thất bại');
 
       setCartItems((prev) =>
         prev.map((i) =>
@@ -165,7 +201,9 @@ export default function Cart() {
         )
       );
     } catch (err) {
-      alert(err.message || 'Cập nhật thất bại');
+      if (!err.message.includes('hết hạn')) {
+        alert(err.message || 'Cập nhật thất bại');
+      }
     } finally {
       setUpdatingId(null);
     }
@@ -177,13 +215,10 @@ export default function Cart() {
 
     setUpdatingId(cartItemId);
     try {
-      const res = await fetch('/api/carts/remove', {
+      await fetchWithAuth('/api/carts/remove', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cartId, productId }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || 'Xóa thất bại');
 
       const uid = makeUniqueId(cartItemId, productId);
       setCartItems((prev) => prev.filter((i) => i.UniqueId !== uid));
@@ -194,37 +229,39 @@ export default function Cart() {
       });
       setSelectAll(false);
     } catch (err) {
-      alert(err.message || 'Xóa thất bại');
+      if (!err.message.includes('hết hạn')) {
+        alert(err.message || 'Xóa thất bại');
+      }
     } finally {
       setUpdatingId(null);
     }
   };
 
-  // Thanh toán
+  // Thanh toán – BÂY GIỜ ĐÃ TỰ ĐỘNG MỞ MODAL NẾU CHƯA ĐĂNG NHẬP
   const handleCheckout = () => {
-    if (!localStorage.getItem('token')) {
-      alert('Vui lòng đăng nhập để thanh toán!');
-      router.push('/dang-nhap?returnUrl=/gio-hang');
+    const currentToken = localStorage.getItem('token');
+    if (!currentToken) {
+      openLoginModal(); // MỞ MODAL THAY VÌ ALERT + REDIRECT
       return;
     }
+
     if (selectedItems.length === 0) {
       alert('Vui lòng chọn ít nhất một sản phẩm!');
       return;
     }
 
-    // Chuẩn bị dữ liệu sản phẩm đã chọn
     const checkoutData = cartItems
       .filter((i) => selectedItems.includes(i.UniqueId))
       .map((i) => ({
         CartItemId: i.CartItemId,
         ProductId: i.ProductId,
+        ProductName: i.ProductName,
         Quantity: i.Quantity,
         PriceAtAdded: i.PriceAtAdded,
         LineTotal: i.LineTotal,
         ImageUrl: i.ImageUrl,
       }));
 
-    // Truyền qua router bằng query params
     const encoded = encodeURIComponent(JSON.stringify(checkoutData));
     router.push(`/thong-tin-dat-hang?items=${encoded}`);
   };

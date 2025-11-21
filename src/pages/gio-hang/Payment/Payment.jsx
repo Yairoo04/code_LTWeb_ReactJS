@@ -5,12 +5,51 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Payment.module.scss';
 
+// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP 
+const openLoginModal = () => {
+  window.dispatchEvent(new CustomEvent('open-login-modal'));
+};
+
 export default function Payment() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [orderInfo, setOrderInfo] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
+
+  // HÀM FETCH CÓ XỬ LÝ 401 
+  const fetchWithAuth = async (url, options = {}) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      openLoginModal();
+      throw new Error('Chưa đăng nhập');
+    }
+
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      openLoginModal(); // MỞ MODAL ĐĂNG NHẬP NGAY
+      throw new Error('Phiên đăng nhập đã hết hạn');
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Lỗi kết nối server');
+    }
+
+    return res;
+  };
 
   useEffect(() => {
     const infoStr = localStorage.getItem('orderInfo');
@@ -67,8 +106,7 @@ export default function Payment() {
   const handlePayment = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!');
-      window.dispatchEvent(new Event('auth-open-login'));
+      openLoginModal();
       return;
     }
 
@@ -82,21 +120,21 @@ export default function Payment() {
     setLoading(true);
 
     try {
-      // SỬA CHÍNH Ở ĐÂY – CHỈ LẤY MÓN ĐÃ CHỌN
-      // Chuẩn bị selectedProductIds cho API
+      // Lấy danh sách sản phẩm đã chọn (nếu có)
       let selectedProductIds = [];
       const savedSelected = localStorage.getItem('cartSelectedUniqueIds');
       if (savedSelected) {
         try {
           const selectedUniqueIds = JSON.parse(savedSelected);
-          // Lấy ProductId từ cartItems dựa trên UniqueId
           selectedProductIds = cartItems
             .filter(item => selectedUniqueIds.includes(`${item.CartItemId}|${item.ProductId}`))
             .map(item => item.ProductId);
         } catch (e) {
-          console.error('Parse lỗi cartSelectedUniqueIds');
+          console.error('Lỗi parse cartSelectedUniqueIds:', e);
         }
       }
+
+      // Nếu không có chọn gì → lấy hết
       if (selectedProductIds.length === 0) {
         selectedProductIds = cartItems.map(item => item.ProductId);
       }
@@ -107,21 +145,17 @@ export default function Payment() {
         return;
       }
 
-      const res = await fetch('/api/orders/from-cart', {
+      // GỌI API ĐẶT HÀNG VỚI XỬ LÝ 401
+      const res = await fetchWithAuth('/api/orders/from-cart', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           cartId,
           addressId: orderInfo.addressId,
-          selectedProductIds, // Đúng format cho backend
+          selectedProductIds,
         }),
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message || 'Đặt hàng thất bại');
 
       // XÓA DỮ LIỆU TẠM
       localStorage.removeItem('orderInfo');
@@ -132,8 +166,11 @@ export default function Payment() {
       router.push(`/hoan-tat?orderId=${result.data.orderId}`);
 
     } catch (err) {
-      console.error(err);
-      alert('Đặt hàng thất bại: ' + err.message);
+      console.error('Lỗi đặt hàng:', err);
+      if (!err.message.includes('hết hạn') && !err.message.includes('Chưa đăng nhập')) {
+        alert('Đặt hàng thất bại: ' + err.message);
+      }
+      // Nếu là lỗi 401 → đã mở modal rồi → không alert thêm
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './OrderInfo.module.scss';
 
+// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP TỪ BẤT KỲ ĐÂU 
+const openLoginModal = () => {
+  window.dispatchEvent(new CustomEvent('open-login-modal'));
+};
+
 export default function OrderInfo() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -13,46 +18,98 @@ export default function OrderInfo() {
   const [addresses, setAddresses] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState('');
+
+  // HÀM FETCH CÓ XỬ LÝ 401 – TỰ ĐỘNG MỞ MODAL ĐĂNG NHẬP
+  const fetchWithAuth = async (url, options = {}) => {
+    const currentToken = localStorage.getItem('token') || token;
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      setToken('');
+      openLoginModal(); // MỞ MODAL ĐĂNG NHẬP NGAY TRÊN HEADER
+      throw new Error('Phiên đăng nhập đã hết hạn');
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Lỗi kết nối server');
+    }
+
+    return res;
+  };
 
   useEffect(() => {
     const initData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Vui lòng đăng nhập để tiếp tục!');
-        window.dispatchEvent(new Event('auth-open-login'));
+      const currentToken = localStorage.getItem('token');
+      setToken(currentToken || '');
+
+      // Nếu không có token → mở modal ngay
+      if (!currentToken) {
+        openLoginModal();
+        setLoading(false);
         return;
       }
+
       try {
-        // LẤY DANH SÁCH SẢN PHẨM ĐÃ CHỌN TỪ QUERY PARAMS
+        // 1. LẤY SẢN PHẨM TỪ QUERY PARAMS
         const urlParams = new URLSearchParams(window.location.search);
         let items = [];
-        if (urlParams.has('items')) {
+        const raw = urlParams.get('items');
+
+        if (raw) {
           try {
-            items = JSON.parse(decodeURIComponent(urlParams.get('items')));
-          } catch {}
+            items = JSON.parse(decodeURIComponent(raw));
+          } catch (err) {
+            console.error('Parse items lỗi:', err);
+            alert('Dữ liệu giỏ hàng bị lỗi. Vui lòng thử lại từ giỏ hàng!');
+            router.push('/gio-hang');
+            return;
+          }
         }
-        // Nếu không có hoặc lỗi, fallback về rỗng
+
         if (!Array.isArray(items) || items.length === 0) {
-          alert('Bạn chưa chọn sản phẩm để thanh toán!');
+          alert('Không có sản phẩm nào để thanh toán!');
           router.push('/gio-hang');
           return;
         }
-        setCartItems(items);
 
-        // LẤY THÔNG TIN NGƯỜI DÙNG
+        // Đảm bảo luôn có tên + ảnh
+        const safeItems = items.map(item => ({
+          ...item,
+          ProductName: item.ProductName || item.Name || `Sản phẩm #${item.ProductId || '??'}`,
+          ImageUrl: item.ImageUrl || '/images/placeholder.png',
+        }));
+        setCartItems(safeItems);
+
+        // 2. LẤY THÔNG TIN USER
         const userStr = localStorage.getItem('user');
-        const user = userStr ? JSON.parse(userStr) : {};
-        setName(user.FullName || user.name || '');
-        setPhone(user.Phone || user.phone || '');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            setName(user.fullname || user.name || user.FullName || '');
+            setPhone(user.phone || user.Phone || '');
+          } catch { }
+        }
 
-        // LẤY ĐỊA CHỈ
-        const addrRes = await fetch('/api/address', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (addrRes.ok) {
-          const raw = await addrRes.json();
-          const formatted = raw.map(addr => {
-            const parts = [addr.Street?.trim(), addr.City?.trim(), addr.Province?.trim()].filter(Boolean);
+        // 3. LẤY DANH SÁCH ĐỊA CHỈ (có xử lý 401)
+        try {
+          const addrRes = await fetchWithAuth('/api/address');
+          const rawAddrs = await addrRes.json();
+
+          const formatted = (rawAddrs || []).map(addr => {
+            const parts = [addr.Street, addr.City, addr.Province].filter(Boolean);
             const full = parts.length > 0 ? parts.join(', ') : 'Chưa có địa chỉ chi tiết';
             return {
               ...addr,
@@ -60,19 +117,33 @@ export default function OrderInfo() {
               displayText: `${addr.ReceiverName} | ${addr.PhoneNumber} - ${full}`,
             };
           });
+
           setAddresses(formatted);
-          const defaultAddr = formatted.find(a => a.IsDefault === true || a.IsDefault === 1);
-          if (defaultAddr) setSelectedAddress(defaultAddr.fullAddress);
-          else if (formatted.length > 0) setSelectedAddress(formatted[0].fullAddress);
+
+          const defaultAddr = formatted.find(a => a.IsDefault);
+          if (defaultAddr) {
+            setSelectedAddress(defaultAddr.fullAddress);
+          } else if (formatted.length > 0) {
+            setSelectedAddress(formatted[0].fullAddress);
+          }
+        } catch (err) {
+          if (err.message.includes('hết hạn')) {
+            // Đã mở modal rồi → không làm gì thêm
+            return;
+          }
+          console.error('Lỗi tải địa chỉ:', err);
+          alert('Không thể tải danh sách địa chỉ');
         }
+
       } catch (err) {
-        console.error(err);
-        alert('Lỗi tải dữ liệu đặt hàng. Vui lòng thử lại!');
+        console.error('Lỗi khởi tạo trang đặt hàng:', err);
+        alert('Có lỗi xảy ra. Vui lòng thử lại!');
         router.push('/gio-hang');
       } finally {
         setLoading(false);
       }
     };
+
     initData();
   }, [router]);
 
@@ -86,7 +157,6 @@ export default function OrderInfo() {
     const addr = addresses.find(a => a.fullAddress === selectedAddress);
     if (!addr) return alert('Địa chỉ không hợp lệ!');
 
-    // Lưu thông tin để sang trang thanh toán
     localStorage.setItem('orderInfo', JSON.stringify({
       addressId: addr.AddressId,
       recipientName: name.trim(),
@@ -229,7 +299,7 @@ export default function OrderInfo() {
                         />
                       </div>
                       <div className={styles.itemInfo}>
-                        <h3>{item.ProductName}</h3>
+                        <h3>{item.ProductName || 'Đang tải tên sản phẩm...'}</h3>
                         <p>{item.PriceAtAdded.toLocaleString('vi-VN')}đ</p>
                       </div>
                       <div className={styles.itemActions}>
