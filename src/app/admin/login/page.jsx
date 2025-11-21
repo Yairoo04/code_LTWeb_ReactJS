@@ -112,8 +112,17 @@ export default function LoginPage() {
       if (data.success) {
         // Lưu thông tin user vào sessionStorage
         sessionStorage.setItem('user', JSON.stringify(data.data));
-        // Gửi OTP
-        sendOtp();
+        if (data.data.role === 'Admin') {
+          // Gửi OTP cho admin
+          sendOtp();
+        } else {
+          // Staff: đăng nhập thành công luôn
+          Cookies.set("isLoggedIn", "true", { path: "/" });
+          sessionStorage.setItem("isLoggedIn", "true");
+          alert("✅ Đăng nhập thành công!");
+          localStorage.removeItem("lockUntil");
+          router.push("/admin/dashboard");
+        }
         setFailedAttempts(0);
       } else {
         setFailedAttempts((prev) => prev + 1);
