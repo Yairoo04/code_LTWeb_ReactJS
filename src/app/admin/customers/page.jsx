@@ -1,6 +1,7 @@
 "use client";
 import "../admin.scss";
 import { useMemo, useState, useEffect } from "react";
+import { getCurrentUser, hasRole } from "@/utils/auth";
 import styles from "./customers.module.scss";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -96,6 +97,10 @@ export default function CustomersPage() {
     }
   }
 
+  // Lấy user hiện tại
+  const user = getCurrentUser();
+  const isAdmin = hasRole(user, ["ADMIN"]);
+
   return (
     <div className="admin-page">
       <h2>Khách hàng</h2>
@@ -135,7 +140,6 @@ export default function CustomersPage() {
               <th>Đơn hàng</th>
               <th>Chi tiêu</th>
               <th>Ngày tạo</th>
-              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -152,20 +156,6 @@ export default function CustomersPage() {
                   month: '2-digit',
                   day: '2-digit'
                 }) : "N/A"}</td>
-                <td>
-                  <button 
-                    className={styles.iconBtnDanger} 
-                    onClick={(e) => { e.stopPropagation(); deleteCustomer(c.UserId); }}
-                    data-tooltip="Xóa khách hàng"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>

@@ -35,11 +35,16 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(87, 85, 85, 0.6);
-  color: #fff;
-  border: none;
-  width: 36px;
-  height: 36px;
+
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #eee;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #333;
+  cursor: pointer;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,20 +59,17 @@
     background: rgba(8, 8, 8, 0.7);
     opacity: 1;
     transform: translateY(-50%) scale(1.1);
-  }
 
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+    color: #fff;
   }
 }
 
 .prev {
-  left: 8px;
+  left: 12px;
 }
 
 .next {
-  right: 8px;
+  right: 12px;
 }
 
 .dots {
