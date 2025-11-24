@@ -2,7 +2,9 @@
 import "../admin.scss";
 import { useMemo, useState, useEffect } from "react";
 import { getCurrentUser, hasRole } from "@/utils/auth";
+
 import styles from "./customers.module.scss";
+import AdminPageTitle from "@/components/AdminPageTitle";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
@@ -127,7 +129,7 @@ export default function CustomersPage() {
 
   return (
     <div className="admin-page">
-      <h2>Khách hàng</h2>
+      <AdminPageTitle>Khách hàng</AdminPageTitle>
 
       <div className={styles.toolbar}>
         <input

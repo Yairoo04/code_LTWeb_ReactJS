@@ -112,7 +112,7 @@ export default function AdminLayout({ children }) {
 
       <main className="admin-content">
         <header className="admin-header">
-          <span>Xin chào, {user?.username || "Admin"} {user?.role ? `(${user.role})` : ""}</span>
+          <span>Xin chào, {user?.fullName || user?.fullname || user?.username || "Admin"} {user?.role ? `(${user.role})` : ""}</span>
           <div className="header-actions">
             <button className="icon-btn" title="Thông báo">
               <BellIcon className="icon" />

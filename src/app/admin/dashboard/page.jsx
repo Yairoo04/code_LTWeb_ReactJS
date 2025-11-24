@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import "./../../admin/admin.scss";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
+import AdminPageTitle from "@/components/AdminPageTitle";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -236,7 +237,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="admin-page">
-        <h2> Trang chủ</h2>
+        <AdminPageTitle>Trang chủ</AdminPageTitle>
         <LoadingSpinner message="Đang tải dữ liệu tổng quan..." />
       </div>
     );
@@ -247,7 +248,7 @@ export default function DashboardPage() {
   // ===============================
   return (
     <div className="admin-page">
-      <h2> Trang chủ</h2>
+      <AdminPageTitle>Trang chủ</AdminPageTitle>
 
       {/* --- Cards thống kê --- */}
       <div className="dashboard-stats">

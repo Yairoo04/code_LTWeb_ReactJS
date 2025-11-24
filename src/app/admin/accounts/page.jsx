@@ -2,7 +2,9 @@
 import { useMemo, useState, useEffect } from "react";
 import "../admin.scss";
 import styles from "./accounts.module.scss";
+
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
+import AdminPageTitle from "@/components/AdminPageTitle";
 
 // Toast notification helper
 function showToast(message, type = 'success') {
@@ -92,6 +94,15 @@ export default function AccountsPage() {
 
       const updated = await res.json();
       setAccounts((prev) => prev.map((a) => (a.id === data.id ? updated : a)));
+      // Nếu user đang sửa chính mình, cập nhật sessionStorage/localStorage để header đổi tên ngay
+      const currentUserRaw = sessionStorage.getItem("user") || localStorage.getItem("user");
+      if (currentUserRaw) {
+        const currentUser = JSON.parse(currentUserRaw);
+        if (currentUser.id === updated.id || currentUser.userId === updated.id || currentUser.UserId === updated.id) {
+          sessionStorage.setItem("user", JSON.stringify(updated));
+          localStorage.setItem("user", JSON.stringify(updated));
+        }
+      }
       showToast(" Cập nhật tài khoản thành công", "success");
     } else {
       // Thêm tài khoản mới
@@ -176,7 +187,7 @@ export default function AccountsPage() {
 
   return (
     <div className="admin-page">
-      <h2>Tài khoản</h2>
+      <AdminPageTitle>Tài khoản</AdminPageTitle>
 
       <div className={styles.toolbar}>
         <input

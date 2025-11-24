@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import "../admin.scss";
 import styles from "./statistics.module.scss";
+import AdminPageTitle from "@/components/AdminPageTitle";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function StatisticsPage() {
@@ -55,7 +56,7 @@ export default function StatisticsPage() {
     <div className="admin-page">
       <div className={styles.statsHeader}>
         <div className={styles.headerContent}>
-          <h1> Thống kê doanh thu</h1>
+          <AdminPageTitle>Thống kê doanh thu</AdminPageTitle>
           <p>Xem doanh thu theo ngày, tuần hoặc tháng</p>
         </div>
         <div className={styles.viewTabs}>

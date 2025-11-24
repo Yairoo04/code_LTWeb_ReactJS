@@ -1,0 +1,22 @@
+
+.titleWrapper {
+	margin-bottom: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.title {
+	font-size: 2.2rem;
+	font-weight: 700;
+	color: #222;
+	letter-spacing: -0.5px;
+	margin: 0;
+	padding: 0;
+	line-height: 1.2;
+	font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+	border-left: 5px solid #0070f3;
+	padding-left: 16px;
+	background: linear-gradient(90deg, #f8fafc 60%, #e0e7ef 100%);
+	border-radius: 4px;
+}

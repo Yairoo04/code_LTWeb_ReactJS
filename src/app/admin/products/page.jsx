@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
 import styles from "./products.module.scss";
+import AdminPageTitle from "@/components/AdminPageTitle";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -444,7 +445,7 @@ export default function ProductPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Quản lý sản phẩm</h1>
+        <AdminPageTitle>Quản lý sản phẩm</AdminPageTitle>
         <button className={styles.addBtn} onClick={openAddModal}>
           + Thêm sản phẩm
         </button>
