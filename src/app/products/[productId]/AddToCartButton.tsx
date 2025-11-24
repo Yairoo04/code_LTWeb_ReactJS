@@ -3,11 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AddToCartButton({ productId }: { productId: number }) {
+type Props = {
+  productId: number;
+  stock: number;
+  productName?: string;
+};
+
+export default function AddToCartButton({ productId, stock, productName }: Props) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  if (stock <= 0) {
+    return (
+      <div className="text-center">
+        <button className="btn btn-disabled btn-lg w-full" disabled>
+          THÊM VÀO GIỎ
+        </button>
+      </div>
+    )
+  }
   const handleAddToCart = async () => {
+    if (stock <= 0) return;
     setLoading(true);
 
     try {
