@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import "./../../admin/admin.scss";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import AdminPageTitle from "@/components/AdminPageTitle";
+import AdminPageTitle from "../components/AdminPageTitle";
 import {
   Chart as ChartJS,
   CategoryScale,

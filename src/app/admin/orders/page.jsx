@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import AdminPageTitle from "@/components/AdminPageTitle";
+import AdminPageTitle from "../components/AdminPageTitle";
 import "../admin.scss";
 import styles from "./orders.module.scss";
 

@@ -4,7 +4,7 @@ import "../admin.scss";
 import styles from "./accounts.module.scss";
 
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import AdminPageTitle from "@/components/AdminPageTitle";
+import AdminPageTitle from "../components/AdminPageTitle";
 
 // Toast notification helper
 function showToast(message, type = 'success') {

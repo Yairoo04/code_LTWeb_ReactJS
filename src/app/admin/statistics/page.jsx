@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import "../admin.scss";
 import styles from "./statistics.module.scss";
-import AdminPageTitle from "@/components/AdminPageTitle";
+import AdminPageTitle from "../components/AdminPageTitle";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function StatisticsPage() {

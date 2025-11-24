@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
 import styles from "./products.module.scss";
-import AdminPageTitle from "@/components/AdminPageTitle";
+import AdminPageTitle from "../components/AdminPageTitle";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
