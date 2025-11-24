@@ -21,8 +21,13 @@ export const getCurrentUser = () => {
 export const hasRole = (user, roles) => {
   if (!user) return false;
   if (!roles || roles.length === 0) return true;
-  // So sánh không phân biệt hoa thường
-  const userRole = (user.role || '').toUpperCase();
+  // So sánh không phân biệt hoa thường, ép kiểu về string nếu không phải string
+  let roleValue = user.role;
+  if (typeof roleValue !== 'string') {
+    if (roleValue === undefined || roleValue === null) roleValue = '';
+    else roleValue = String(roleValue);
+  }
+  const userRole = roleValue.toUpperCase();
   return roles.some(r => r.toUpperCase() === userRole);
 };
 

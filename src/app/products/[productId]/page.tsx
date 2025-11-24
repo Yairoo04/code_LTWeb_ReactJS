@@ -23,7 +23,9 @@ async function fetchProduct(productId: string) {
     cache: 'no-store'
   });
 
-  if (!res.ok) throw new Error('Failed to fetch product');
+  if (!res.ok) {
+    notFound();
+  }
   const json = await res.json();
   if (!json.data?.product) notFound();
   return json.data;
