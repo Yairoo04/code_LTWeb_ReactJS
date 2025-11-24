@@ -20,6 +20,7 @@ export default function CustomersPage() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("newest");
   const [selected, setSelected] = useState(null);
+  const [filterActive, setFilterActive] = useState("all");
 
   // Fetch customers từ API khi component mount
   useEffect(() => {
@@ -46,6 +47,9 @@ export default function CustomersPage() {
       const s = ((c.FullName || "") + (c.Email || "") + (c.PhoneNumber || "")).toLowerCase();
       return s.includes(q.toLowerCase());
     });
+    if (filterActive !== "all") {
+      list = list.filter(c => String(c.IsActive) === filterActive);
+    }
     switch (sort) {
       case "newest":
         list = [...list].sort(
@@ -60,7 +64,7 @@ export default function CustomersPage() {
         break;
     }
     return list;
-  }, [customers, q, sort]);
+  }, [customers, q, sort, filterActive]);
 
   function resetFilters() {
     setQ("");
@@ -101,6 +105,26 @@ export default function CustomersPage() {
   const user = getCurrentUser();
   const isAdmin = hasRole(user, ["ADMIN"]);
 
+
+  // Toggle khóa/mở tài khoản
+  async function toggleActive(userId) {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/customers`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId: userId, action: "toggleBlock" })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCustomers((prev) => prev.map(c => c.UserId === userId ? { ...c, IsActive: data.isActive } : c));
+      } else {
+        alert(data.message || "Thao tác thất bại");
+      }
+    } catch (e) {
+      alert("Không thể cập nhật trạng thái tài khoản!");
+    }
+  }
+
   return (
     <div className="admin-page">
       <h2>Khách hàng</h2>
@@ -140,11 +164,16 @@ export default function CustomersPage() {
               <th>Đơn hàng</th>
               <th>Chi tiêu</th>
               <th>Ngày tạo</th>
+              <th>Khóa/Mở tài khoản</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((c) => (
-              <tr key={c.UserId} onClick={() => viewCustomerDetails(c.UserId)} className={styles.rowClickable}>
+              <tr
+                key={c.UserId}
+                className={styles.rowClickable}
+                onClick={() => viewCustomerDetails(c.UserId)}
+              >
                 <td>KH{c.UserId.toString().padStart(3, '0')}</td>
                 <td>{c.FullName || "Chưa có tên"}</td>
                 <td>{c.Email}</td>
@@ -156,6 +185,23 @@ export default function CustomersPage() {
                   month: '2-digit',
                   day: '2-digit'
                 }) : "N/A"}</td>
+                <td>
+                  <button
+                    className={c.IsActive ? styles.statusActive : styles.statusInactive}
+                    onClick={e => { e.stopPropagation(); toggleActive(c.UserId); }}
+                    title={c.IsActive ? "Nhấn để khóa tài khoản" : "Nhấn để mở khóa tài khoản"}
+                  >
+                    {c.IsActive ? (
+                      <span style={{color: '#16a34a', fontWeight: 600}}>
+                        Đang hoạt động
+                      </span>
+                    ) : (
+                      <span style={{color: '#dc2626', fontWeight: 600}}>
+                        Đang khóa
+                      </span>
+                    )}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
