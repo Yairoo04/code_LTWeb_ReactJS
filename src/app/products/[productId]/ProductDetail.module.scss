@@ -470,8 +470,8 @@
       right: 0.5px;
       background: none;
       border: none;
-      color: #e30019; 
-      font-size: 20px; 
+      color: #e30019;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
       transition: 0.25s;
@@ -532,7 +532,9 @@
 }
 
 .quantitySection {
-  margin: 20px 0 12px;
+  margin: 8px 0 12px;
+  height: auto;
+  width: 100%;
 }
 
 .quantityWrapper {
@@ -542,7 +544,7 @@
   background: linear-gradient(135deg, #fff8f5, #fff2e8);
   border: 2.5px solid #ff9a6e;
   border-radius: 18px;
-  padding: 18px 24px;
+  padding: 18px 34px;
   box-shadow: 0 6px 20px rgba(238, 77, 45, 0.1);
 }
 
@@ -559,13 +561,13 @@
 }
 
 .quantityBtn {
-  width: 52px;
+  width: 10px;
   height: 52px;
   border-radius: 50%;
   background: white;
   border: 3px solid #ee4d2d;
   color: #ee4d2d;
-  font-size: 30px;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.25s;
@@ -585,7 +587,7 @@
 }
 
 .quantityValue {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 900;
   color: #ee4d2d;
   min-width: 70px;
@@ -647,5 +649,111 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.paymentSection {
+  margin: 24px 0 12px;
+}
+
+.paymentSection .sectionTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ee4d2d;
+  margin-bottom: 14px;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px; 
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: #fcfcfc;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.25s ease;
+  position: relative;
+
+  &.selected,
+  &:has(input:checked) {
+    border-color: #ee4d2d;
+    background: #fff2e8;
+    box-shadow: 0 4px 12px rgba(238, 77, 45, 0.12);
+  }
+
+  input[type="radio"] {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: #ee4d2d;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+
+  
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: #ee4d2d;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    &:checked::before {
+      opacity: 1;
+    }
+  }
+
+  .paymentIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    img {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+    }
+  }
+
+  .label {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+    margin-left: 2px; 
+  }
+
+  .check {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 20px;
+    color: #ee4d2d;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  &.selected .check,
+  &:has(input:checked) .check {
+    opacity: 1;
+  }
+
+  &:hover:not(.selected):not(:has(input:checked)) {
+    border-color: #ff9a6e;
+    background: #fffaf7;
   }
 }

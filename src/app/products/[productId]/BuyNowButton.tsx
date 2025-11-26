@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './ProductDetail.module.scss';
+import Image from 'next/image';
 
 type Address = {
   AddressId: number;
@@ -17,6 +18,18 @@ type Address = {
   displayText: string;
 };
 
+type PaymentMethod = {
+  id: number;
+  name: string;
+  icon: string;
+  color: string;
+};
+
+const PAYMENT_METHODS = [
+  { id: 1, name: 'Thanh toán khi nhận hàng (COD)', icon: '/images/banks/cod.jpg' },
+  { id: 2, name: 'Chuyển khoản (MOMO)', icon: '/images/banks/momo.jpg' },
+  { id: 3, name: 'Thanh toán tiền mặt tại cửa hàng', icon: '/images/banks/cash.jpg' },
+] as const;
 type Props = {
   productId: number;
   stock: number;
@@ -37,6 +50,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
   const [phone, setPhone] = useState('');
   const [selectedAddress, setSelectedAddress] = useState('');
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<1 | 2 | 3>(1);
 
   const router = useRouter();
   const maxQty = Math.min(stock, 99);
@@ -116,6 +130,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
     }
   };
 
+  // Phuong thuc thanh toan
   const handleBuyNow = async () => {
     if (!name.trim()) return alert('Vui lòng nhập họ tên!');
     if (!/^\d{9,11}$/.test(phone.replace(/\D/g, ''))) return alert('Số điện thoại không hợp lệ!');
@@ -139,6 +154,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
           addressId: addr.AddressId,
           recipientName: name.trim(),
           recipientPhone: phone.trim(),
+          paymentMethodId: selectedPaymentMethod,
         }),
       });
 
@@ -205,7 +221,29 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
                 ))}
               </select>
             </div>
-
+            {/* Phương thức thanh toán */}
+            <div className={styles.paymentSection}>
+              <div className={styles.sectionTitle}>Phương thức thanh toán</div>
+              {PAYMENT_METHODS.map(method => (
+                <label
+                  key={method.id}
+                  className={`${styles.paymentOption} ${selectedPaymentMethod === method.id ? 'selected' : ''}`}
+                  data-method={method.id}
+                  onClick={() => setSelectedPaymentMethod(method.id as 1 | 2 | 3)}
+                >
+                  <input type="radio" name="payment" checked={selectedPaymentMethod === method.id} onChange={() => { }} />
+                  <Image
+                    src={method.icon}
+                    alt={method.name}
+                    width={30}
+                    height={30}
+                    className="rounded-md object-contain"
+                  />
+                  <span className={styles.label}>{method.name}</span>
+                  {selectedPaymentMethod === method.id && <span className={styles.check}></span>}
+                </label>
+              ))}
+            </div>
             {/* Số lượng */}
             <div className={styles.quantitySection}>
               <div className={styles.quantityWrapper}>

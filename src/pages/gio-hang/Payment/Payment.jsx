@@ -1,23 +1,77 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Payment.module.scss';
+import MoMoQRPayment from '@/components/MoMoQRPayment/MoMoQRPayment';
 
-// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP 
 const openLoginModal = () => {
   window.dispatchEvent(new CustomEvent('open-login-modal'));
 };
 
 export default function Payment() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(false);
   const [orderInfo, setOrderInfo] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
-  // HÀM FETCH CÓ XỬ LÝ 401 
+  const [showMoMoQR, setShowMoMoQR] = useState(false);
+  const [payUrl, setPayUrl] = useState('');
+  const [currentOrderId, setCurrentOrderId] = useState(null);
+
+  useEffect(() => {
+    const fromMoMo = searchParams.get('from');
+    const momoOrderId = searchParams.get('orderId'); // GTN115_17364167225400
+    const resultCode = searchParams.get('resultCode');
+
+    if (fromMoMo === 'momo' && momoOrderId && resultCode === '0') {
+      const realOrderId = momoOrderId.replace('GTN', '').split('_')[0];
+      if (!realOrderId || isNaN(Number(realOrderId))) {
+        alert('Lỗi lấy mã đơn hàng từ MoMo');
+        return;
+      }
+      const updateAndRedirect = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) throw new Error('Không có token');
+
+          const res = await fetch('http://localhost:4000/api/orders/update-status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ orderId: Number(realOrderId) }),
+          });
+
+          if (!res.ok) {
+            const err = await res.text();
+            console.error('Update status failed:', res.status, err);
+            // VẪN CHO QUA VÌ MOMO ĐÃ XÁC NHẬN
+          } else {
+            console.log('CẬP NHẬT TRẠNG THÁI THÀNH CÔNG #', realOrderId);
+          }
+        } catch (err) {
+          console.error('Lỗi gọi update-status:', err);
+          // Vẫn cho qua
+        } finally {
+          // CHỈ REDIRECT KHI XONG HẾT
+          localStorage.removeItem('orderInfo');
+          localStorage.removeItem('cartSelectedUniqueIds');
+          alert('Thanh toán MoMo thành công!');
+          router.replace(`/hoan-tat?orderId=${realOrderId}&paid=1`);
+        }
+      };
+
+      updateAndRedirect(); // ← ĐỢI XONG MỚI REDIRECT
+    }
+  }, [searchParams, router]);
+
   const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -36,145 +90,139 @@ export default function Payment() {
     });
 
     if (res.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userId');
-      openLoginModal(); // MỞ MODAL ĐĂNG NHẬP NGAY
-      throw new Error('Phiên đăng nhập đã hết hạn');
+      localStorage.clear();
+      openLoginModal();
+      throw new Error('Phiên đăng nhập hết hạn');
     }
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'Lỗi kết nối server');
-    }
-
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Lỗi server');
     return res;
   };
 
+  // LOAD ORDER INFO
   useEffect(() => {
     const infoStr = localStorage.getItem('orderInfo');
-
     if (!infoStr) {
-      alert('Không tìm thấy thông tin đơn hàng. Vui lòng quay lại đặt hàng.');
+      alert('Không tìm thấy thông tin đơn hàng!');
       router.push('/gio-hang');
       return;
     }
 
     try {
       const info = JSON.parse(infoStr);
-
-      if (
-        !info.addressId ||
-        !info.recipientName ||
-        !info.recipientPhone ||
-        !info.recipientAddress ||
-        !info.items ||
-        !Array.isArray(info.items) ||
-        info.items.length === 0
-      ) {
-        alert('Thông tin đơn hàng không hợp lệ hoặc bị thiếu!');
-        router.push('/thong-tin-dat-hang');
-        return;
-      }
-
-      const cleanedItems = info.items.map(item => ({
-        CartItemId: Number(item.CartItemId),
-        ProductId: Number(item.ProductId || 0),
-        ProductName: item.ProductName || 'Sản phẩm',
-        ImageUrl: item.ImageUrl || '/images/placeholder.png',
-        PriceAtAdded: Number(item.PriceAtAdded || 0),
-        Quantity: Math.max(1, Number(item.Quantity || 1)),
-        LineTotal: Number(item.LineTotal || item.PriceAtAdded * item.Quantity),
-      })).filter(item => item.CartItemId > 0);
+      const cleanedItems = info.items
+        .map(item => ({
+          CartItemId: Number(item.CartItemId),
+          ProductId: Number(item.ProductId || 0),
+          ProductName: item.ProductName || 'Sản phẩm',
+          ImageUrl: item.ImageUrl || '/images/placeholder.png',
+          PriceAtAdded: Number(item.PriceAtAdded || 0),
+          Quantity: Math.max(1, Number(item.Quantity || 1)),
+        }))
+        .filter(item => item.CartItemId > 0);
 
       if (cleanedItems.length === 0) {
-        alert('Không có sản phẩm hợp lệ trong đơn hàng!');
+        alert('Giỏ hàng trống!');
         router.push('/gio-hang');
         return;
       }
 
       setOrderInfo(info);
       setCartItems(cleanedItems);
+      setSelectedPaymentMethod({
+        Id: info.paymentMethodId || 1,
+        Name: info.paymentMethodName || 'Thanh toán khi nhận hàng (COD)',
+        Icon: info.paymentMethodIcon || '/images/cod-icon.png',
+      });
+
       setPageLoading(false);
     } catch (err) {
-      console.error('Lỗi parse orderInfo:', err);
-      alert('Dữ liệu đơn hàng bị hỏng. Vui lòng đặt lại đơn!');
+      alert('Dữ liệu đơn hàng lỗi!');
       router.push('/gio-hang');
     }
   }, [router]);
 
+  // POLLING TRẠNG THÁI 
+  useEffect(() => {
+    if (!currentOrderId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetchWithAuth(`http://localhost:4000/api/orders/${currentOrderId}`);
+        const data = await res.json();
+        if (data.data?.StatusId === 2) {
+          clearInterval(interval);
+          localStorage.removeItem('orderInfo');
+          localStorage.removeItem('cartSelectedUniqueIds');
+          router.replace(`/hoan-tat?orderId=${currentOrderId}&paid=1`);
+        }
+      } catch (e) { /* chưa thanh toán */ }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [currentOrderId, router]);
+
+  // HOÀN TẤT ĐẶT HÀNG
   const handlePayment = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      openLoginModal();
-      return;
-    }
-
-    const cartId = localStorage.getItem('cartId');
-    if (!cartId) {
-      alert('Không tìm thấy giỏ hàng!');
-      router.push('/gio-hang');
-      return;
-    }
-
+    if (loading) return;
     setLoading(true);
 
     try {
-      // Lấy danh sách sản phẩm đã chọn (nếu có)
-      let selectedProductIds = [];
-      const savedSelected = localStorage.getItem('cartSelectedUniqueIds');
-      if (savedSelected) {
-        try {
-          const selectedUniqueIds = JSON.parse(savedSelected);
-          selectedProductIds = cartItems
-            .filter(item => selectedUniqueIds.includes(`${item.CartItemId}|${item.ProductId}`))
-            .map(item => item.ProductId);
-        } catch (e) {
-          console.error('Lỗi parse cartSelectedUniqueIds:', e);
-        }
-      }
+      const cartId = localStorage.getItem('cartId');
+      if (!cartId) throw new Error('Không tìm thấy giỏ hàng');
 
-      // Nếu không có chọn gì → lấy hết
-      if (selectedProductIds.length === 0) {
-        selectedProductIds = cartItems.map(item => item.ProductId);
-      }
-
-      if (selectedProductIds.length === 0) {
-        alert('Không có sản phẩm nào để đặt hàng!');
-        setLoading(false);
-        return;
-      }
-
-      // GỌI API ĐẶT HÀNG VỚI XỬ LÝ 401
-      const res = await fetchWithAuth('/api/orders/from-cart', {
+      const res = await fetchWithAuth('http://localhost:4000/api/orders/from-cart', {
         method: 'POST',
         body: JSON.stringify({
           cartId,
           addressId: orderInfo.addressId,
-          selectedProductIds,
+          selectedProductIds: cartItems.map(i => i.ProductId),
+          paymentMethodId: selectedPaymentMethod.Id,
         }),
       });
 
-      const result = await res.json();
+      const { data } = await res.json();
+      const orderId = data.orderId;
 
-      // XÓA DỮ LIỆU TẠM
-      localStorage.removeItem('orderInfo');
-      localStorage.removeItem('cartSelectedUniqueIds');
-      sessionStorage.removeItem('checkoutItems');
+      if (selectedPaymentMethod.Id === 2) {
+        // MOMO
+        const momoRes = await fetch('http://localhost:4000/api/payment/momo/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId,
+            amount: totalAmount,
+            extraData: `realOrderId=${orderId}`
+          }),
+        });
 
-      alert(`ĐẶT HÀNG THÀNH CÔNG! Mã đơn: #${result.data.orderId}`);
-      router.push(`/hoan-tat?orderId=${result.data.orderId}`);
+        const momoData = await momoRes.json();
 
-    } catch (err) {
-      console.error('Lỗi đặt hàng:', err);
-      if (!err.message.includes('hết hạn') && !err.message.includes('Chưa đăng nhập')) {
-        alert('Đặt hàng thất bại: ' + err.message);
+        if (momoData.success && momoData.payUrl) {
+          setPayUrl(momoData.payUrl);
+          setCurrentOrderId(orderId);
+          setShowMoMoQR(true);
+        } else {
+          throw new Error(momoData.error || 'Không tạo được thanh toán MoMo');
+        }
+      } else {
+        // COD / TIỀN MẶT
+        localStorage.removeItem('orderInfo');
+        localStorage.removeItem('cartSelectedUniqueIds');
+        alert(`Đặt hàng thành công! Mã đơn: #${orderId}`);
+        router.push(`/hoan-tat?orderId=${orderId}`);
       }
-      // Nếu là lỗi 401 → đã mở modal rồi → không alert thêm
+    } catch (err) {
+      alert('Lỗi: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  const totalAmount = cartItems.reduce((sum, item) => sum + item.PriceAtAdded * item.Quantity, 0);
+
+  if (showMoMoQR) {
+    return <MoMoQRPayment payUrl={payUrl} currentOrderId={currentOrderId} totalAmount={totalAmount} onBack={() => router.back()} />;
+  }
 
   if (pageLoading) {
     return (
@@ -183,15 +231,13 @@ export default function Payment() {
           <div className={styles.containerFluid}>
             <div className={styles.loadingCart}>
               <div className={styles.spinner}></div>
-              <p>Đang tải thông tin thanh toán...</p>
+              <p>Đang tải...</p>
             </div>
           </div>
         </div>
       </main>
     );
   }
-
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.PriceAtAdded * item.Quantity, 0);
 
   return (
     <main className={styles.wrapperMain_content}>
@@ -254,7 +300,22 @@ export default function Payment() {
                     <p><strong>Người nhận:</strong> {orderInfo.recipientName}</p>
                     <p><strong>Số điện thoại:</strong> {orderInfo.recipientPhone}</p>
                     <p><strong>Địa chỉ:</strong> {orderInfo.recipientAddress}</p>
-                    <p><strong>Phương thức:</strong> Thanh toán khi nhận hàng (COD)</p>
+                    <p className={styles.paymentMethodDisplay}>
+                      <strong>Phương thức thanh toán:  </strong>
+                      <span className={styles.paymentLabel}>
+                        {selectedPaymentMethod?.Icon && (
+                          <img
+                            src={selectedPaymentMethod.Icon}
+                            alt={selectedPaymentMethod.Name}
+                            width={28}
+                            height={28}
+                            style={{ borderRadius: '6px', marginRight: '10px', verticalAlign: 'middle' }}
+                            onError={e => e.target.style.display = 'none'}
+                          />
+                        )}
+                        {selectedPaymentMethod?.Name || 'Thanh toán khi nhận hàng (COD)'}
+                      </span>
+                    </p>
                   </div>
 
                   <div className={styles.summary}>
