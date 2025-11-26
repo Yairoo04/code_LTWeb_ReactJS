@@ -4,7 +4,7 @@ import "../admin.scss";
 import styles from "./accounts.module.scss";
 
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
-import AdminPageTitle from "../components/AdminPageTitle";
+import AdminPageTitle from "@/components/AdminPageTitle";
 
 // Toast notification helper
 function showToast(message, type = 'success') {
@@ -23,20 +23,23 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
+
+
 const ROLES = [
   { value: "ADMIN", label: "Admin" },
   { value: "STAFF", label: "Nhân viên" },
+  { value: "SHIPPER", label: "Shipper" },
 ];
 
 function RoleBadge({ role }) {
   const map = {
     ADMIN: styles.badgeAdmin,
     STAFF: styles.badgeStaff,
+    SHIPPER: styles.badgeShipper || styles.badgeStaff,
   };
   const label = ROLES.find((r) => r.value === role)?.label || role;
   return <span className={map[role] || styles.badgeStaff}>{label}</span>;
 }
-
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -231,55 +234,55 @@ export default function AccountsPage() {
             ) : (
               filtered.map((a) => (
                 <tr key={a.id}>
-                <td>{a.id}</td>
-                <td className={styles.mono}>{a.username}</td>
-                <td>{a.fullName}</td>
-                <td>{a.email}</td>
-                <td>{a.phoneNumber || "—"}</td>
-                <td><RoleBadge role={a.role} /></td>
-                <td>
-                  <span className={a.active ? styles.badgeActive : styles.badgeBlocked}>
-                    {a.active ? "Hoạt động" : "Khóa"}
-                  </span>
-                </td>
-                <td className={styles.actions}>
-                  <button 
-                    className={styles.iconBtn} 
-                    onClick={() => setSelected(a)}
-                    data-tooltip="Sửa tài khoản"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                  </button>
-                  <button 
-                    className={styles.iconBtn} 
-                    onClick={() => setShowPwdFor(a)}
-                    data-tooltip="Đổi mật khẩu"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                  </button>
-                  {a.role === 'STAFF' && (
+                  <td>{a.id}</td>
+                  <td className={styles.mono}>{a.username}</td>
+                  <td>{a.fullName}</td>
+                  <td>{a.email}</td>
+                  <td>{a.phoneNumber || "—"}</td>
+                  <td><RoleBadge role={a.role} /></td>
+                  <td>
+                    <span className={a.active ? styles.badgeActive : styles.badgeBlocked}>
+                      {a.active ? "Hoạt động" : "Khóa"}
+                    </span>
+                  </td>
+                  <td className={styles.actions}>
                     <button 
-                      className={styles.iconBtnDanger} 
-                      onClick={() => removeAccount(a.id)}
-                      data-tooltip="Xóa tài khoản"
+                      className={styles.iconBtn} 
+                      onClick={() => setSelected(a)}
+                      data-tooltip="Sửa tài khoản"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                       </svg>
                     </button>
-                  )}
-                </td>
-              </tr>
-            )))
+                    <button 
+                      className={styles.iconBtn} 
+                      onClick={() => setShowPwdFor(a)}
+                      data-tooltip="Đổi mật khẩu"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </button>
+                    {(a.role === 'STAFF' || a.role === 'SHIPPER') && (
+                      <button 
+                        className={styles.iconBtnDanger} 
+                        onClick={() => removeAccount(a.id)}
+                        data-tooltip="Xóa tài khoản"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              )))
             }
           </tbody>
         </table>
@@ -408,6 +411,25 @@ function AccountModal({ value, onClose, onSave }) {
             </div>
           )}
 
+          {/* Tổng số đơn đã giao cho SHIPPER */}
+          {isEdit && value?.role === 'SHIPPER' && (
+            <div style={{
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              padding: '10px 18px',
+              marginBottom: 18,
+              fontWeight: 600,
+              color: '#1976d2',
+              fontSize: 16,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10
+            }}>
+              Đơn đã giao thành công: <span style={{color:'#22c55e',fontWeight:700}}>{value.deliveredCount ?? 0}</span>
+            </div>
+          )}
+
           <div className={styles.formRow}>
             <label>
               <span>Username <span style={{ color: 'red' }}>*</span></span>
@@ -489,14 +511,15 @@ function AccountModal({ value, onClose, onSave }) {
           <div className={styles.roleHint}>
             <strong>Phân quyền:</strong>
             <ul>
-              <li><b>Admin</b>: Toàn quyền quản lý hệ thống, thêm/sửa/xóa tài khoản Staff.</li>
+              <li><b>Admin</b>: Toàn quyền quản lý hệ thống, thêm/sửa/xóa tài khoản Staff, Shipper.</li>
               <li><b>Nhân viên</b>: Quản lý đơn hàng, sản phẩm, khách hàng. Không quản lý tài khoản.</li>
+              <li><b>Shipper</b>: Quản lý đơn hàng được giao, xác nhận giao hàng.</li>
             </ul>
             {!isEdit && (
               <p style={{ marginTop: "8px", fontSize: "13px", color: "#6b7280", fontStyle: "italic" }}>
                 💡 Mật khẩu mặc định: <strong>Username@123</strong> (chữ cái đầu viết hoa)
                 <br />
-                <span style={{ marginLeft: "20px" }}>Ví dụ: <code>staff02</code> → <code>Staff02@123</code></span>
+                <span style={{ marginLeft: "20px" }}>Ví dụ: <code>shipper01</code> → <code>Shipper01@123</code></span>
               </p>
             )}
           </div>
