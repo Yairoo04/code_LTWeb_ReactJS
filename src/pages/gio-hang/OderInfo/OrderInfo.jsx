@@ -20,6 +20,11 @@ export default function OrderInfo() {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState('');
 
+  // ============== PHUONG THUC THANH TOAN ============
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [paymentMethodId, setPaymentMethodId] = useState(1); // Mac dinh COD
+  const [loadingPM, setLoadingPM] = useState(true);
+
   // HÀM FETCH CÓ XỬ LÝ 401 – TỰ ĐỘNG MỞ MODAL ĐĂNG NHẬP
   const fetchWithAuth = async (url, options = {}) => {
     const currentToken = localStorage.getItem('token') || token;
@@ -103,7 +108,7 @@ export default function OrderInfo() {
           } catch { }
         }
 
-        // 3. LẤY DANH SÁCH ĐỊA CHỈ (có xử lý 401)
+        // 3. LẤY DANH SÁCH ĐỊA CHỈ 
         try {
           const addrRes = await fetchWithAuth('/api/address');
           const rawAddrs = await addrRes.json();
@@ -120,19 +125,32 @@ export default function OrderInfo() {
 
           setAddresses(formatted);
 
-          const defaultAddr = formatted.find(a => a.IsDefault);
+          // TỰ ĐỘNG CHỌN ĐỊA CHỈ MẶC ĐỊNH 
+          const defaultAddr = formatted.find(a => a.IsDefault) || formatted[0];
           if (defaultAddr) {
             setSelectedAddress(defaultAddr.fullAddress);
-          } else if (formatted.length > 0) {
-            setSelectedAddress(formatted[0].fullAddress);
+            setName(defaultAddr.ReceiverName || '');
+            setPhone(defaultAddr.PhoneNumber || '');
           }
         } catch (err) {
-          if (err.message.includes('hết hạn')) {
-            // Đã mở modal rồi → không làm gì thêm
-            return;
-          }
+          if (err.message.includes('hết hạn')) return;
           console.error('Lỗi tải địa chỉ:', err);
           alert('Không thể tải danh sách địa chỉ');
+        }
+
+        // 4. LAY PHUONG THUC THANH TOAN
+        try {
+          const pmRes = await fetch('api/payment-methods');
+          const pmData = await pmRes.json();
+          if (pmData.success && pmData.data.length > 0) {
+            setPaymentMethods(pmData.data);
+            const cod = pmData.data.find(pm => pm.Code === 'COD') || pmData.data[0];
+            setPaymentMethodId(cod.Id);
+          }
+        } catch (err) {
+          console.error('Lỗi tải phương thức thanh toán:', err);
+        } finally {
+          setLoadingPM(false);
         }
 
       } catch (err) {
@@ -153,9 +171,12 @@ export default function OrderInfo() {
     if (!name.trim()) return alert('Vui lòng nhập họ tên!');
     if (!/^\d{9,11}$/.test(phone.replace(/\D/g, ''))) return alert('Số điện thoại không hợp lệ!');
     if (!selectedAddress) return alert('Vui lòng chọn địa chỉ giao hàng!');
+    if (!paymentMethodId) return alert('Vui lòng chọn phương thức thanh toán!');
 
     const addr = addresses.find(a => a.fullAddress === selectedAddress);
     if (!addr) return alert('Địa chỉ không hợp lệ!');
+
+    const selectedPM = paymentMethods.find(pm => pm.Id === paymentMethodId);
 
     localStorage.setItem('orderInfo', JSON.stringify({
       addressId: addr.AddressId,
@@ -164,6 +185,9 @@ export default function OrderInfo() {
       recipientAddress: selectedAddress,
       items: cartItems,
       totalAmount,
+      paymentMethodId: paymentMethodId,
+      paymentMethodName: selectedPM?.Name || 'COD',
+      paymentMethodIcon: selectedPM?.Icon,
     }));
 
     router.push('/thanh-toan-don-hang');
@@ -264,7 +288,19 @@ export default function OrderInfo() {
                     <label>Địa chỉ giao hàng *</label>
                     <select
                       value={selectedAddress}
-                      onChange={e => setSelectedAddress(e.target.value)}
+                      onChange={e => {
+                        const value = e.target.value;
+                        setSelectedAddress(value);
+
+                        // TỰ ĐỘNG ĐIỀN HỌ TÊN + SĐT KHI CHỌN ĐỊA CHỈ
+                        if (value) {
+                          const selectedAddr = addresses.find(a => a.fullAddress === value);
+                          if (selectedAddr) {
+                            setName(selectedAddr.ReceiverName || '');
+                            setPhone(selectedAddr.PhoneNumber || '');
+                          }
+                        }
+                      }}
                       className={styles.addressSelect}
                     >
                       <option value="">-- Chọn địa chỉ --</option>
@@ -274,6 +310,44 @@ export default function OrderInfo() {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  {/* PHUONG THUC THANH TOAN */}
+                  <div className={styles.paymentSection}>
+                    <label className={styles.paymentTitle}>Phương thức thanh toán *</label>
+                    {loadingPM ? (
+                      <div className={styles.loadingPM}>Đang tải phương thức thanh toán...</div>
+                    ) : paymentMethods.length === 0 ? (
+                      <div className={styles.errorPM}>Không tải được phương thức thanh toán</div>
+                    ) : (
+                      <div className={styles.paymentOptions}>
+                        {paymentMethods.map(pm => (
+                          <label
+                            key={pm.Id}
+                            className={`${styles.paymentOption} ${paymentMethodId === pm.Id ? styles.selected : ''}`}
+                          >
+                            <input
+                              type="radio"
+                              name="payment"
+                              checked={paymentMethodId === pm.Id}
+                              onChange={() => setPaymentMethodId(pm.Id)}
+                            />
+                            <div className={styles.paymentLabel}>
+                              {pm.Icon && (
+                                <img
+                                  src={pm.Icon}
+                                  alt={pm.Name}
+                                  width={32}
+                                  height={32}
+                                  onError={e => e.currentTarget.src = '/images/placeholder.png'}
+                                />
+                              )}
+                              <span>{pm.Name}</span>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.summary}>

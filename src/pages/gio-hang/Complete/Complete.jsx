@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import styles from './Complete.module.scss';
 
-// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP 
 const openLoginModal = () => {
   window.dispatchEvent(new CustomEvent('open-login-modal'));
 };
@@ -13,12 +12,18 @@ const openLoginModal = () => {
 export default function Complete() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+
+  const rawOrderId = searchParams.get('orderId') || '';
+  const paid = searchParams.get('paid') === '1';
+
+  const realOrderId = rawOrderId
+    .replace('GTN', '')        // Bỏ GTN nếu có
+    .split('_')[0]             // Lấy phần trước dấu _
+    .replace(/\D/g, '');
 
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // HÀM FETCH CÓ XỬ LÝ 401 
   const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -37,24 +42,18 @@ export default function Complete() {
     });
 
     if (res.status === 401) {
-      // Token hết hạn → xóa + mở modal
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
       openLoginModal();
       throw new Error('Phiên đăng nhập đã hết hạn');
     }
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'Lỗi kết nối server');
-    }
-
+    if (!res.ok) throw new Error('Lỗi server');
     return res;
   };
 
   useEffect(() => {
-    if (!orderId) {
+    if (!realOrderId) {
       router.push('/');
       return;
     }
@@ -62,22 +61,19 @@ export default function Complete() {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-
-        const res = await fetchWithAuth(`/api/orders/order-cart/${orderId}`);
+        const res = await fetchWithAuth(`/api/orders/order-cart/${realOrderId}`);
         const result = await res.json();
 
-        if (!result.success || !result.data) {
-          throw new Error(result.message || 'Không thể tải đơn hàng');
-        }
+        if (!result.success || !result.data) throw new Error('Không tìm thấy đơn hàng');
 
         const d = result.data;
-
-        const normalized = {
-          orderId: d.OrderId,
+        setOrderDetails({
+          orderId: realOrderId,
           recipientName: d.RecipientName || 'Khách lẻ',
           recipientPhone: d.RecipientPhone || '—',
           recipientAddress: d.RecipientAddress || '—',
           totalAmount: Number(d.TotalAmount || 0),
+          paymentMethod: d.PaymentMethod || 'Khi nhận hàng (COD)',
           items: (d.items || []).map((item, idx) => ({
             key: item.ProductId || idx,
             ProductName: item.ProductName || 'Sản phẩm',
@@ -85,24 +81,16 @@ export default function Complete() {
             PriceAtAdded: Number(item.Price || 0),
             Quantity: Number(item.Quantity || 1),
           })),
-        };
-
-        setOrderDetails(normalized);
+        });
       } catch (err) {
-        console.error('Lỗi tải chi tiết đơn hàng:', err);
-
-        // Nếu là lỗi token → đã mở modal rồi → không alert thêm
-        if (!err.message.includes('hết hạn') && !err.message.includes('Chưa đăng nhập')) {
-          alert('Không thể tải chi tiết đơn hàng. Vui lòng đăng nhập lại để xem.');
-        }
-
-        // Vẫn hiển thị thông tin cơ bản dù không load được chi tiết
+        console.error(err);
         setOrderDetails({
-          orderId,
-          recipientName: 'Đang tải...',
+          orderId: realOrderId,
+          recipientName: 'Không tải được thông tin',
           recipientPhone: '—',
           recipientAddress: '—',
           totalAmount: 0,
+          paymentMethod: '—',
           items: [],
         });
       } finally {
@@ -111,16 +99,9 @@ export default function Complete() {
     };
 
     fetchOrder();
-  }, [orderId, router]);
+  }, [realOrderId, router]);
 
-  if (!orderId) return null;
-
-  const steps = [
-    { key: 'cart', text: 'Giỏ hàng', completed: true },
-    { key: 'info', text: 'Thông tin đặt hàng', completed: true },
-    { key: 'payment', text: 'Thanh toán', completed: true },
-    { key: 'done', text: 'Hoàn tất', active: true },
-  ];
+  if (!realOrderId) return null;
 
   return (
     <main className={styles.wrapperMain_content}>
@@ -175,6 +156,12 @@ export default function Complete() {
           <section className={styles.sectionOrder}>
             <div className={styles.cartOrder}>
               <div className={styles.cartContent}>
+                {/* BADGE THANH TOÁN MOMO */}
+                {paid && (
+                  <div style={{ background: '#fce8f3', color: '#e91e63', padding: '16px', borderRadius: '12px', textAlign: 'center', fontWeight: 'bold', margin: '20px 0' }}>
+                    ĐÃ THANH TOÁN THÀNH CÔNG QUA MOMO
+                  </div>
+                )}
                 {/* Success Header */}
                 <div className={styles.successHeader}>
                   <svg className={styles.successIcon} viewBox="0 0 80 80" fill="none">
@@ -183,7 +170,7 @@ export default function Complete() {
                   </svg>
                   <h1>ĐẶT HÀNG THÀNH CÔNG!</h1>
                   <p>Cảm ơn bạn đã tin tưởng mua sắm tại shop</p>
-                  <p>Mã đơn hàng: <strong>#{orderId}</strong></p>
+                  <p>Mã đơn hàng: <strong>#{realOrderId}</strong></p>
                 </div>
 
                 {loading ? (
@@ -199,7 +186,7 @@ export default function Complete() {
                         <div><strong>Người nhận:</strong> {orderDetails.recipientName}</div>
                         <div><strong>Số điện thoại:</strong> {orderDetails.recipientPhone}</div>
                         <div><strong>Địa chỉ:</strong> {orderDetails.recipientAddress}</div>
-                        <div><strong>Thanh toán:</strong> Khi nhận hàng (COD)</div>
+                        <div><strong>Thanh toán:</strong> {orderDetails.paymentMethod}</div>
                       </div>
 
                       <div className={styles.itemsList}>
@@ -236,7 +223,7 @@ export default function Complete() {
 
                       <div className={styles.actionButtons}>
                         <Link
-                          href={`/tai-khoan/don-hang/${orderId}`}
+                          href={`/tai-khoan/don-hang/${realOrderId}`}
                           className={`${styles.ctaBtn} ${styles.primaryBtn}`}
                         >
                           XEM CHI TIẾT ĐƠN HÀNG
