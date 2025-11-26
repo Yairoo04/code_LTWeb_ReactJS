@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import { getCurrentUser, hasRole } from "@/utils/auth";
 
 import styles from "./customers.module.scss";
-import AdminPageTitle from "../components/AdminPageTitle";
+import AdminPageTitle from "@/components/AdminPageTitle";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 

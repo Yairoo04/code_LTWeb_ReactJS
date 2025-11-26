@@ -1,0 +1,72 @@
+ :global(.login-page) {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+}
+
+ :global(.login-box) {
+  background: #fff;
+  padding: 36px 32px 28px 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  min-width: 340px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+ :global(.login-box) h2 {
+  text-align: center;
+  margin-bottom: 8px;
+  color: #1a237e;
+  font-size: 1.6rem;
+}
+
+ :global(.input-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+ :global(.input-group) input {
+  padding: 10px 14px;
+  border: 1px solid #bdbdbd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+ :global(.input-group) input:focus {
+  border: 1.5px solid #1976d2;
+}
+
+
+:global(.login-box__submit) {
+  background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+:global(.login-box__submit):hover {
+  background: linear-gradient(90deg, #1565c0 0%, #1976d2 100%);
+}
+
+ :global(.error-box) {
+  background: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  text-align: center;
+  font-size: 0.98rem;
+}
