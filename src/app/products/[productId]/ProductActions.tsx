@@ -17,8 +17,10 @@ export default function ProductActions({ product }: ProductActionsProps) {
   return (
     <>
       <div className={styles.actions}>
-        <BuyNowButton productId={product.ProductId} />
-
+        <BuyNowButton productId={product.ProductId}
+          stock={product.Stock ?? 0}
+          productName={product.ProductName}
+        />
         <button
           onClick={() => setIsInstallmentOpen(true)}
           className={styles.installmentBtn} // Bạn có thể thêm class này trong SCSS nếu chưa có
@@ -26,7 +28,10 @@ export default function ProductActions({ product }: ProductActionsProps) {
           TRẢ GÓP
         </button>
 
-        <AddToCartButton productId={product.ProductId} />
+        <AddToCartButton productId={product.ProductId}
+          stock={product.Stock ?? 0}
+          productName={product.ProductName}
+        />
       </div>
 
       <InstallmentModal

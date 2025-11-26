@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import styles from './Cart.module.scss';
 import ContainerFluid from '../../main_Page/ContainerFluid/container-fluid';
 
-// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP (giống hệt OrderInfo và Address)
+// GỬI SỰ KIỆN MỞ MODAL ĐĂNG NHẬP 
 const openLoginModal = () => {
   window.dispatchEvent(new CustomEvent('open-login-modal'));
 };
@@ -183,9 +183,17 @@ export default function Cart() {
 
   // Cập nhật số lượng
   const updateQuantity = async (cartItemId, productId, newQty) => {
-    if (newQty < 1) return removeItem(cartItemId, productId);
-    if (newQty > 99) return alert('Tối đa 99 sản phẩm');
+    const item = cartItems.find((i) => i.CartItemId === cartItemId);
+    if (!item) return;
 
+    if (newQty > item.Stock) {
+      alert(`Chỉ còn ${item.Stock} sản phẩm "${item.ProductName}" trong kho!`);
+      return;
+    }
+
+    if (newQty < 1) {
+      return removeItem(cartItemId, productId);
+    }
     setUpdatingId(cartItemId);
     try {
       await fetchWithAuth('/api/carts/update', {
@@ -456,24 +464,20 @@ export default function Cart() {
                         <div className={styles.itemActions}>
                           <div className={styles.quantityControl}>
                             <button
-                              onClick={() =>
-                                updateQuantity(item.CartItemId, item.ProductId, item.Quantity - 1)
-                              }
-                              disabled={updatingId === item.CartItemId}
+                              onClick={() => updateQuantity(item.CartItemId, item.ProductId, item.Quantity - 1)}
+                              disabled={updatingId === item.CartItemId || item.Quantity <= 1}
                             >
                               −
                             </button>
                             <input type="number" value={item.Quantity} readOnly />
                             <button
-                              onClick={() =>
-                                updateQuantity(item.CartItemId, item.ProductId, item.Quantity + 1)
-                              }
-                              disabled={updatingId === item.CartItemId}
+                              onClick={() => updateQuantity(item.CartItemId, item.ProductId, item.Quantity + 1)}
+                              disabled={updatingId === item.CartItemId || item.Quantity >= item.Stock}
+                              style={{ opacity: item.Quantity >= item.Stock ? 0.5 : 1 }}
                             >
                               +
                             </button>
                           </div>
-
                           <p className={styles.lineTotal}>
                             {item.LineTotal.toLocaleString('vi-VN')}đ
                           </p>
