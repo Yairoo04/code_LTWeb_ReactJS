@@ -27,11 +27,13 @@
 
 /* Hộp chat chính */
 .chatBox {
-    max-width: 410px;
-    max-height: 500px;
+    max-width: 370px;
+    width: 90vw;
+    max-height: 440px;
+    height: 60vh;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.32);
     display: flex;
     flex-direction: column;
     overflow: hidden;

@@ -53,33 +53,32 @@ export default function FlashSale({
   // ==========================
   // 1. Fetch danh sách sản phẩm theo campaignCode
   // ==========================
- React.useEffect(() => {
-  async function getFlashProducts() {
-    try {
-      // ĐÚNG URL: /api/flash-sale (không cần code)
-      const res = await fetch('/api/flash-sale', { cache: 'no-store' });
+  React.useEffect(() => {
+    async function getFlashProducts() {
+      try {
+        const url = campaignCode
+          ? `/api/flash-sale/${campaignCode}`
+          : '/api/flash-sale';
+        const res = await fetch(url, { cache: 'no-store' });
 
-      if (!res.ok) {
-        console.error('Fetch /api/flash-sale failed:', res.status);
+        if (!res.ok) {
+          console.error('Fetch', url, 'failed:', res.status);
+          setProducts([]);
+          setCampaign(null);
+          return;
+        }
+
+        const data = await res.json();
+        setCampaign(data.campaign);
+        setProducts(data.products || []);
+      } catch (error) {
+        console.error('Lỗi fetch flash sale:', error);
         setProducts([]);
         setCampaign(null);
-        return;
       }
-
-      const data = await res.json();
-
-      setCampaign(data.campaign);
-      setProducts(data.products || []);
-
-    } catch (error) {
-      console.error('Lỗi fetch flash sale:', error);
-      setProducts([]);
-      setCampaign(null);
     }
-  }
-
-  getFlashProducts();
-}, []);
+    getFlashProducts();
+  }, [campaignCode]);
 
   // ==========================
   // 2. Countdown theo thời gian campaign (EndTime) – có cả ngày
@@ -148,11 +147,28 @@ export default function FlashSale({
         <div className="flash-sale-content">
           {showImg_Sale && (
             <div className="flash-sale-2-content-img">
-              <img
-                src="/images/flash-sale/gtn-gamming-gear.png"
-                alt="Gear Arena Week"
-                loading="lazy"
-              />
+              {campaign && campaign.BannerImageUrl ? (
+                <img
+                  src={campaign.BannerImageUrl}
+                  alt={campaign?.Title || 'Banner'}
+                  loading="lazy"
+                  style={{ maxWidth: 400, width: '100%', height: 'auto' }}
+                />
+              ) : campaignCode === 'FLASH_10H' ? (
+                <img
+                  src="/images/flash-sale/frame-flash-sale-10h.png"
+                  alt="Frame Flash Sale 10H"
+                  loading="lazy"
+                  style={{ maxWidth: 400, width: '100%', height: 'auto' }}
+                />
+              ) : (
+                <img
+                  src="/images/flash-sale/gtn-gamming-gear.png"
+                  alt="GTN Gamming Gear"
+                  loading="lazy"
+                  style={{ maxWidth: 400, width: '100%', height: 'auto' }}
+                />
+              )}
             </div>
           )}
 

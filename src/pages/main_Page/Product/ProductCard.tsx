@@ -52,9 +52,13 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
   const imgSrc = firstImage.startsWith('http') ? firstImage : firstImage;
 
   const inStock = (product.stock ?? 0) > 0;
-  const discountPrice = product.discountPrice ?? null;
-  const hasDiscount = discountPrice !== null && discountPrice < product.price;
-  const discountPercent = hasDiscount ? Math.round(((product.price - discountPrice) / product.price) * 100) : 0;
+
+  // Ưu tiên giá FlashPrice nếu có (giá sale flash sale)
+  const flashPrice = (product as any).FlashPrice ?? null;
+  const hasFlashSale = flashPrice !== null && typeof flashPrice === 'number' && flashPrice < product.price;
+  const displayPrice = hasFlashSale ? flashPrice : (product.discountPrice ?? null);
+  const hasDiscount = hasFlashSale || (displayPrice !== null && displayPrice < product.price);
+  const discountPercent = hasDiscount ? Math.round(((product.price - (hasFlashSale ? flashPrice : (product.discountPrice ?? product.price))) / product.price) * 100) : 0;
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -88,10 +92,10 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
           )}
           <div className={styles['discount-container']}>
             <span className={hasDiscount ? styles['discount-price'] : styles['current-price']}>
-              {formatVND(hasDiscount ? discountPrice : product.price)}
+              {formatVND(hasDiscount ? (hasFlashSale ? flashPrice : (product.discountPrice ?? product.price)) : product.price)}
             </span>
             {hasDiscount && (
-              <span className={styles['discount-percent']}> -{discountPercent}%</span>
+              <span className={styles['discount-percent']}>-{discountPercent}%</span>
             )}
           </div>
         </div>

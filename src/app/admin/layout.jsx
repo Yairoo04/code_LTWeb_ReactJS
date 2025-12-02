@@ -93,6 +93,12 @@ export default function AdminLayout({ children }) {
             <li className={path === "/admin/customers" ? "active" : ""}>
               <Link href="/admin/customers"> Khách hàng</Link>
             </li>
+            {/* Flash Sale menu item */}
+            {hasRole(user, ["ADMIN", "MANAGER"]) && (
+              <li className={path === "/admin/flash-sale" ? "active" : ""}>
+                <Link href="/admin/flash-sale"> Flash Sale</Link>
+              </li>
+            )}
             {hasRole(user, ["ADMIN"]) && (
               <li className={path === "/admin/accounts" ? "active" : ""}>
                 <Link href="/admin/accounts"> Tài khoản</Link>

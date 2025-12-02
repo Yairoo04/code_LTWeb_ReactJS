@@ -183,11 +183,13 @@ export default function SearchPage() {
           </div>
         </ContainerFluid>
 
+        {/* Truyền campaignCode để FlashSale fetch đúng campaign */}
         <FlashSale
           className="flash-sale-search"
           h2Title="⚡ FLASH SALE 10H MỖI NGÀY"
-          showImg_Sale={false}
+          showImg_Sale={true}
           showDotActive={false}
+          campaignCode="FS2025" // Thay bằng mã campaign bạn muốn hiển thị
         />
       </main>
       <Footer />

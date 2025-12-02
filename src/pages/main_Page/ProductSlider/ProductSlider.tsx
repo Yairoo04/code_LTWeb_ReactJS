@@ -30,7 +30,7 @@ type ProductSliderProps = {
   title?: string;
 };
 
-function mapToFrontendProduct(backendProduct: BackendProduct): FrontendProduct {
+function mapToFrontendProduct(backendProduct: BackendProduct): any {
   return {
     id: backendProduct.ProductId,
     name: backendProduct.Name,
@@ -41,6 +41,7 @@ function mapToFrontendProduct(backendProduct: BackendProduct): FrontendProduct {
     stock: backendProduct.Stock,
     image_url: backendProduct.ImageUrl,
     created_at: backendProduct.CreatedAt,
+    FlashPrice: (backendProduct as any).FlashPrice ?? null,
   };
 }
 
