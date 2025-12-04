@@ -121,9 +121,9 @@ export default function ProductPage() {
       console.log("🔍 Fetching products from:", `${API_BASE}/api/admin/products`);
       const res = await fetch(`${API_BASE}/api/admin/products`);
       const data = await res.json();
-      console.log("📦 Products response:", data);
+      console.log(" Products response:", data);
       if (data.success) {
-        console.log("✅ Products loaded:", data.data.length);
+        console.log(" Products loaded:", data.data.length);
         setProducts(data.data);
       } else {
         console.error("❌ API returned success=false:", data);
@@ -190,10 +190,10 @@ export default function ProductPage() {
     // Fetch specs cho sản phẩm
     setLoadingSpecs(true);
     try {
-      console.log('🔍 Fetching specs for ProductId:', product.ProductId);
+      console.log(' Fetching specs for ProductId:', product.ProductId);
       const res = await fetch(`${API_BASE}/api/products?productId=${product.ProductId}&details=true`);
       const data = await res.json();
-      console.log('📦 API Response:', data);
+      console.log(' API Response:', data);
       
       if (data.success && data.data.specs) {
         const loadedSpecs = data.data.specs.map(s => ({
@@ -201,10 +201,10 @@ export default function ProductPage() {
           SpecValue: s.SpecValue || '',
           Warranty: s.Warranty || ''
         }));
-        console.log('✅ Loaded specs:', loadedSpecs);
+        console.log(' Loaded specs:', loadedSpecs);
         setSpecs(loadedSpecs);
       } else {
-        console.log('⚠️ No specs found in response');
+        console.log(' No specs found in response');
         setSpecs([]);
       }
     } catch (error) {

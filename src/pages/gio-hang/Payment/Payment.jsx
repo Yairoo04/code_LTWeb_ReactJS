@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { calculateGHNShippingFee } from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Payment.module.scss';
@@ -23,6 +24,30 @@ export default function Payment() {
   const [showMoMoQR, setShowMoMoQR] = useState(false);
   const [payUrl, setPayUrl] = useState('');
   const [currentOrderId, setCurrentOrderId] = useState(null);
+  // GHN shipping fee
+  const [shippingFee, setShippingFee] = useState(null);
+  const [loadingFee, setLoadingFee] = useState(false);
+  // TÍNH PHÍ SHIP GHN KHI ĐÃ CÓ ĐỊA CHỈ
+  useEffect(() => {
+    async function fetchFee() {
+      if (!orderInfo || !orderInfo.recipientAddress) return;
+      setLoadingFee(true);
+      try {
+        const fee = await calculateGHNShippingFee({
+          toAddress: orderInfo.recipientAddress,
+          weight: 5000,
+          length: 20,
+          width: 20,
+          height: 20,
+        });
+        setShippingFee(fee);
+      } catch (e) {
+        setShippingFee('Không lấy được phí ship');
+      }
+      setLoadingFee(false);
+    }
+    fetchFee();
+  }, [orderInfo]);
 
   useEffect(() => {
     const fromMoMo = searchParams.get('from');
@@ -177,6 +202,7 @@ export default function Payment() {
           addressId: orderInfo.addressId,
           selectedProductIds: cartItems.map(i => i.ProductId),
           paymentMethodId: selectedPaymentMethod.Id,
+          shippingFee: shippingFee && !isNaN(shippingFee) ? Number(shippingFee) : 0,
         }),
       });
 
@@ -190,7 +216,7 @@ export default function Payment() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             orderId,
-            amount: totalAmount,
+            amount: totalWithShipping, // Đã bao gồm phí ship
             extraData: `realOrderId=${orderId}`
           }),
         });
@@ -219,6 +245,7 @@ export default function Payment() {
   };
 
   const totalAmount = cartItems.reduce((sum, item) => sum + item.PriceAtAdded * item.Quantity, 0);
+  const totalWithShipping = shippingFee && !isNaN(shippingFee) ? totalAmount + Number(shippingFee) : totalAmount;
 
   if (showMoMoQR) {
     return <MoMoQRPayment payUrl={payUrl} currentOrderId={currentOrderId} totalAmount={totalAmount} onBack={() => router.back()} />;
@@ -300,6 +327,7 @@ export default function Payment() {
                     <p><strong>Người nhận:</strong> {orderInfo.recipientName}</p>
                     <p><strong>Số điện thoại:</strong> {orderInfo.recipientPhone}</p>
                     <p><strong>Địa chỉ:</strong> {orderInfo.recipientAddress}</p>
+                    <p><strong>Phí vận chuyển (GHN):</strong> {loadingFee ? 'Đang tính...' : (shippingFee ? `${shippingFee.toLocaleString()}đ` : 'Không có dữ liệu')}</p>
                     <p className={styles.paymentMethodDisplay}>
                       <strong>Phương thức thanh toán:  </strong>
                       <span className={styles.paymentLabel}>
@@ -320,9 +348,9 @@ export default function Payment() {
 
                   <div className={styles.summary}>
                     <div className={styles.totalRow}>
-                      <span>Tổng cộng ({cartItems.length} sản phẩm)</span>
+                      <span>Tổng cộng ({cartItems.length} sản phẩm + phí ship)</span>
                       <strong className={styles.finalPrice}>
-                        {totalAmount.toLocaleString('vi-VN')}đ
+                        {totalWithShipping.toLocaleString('vi-VN')}đ
                       </strong>
                     </div>
 

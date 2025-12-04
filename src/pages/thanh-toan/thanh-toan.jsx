@@ -6,7 +6,40 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import ContainerFluid from '../../pages/main_Page/ContainerFluid/container-fluid';
 
+
+import { useEffect, useState } from 'react';
+import { calculateGHNShippingFee } from '../../lib/api';
+
 const ThanhToan = () => {
+    const [shippingFee, setShippingFee] = useState(null);
+    const [loadingFee, setLoadingFee] = useState(false);
+    // Địa chỉ mẫu
+    const receiverInfo = {
+        name: 'nguyễn đình trí',
+        phone: '0911754842',
+        address: '97 Man Thiện, phường Hiệp Phú, thành phố Thủ Đức, thành phố Hồ Chí Minh',
+    };
+
+    useEffect(() => {
+        async function fetchFee() {
+            setLoadingFee(true);
+            try {
+                const fee = await calculateGHNShippingFee({
+                    toAddress: receiverInfo.address,
+                    weight: 5000,
+                    length: 20,
+                    width: 20,
+                    height: 20,
+                });
+                setShippingFee(fee);
+            } catch (e) {
+                setShippingFee('Không lấy được phí ship');
+            }
+            setLoadingFee(false);
+        }
+        fetchFee();
+    }, []);
+
     return (
         <>
             <div className={common.breadcrumbWrap}>
@@ -29,6 +62,19 @@ const ThanhToan = () => {
                         Chúng tôi cung cấp nhiều hình thức thanh toán linh hoạt, an toàn và tiện lợi. Quý khách vui lòng
                     </p>
 
+                    <div className={styles.paymentStep}>
+                        <h2>Phí vận chuyển (GHN)</h2>
+                        <div>
+                            <strong>Người nhận:</strong> {receiverInfo.name}<br />
+                            <strong>Số điện thoại:</strong> {receiverInfo.phone}<br />
+                            <strong>Địa chỉ:</strong> {receiverInfo.address}<br />
+                            <strong>Khối lượng:</strong> 5kg<br />
+                            <strong>Kích thước:</strong> 20x20x20cm<br />
+                            <strong>Phí ship:</strong> {loadingFee ? 'Đang tính...' : (shippingFee ? `${shippingFee.toLocaleString()}đ` : 'Không có dữ liệu')}
+                        </div>
+                    </div>
+
+                    {/* ...existing code... */}
                     <div className={styles.paymentStep}>
                         <h2>1. Thanh toán khi nhận hàng (COD)</h2>
                         <p>

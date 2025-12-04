@@ -119,7 +119,7 @@ export default function LoginPage() {
           // Staff: đăng nhập thành công luôn
           Cookies.set("isLoggedIn", "true", { path: "/" });
           sessionStorage.setItem("isLoggedIn", "true");
-          alert("✅ Đăng nhập thành công!");
+          alert(" Đăng nhập thành công!");
           localStorage.removeItem("lockUntil");
           router.push("/admin/dashboard");
         }
@@ -159,7 +159,7 @@ export default function LoginPage() {
       sessionStorage.setItem("isLoggedIn", "true");
       // User info đã được lưu từ bước login API
 
-      alert("✅ Đăng nhập thành công!");
+      alert(" Đăng nhập thành công!");
       localStorage.removeItem("lockUntil");
       router.push("/admin/dashboard");
     } else {

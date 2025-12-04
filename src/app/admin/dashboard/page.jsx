@@ -38,9 +38,7 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
-  // ===============================
-  // 🔹 STATE QUẢN LÝ DỮ LIỆU
-  // ===============================
+  //  STATE QUẢN LÝ DỮ LIỆU
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState(null);
   const [revenue7Days, setRevenue7Days] = useState([]);
@@ -49,9 +47,7 @@ export default function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [revenueByCategory, setRevenueByCategory] = useState([]);
 
-  // ===============================
-  // 🔹 FETCH DỮ LIỆU TỪ API
-  // ===============================
+  //  FETCH DỮ LIỆU TỪ API
   useEffect(() => {
     async function fetchData() {
       try {
@@ -98,9 +94,9 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  // ===============================
+  // 
   // 🔹 FORMAT SỐ TIỀN
-  // ===============================
+  // 
   const formatMoney = (amount) => {
     return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
   };
@@ -109,9 +105,9 @@ export default function DashboardPage() {
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
-  // ===============================
+  // 
   // 🔹 CHUẨN BỊ DỮ LIỆU CHO CARDS
-  // ===============================
+  // 
   const stats = overview ? [
     { 
       title: "Doanh thu hôm nay", 
@@ -151,9 +147,9 @@ export default function DashboardPage() {
     },
   ] : [];
 
-  // ===============================
-  // 🔹 DỮ LIỆU BIỂU ĐỒ 1: Doanh thu 7 ngày
-  // ===============================
+  // 
+  // DỮ LIỆU BIỂU ĐỒ 1: Doanh thu 7 ngày
+  // 
   const revenueData = {
     labels: revenue7Days.map(d => {
       const days = ['CN', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7'];
@@ -171,9 +167,9 @@ export default function DashboardPage() {
     ],
   };
 
-  // ===============================
-  // 🔹 DỮ LIỆU BIỂU ĐỒ 2: Doanh thu theo danh mục
-  // ===============================
+  // 
+  //  DỮ LIỆU BIỂU ĐỒ 2: Doanh thu theo danh mục
+  // 
   const categoryData = {
     labels: revenueByCategory.map(c => c.DanhMuc || 'Khác'),
     datasets: [
@@ -191,9 +187,9 @@ export default function DashboardPage() {
     ],
   };
 
-  // ===============================
-  // 🔹 DỮ LIỆU BIỂU ĐỒ 3: Tỷ lệ trạng thái đơn hàng
-  // ===============================
+  // 
+  //  DỮ LIỆU BIỂU ĐỒ 3: Tỷ lệ trạng thái đơn hàng
+  // 
   const orderStatusData = {
     labels: orderStatus.map(s => s.TrangThai),
     datasets: [
@@ -231,9 +227,9 @@ export default function DashboardPage() {
     }
   };
 
-  // ===============================
-  // 🔹 HIỂN THỊ LOADING
-  // ===============================
+  // 
+  //  HIỂN THỊ LOADING
+  // 
   if (loading) {
     return (
       <div className="admin-page">
@@ -243,9 +239,9 @@ export default function DashboardPage() {
     );
   }
 
-  // ===============================
-  // 🔹 RENDER GIAO DIỆN
-  // ===============================
+  // 
+  //  RENDER GIAO DIỆN
+  // 
   return (
     <div className="admin-page">
       <AdminPageTitle>Trang chủ</AdminPageTitle>
