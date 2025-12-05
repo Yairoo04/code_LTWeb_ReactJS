@@ -40,6 +40,35 @@ type FrontendProduct = {
   categoryId?: number | null;
   image_url?: string;
   stock?: number;
+  specs?: { SpecName: string; SpecValue: string; Warranty: string }[];
+};
+
+type FilterState = {
+  category: string;
+  brand: string;
+  price: string;
+  cpu: string;
+  usage: string;
+  series: string;
+  screenSize: string;
+  ram: string;
+  ssd: string;
+  vga: string;
+  dpi: string; // Cho Chuột
+  resolution: string; // Cho Màn hình
+  panelType: string; // Cho Màn hình
+  keyboardType: string; // Cho Bàn phím
+  layout: string; // Cho Bàn phím
+  psu: string; // Cho PC
+};
+
+type FilterKey = keyof FilterState;
+
+type FilterConfig = {
+  key: FilterKey;
+  label: string;
+  placeholder: string;
+  options: { value: string; label: string }[];
 };
 
 // -------------------------
@@ -68,6 +97,391 @@ const sortOptions = [
 ];
 
 // -------------------------
+// FILTER CONFIG PER CATEGORY
+// -------------------------
+const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
+  // Laptop (CategoryId: 1)
+  "1": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [
+        { value: "1", label: "Laptop" },
+        { value: "2", label: "PC" },
+        { value: "3", label: "Màn hình" },
+        { value: "4", label: "Bàn phím" },
+        { value: "5", label: "Chuột" },
+      ],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-5000000", label: "Dưới 5 triệu" },
+        { value: "5000000-10000000", label: "5 - 10 triệu" },
+        { value: "10000000-20000000", label: "10 - 20 triệu" },
+        { value: "20000000-999999999", label: "Trên 20 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "dell", label: "Dell" },
+        { value: "asus", label: "ASUS" },
+        { value: "hp", label: "HP" },
+        { value: "lenovo", label: "Lenovo" },
+        { value: "acer", label: "Acer" },
+        { value: "gigabyte", label: "Gigabyte" },
+        { value: "msi", label: "MSI" },
+      ],
+    },
+    {
+      key: "cpu",
+      label: "CPU",
+      placeholder: "CPU",
+      options: [
+        { value: "intel core i5", label: "Intel Core i5" },
+        { value: "intel core i7", label: "Intel Core i7" },
+        { value: "ryzen 5", label: "AMD Ryzen 5" },
+        { value: "ryzen 7", label: "AMD Ryzen 7" },
+        { value: "intel đời 13", label: "Core Intel 13th" },
+      ],
+    },
+    {
+      key: "screenSize",
+      label: "Kích thước màn hình",
+      placeholder: "Kích thước màn hình",
+      options: [
+        { value: '13"', label: '13"' },
+        { value: '14"', label: '14"' },
+        { value: '15.6"', label: '15.6"' },
+      ],
+    },
+    {
+      key: "ram",
+      label: "RAM",
+      placeholder: "RAM",
+      options: [
+        { value: "8gb", label: "8GB" },
+        { value: "16gb", label: "16GB" },
+        { value: "32gb", label: "32GB" },
+      ],
+    },
+    {
+      key: "ssd",
+      label: "SSD",
+      placeholder: "SSD",
+      options: [
+        { value: "512gb", label: "512GB" },
+        { value: "1tb", label: "1TB" },
+      ],
+    },
+    {
+      key: "vga",
+      label: "VGA",
+      placeholder: "VGA",
+      options: [
+        { value: "rtx 2050", label: "RTX 2050" },
+        { value: "rtx 3050", label: "RTX 3050" },
+        { value: "rtx 4060", label: "RTX 4060" },
+        { value: "intel iris xe", label: "Intel Iris Xe" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "văn phòng", label: "Văn phòng" },
+        { value: "đồ họa", label: "Đồ họa" },
+        { value: "mỏng nhẹ", label: "Mỏng nhẹ" },
+      ],
+    },
+  ],
+
+  // PC (CategoryId: 2)
+  "2": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [
+        { value: "2", label: "PC" },
+      ],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-10000000", label: "Dưới 10 triệu" },
+        { value: "10000000-20000000", label: "10 - 20 triệu" },
+        { value: "20000000-30000000", label: "20 - 30 triệu" },
+        { value: "30000000-999999999", label: "Trên 30 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "asus", label: "ASUS" },
+        { value: "gigabyte", label: "Gigabyte" },
+        { value: "msi", label: "MSI" },
+      ],
+    },
+    {
+      key: "cpu",
+      label: "CPU",
+      placeholder: "CPU",
+      options: [
+        { value: "amd ryzen 9", label: "AMD Ryzen 9" },
+        { value: "intel core i9", label: "Intel Core i9" },
+      ],
+    },
+    {
+      key: "ram",
+      label: "RAM",
+      placeholder: "RAM",
+      options: [
+        { value: "32gb", label: "32GB" },
+        { value: "64gb", label: "64GB" },
+        { value: "96gb", label: "96GB" },
+      ],
+    },
+    {
+      key: "ssd",
+      label: "SSD",
+      placeholder: "SSD",
+      options: [
+        { value: "1tb", label: "1TB" },
+        { value: "2tb", label: "2TB" },
+      ],
+    },
+    {
+      key: "vga",
+      label: "VGA",
+      placeholder: "VGA",
+      options: [
+        { value: "rtx 5090", label: "RTX 5090" },
+        { value: "rtx 3060", label: "RTX 3060" },
+      ],
+    },
+    {
+      key: "psu",
+      label: "Nguồn (PSU)",
+      placeholder: "Nguồn (PSU)",
+      options: [
+        { value: "1200w", label: "1200W" },
+        { value: "1000w", label: "1000W" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "workstation", label: "Workstation" },
+      ],
+    },
+  ],
+
+  // Màn hình (CategoryId: 3)
+  "3": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [
+        { value: "3", label: "Màn hình" },
+      ],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-2000000", label: "Dưới 2 triệu" },
+        { value: "2000000-5000000", label: "2 - 5 triệu" },
+        { value: "5000000-10000000", label: "5 - 10 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "viewsonic", label: "Viewsonic" },
+        { value: "lg", label: "LG" },
+        { value: "asus", label: "ASUS" },
+      ],
+    },
+    {
+      key: "screenSize",
+      label: "Kích thước",
+      placeholder: "Kích thước",
+      options: [
+        { value: "23.8 inch", label: "23.8 inch" },
+        { value: "24 inch", label: "24 inch" },
+        { value: "27 inch", label: "27 inch" },
+      ],
+    },
+    {
+      key: "resolution",
+      label: "Độ phân giải",
+      placeholder: "Độ phân giải",
+      options: [
+        { value: "full hd", label: "Full HD (1920x1080)" },
+        { value: "2k", label: "2K (2560x1440)" },
+        { value: "4k", label: "4K (3840x2160)" },
+      ],
+    },
+    {
+      key: "panelType",
+      label: "Tấm nền",
+      placeholder: "Tấm nền",
+      options: [
+        { value: "va", label: "VA" },
+        { value: "ips", label: "IPS" },
+        { value: "oled", label: "OLED" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "văn phòng", label: "Văn phòng" },
+      ],
+    },
+  ],
+
+  // Bàn phím (CategoryId: 4)
+  "4": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [
+        { value: "4", label: "Bàn phím" },
+      ],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-500000", label: "Dưới 500k" },
+        { value: "500000-1000000", label: "500k - 1 triệu" },
+        { value: "1000000-2000000", label: "1 - 2 triệu" },
+        { value: "2000000-5000000", label: "2 - 5 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "corsair", label: "Corsair" },
+        { value: "dare-u", label: "Dare-U" },
+        { value: "filco", label: "Filco" },
+        { value: "keychron", label: "Keychron" },
+        { value: "razer", label: "Razer" },
+        { value: "royal", label: "Royal" },
+        { value: "logitech", label: "Logitech" },
+        { value: "akko", label: "AKKO" },
+      ],
+    },
+    {
+      key: "keyboardType",
+      label: "Loại bàn phím",
+      placeholder: "Loại bàn phím",
+      options: [
+        { value: "low-profile", label: "Low-Profile" },
+        { value: "mechanical", label: "Mechanical" },
+      ],
+    },
+    {
+      key: "layout",
+      label: "Layout",
+      placeholder: "Layout",
+      options: [
+        { value: "75%", label: "75%" },
+        { value: "fullsize", label: "Fullsize" },
+        { value: "tenkeyless", label: "Tenkeyless" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "văn phòng", label: "Văn phòng" },
+      ],
+    },
+  ],
+
+  // Chuột (CategoryId: 5)
+  "5": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [
+        { value: "5", label: "Chuột" },
+      ],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-500000", label: "Dưới 500k" },
+        { value: "500000-1000000", label: "500k - 1 triệu" },
+        { value: "1000000-3000000", label: "1 - 3 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "logitech", label: "Logitech" },
+        { value: "razer", label: "Razer" },
+        { value: "steelseries", label: "SteelSeries" },
+      ],
+    },
+    {
+      key: "dpi",
+      label: "DPI",
+      placeholder: "DPI",
+      options: [
+        { value: "8000", label: "≤ 8.000 DPI" },
+        { value: "16000", label: "≤ 16.000 DPI" },
+        { value: "25000", label: "≤ 25.000 DPI" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "văn phòng", label: "Văn phòng" },
+      ],
+    },
+  ],
+};
+
+// -------------------------
 // MAIN COMPONENT
 // -------------------------
 const CollectionPage = () => {
@@ -84,7 +498,7 @@ const CollectionPage = () => {
   // -------------------------
   // FILTERS
   // -------------------------
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterState>({
     category: "",
     brand: "",
     price: "",
@@ -95,7 +509,16 @@ const CollectionPage = () => {
     ram: "",
     ssd: "",
     vga: "",
+    dpi: "",
+    resolution: "",
+    panelType: "",
+    keyboardType: "",
+    layout: "",
+    psu: "",
   });
+
+  const activeCategory = filters.category || "1"; // Fallback to Laptop if not set
+  const activeFilterConfig = CATEGORY_FILTER_CONFIG[activeCategory] ?? CATEGORY_FILTER_CONFIG["1"];
 
   // -------------------------
   // TITLE + FILTER PARSING
@@ -109,18 +532,7 @@ const CollectionPage = () => {
         .replace(/\b\w/g, (c) => c.toUpperCase())
     );
 
-    const newFilters = {
-      category: "",
-      brand: "",
-      price: "",
-      cpu: "",
-      usage: "",
-      series: "",
-      screenSize: "",
-      ram: "",
-      ssd: "",
-      vga: "",
-    };
+    const newFilters = { ...filters };
 
     // 1️⃣ Category
     if (s.includes("laptop")) newFilters.category = "1";
@@ -182,16 +594,32 @@ const CollectionPage = () => {
   // FETCH PRODUCTS
   // -------------------------
   useEffect(() => {
-    fetch(`${API_BASE}/api/products`)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/products`);
+        const data = await res.json();
         if (data.success) {
           const mapped = data.data.map(mapToFrontendProduct);
-          setProducts(mapped);
-          setFilteredProducts(mapped);
+          const detailed = await Promise.all(
+            mapped.map(async (p) => {
+              const detailRes = await fetch(
+                `${API_BASE}/api/products?productId=${p.id}&details=true`
+              );
+              const detailData = await detailRes.json();
+              if (detailData.success) {
+                p.specs = detailData.data.specs;
+              }
+              return p;
+            })
+          );
+          setProducts(detailed);
+          setFilteredProducts(detailed);
         }
-      })
-      .catch((err) => console.error("Error fetching products:", err));
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+    fetchProducts();
   }, []);
 
   // -------------------------
@@ -199,7 +627,24 @@ const CollectionPage = () => {
   // -------------------------
   useEffect(() => {
     let result = [...products];
-    const { category, brand, cpu, price, usage, series, screenSize, ram, ssd, vga } = filters;
+    const {
+      category,
+      brand,
+      cpu,
+      price,
+      usage,
+      series,
+      screenSize,
+      ram,
+      ssd,
+      vga,
+      dpi,
+      resolution,
+      panelType,
+      keyboardType,
+      layout,
+      psu,
+    } = filters;
 
     if (category) {
       result = result.filter((p) => {
@@ -229,7 +674,10 @@ const CollectionPage = () => {
 
     if (cpu)
       result = result.filter((p) =>
-        p.description.toLowerCase().includes(cpu.toLowerCase())
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("cpu") &&
+          s.SpecValue.toLowerCase().includes(cpu.toLowerCase())
+        ) || p.description.toLowerCase().includes(cpu.toLowerCase())
       );
 
     if (series)
@@ -246,23 +694,89 @@ const CollectionPage = () => {
 
     if (screenSize)
       result = result.filter((p) =>
-        p.description.toLowerCase().includes(screenSize.toLowerCase())
+        p.specs?.some((s) =>
+          (s.SpecName.toLowerCase().includes("màn hình") || s.SpecName.toLowerCase().includes("screen") || s.SpecName.toLowerCase().includes("kích thước")) &&
+          s.SpecValue.toLowerCase().includes(screenSize.toLowerCase())
+        ) || p.description.toLowerCase().includes(screenSize.toLowerCase())
       );
 
     if (ram)
       result = result.filter((p) =>
-        p.description.toLowerCase().includes(ram.toLowerCase())
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("ram") &&
+          s.SpecValue.toLowerCase().includes(ram.toLowerCase())
+        ) || p.description.toLowerCase().includes(ram.toLowerCase())
       );
 
     if (ssd)
       result = result.filter((p) =>
-        p.description.toLowerCase().includes(ssd.toLowerCase())
+        p.specs?.some((s) =>
+          (s.SpecName.toLowerCase().includes("ssd") || s.SpecName.toLowerCase().includes("ổ cứng")) &&
+          s.SpecValue.toLowerCase().includes(ssd.toLowerCase())
+        ) || p.description.toLowerCase().includes(ssd.toLowerCase())
       );
 
     if (vga)
       result = result.filter((p) =>
-        p.description.toLowerCase().includes(vga.toLowerCase())
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("vga") &&
+          s.SpecValue.toLowerCase().includes(vga.toLowerCase())
+        ) || p.description.toLowerCase().includes(vga.toLowerCase())
       );
+
+    if (dpi) {
+      result = result.filter((p) =>
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("độ phân giải") &&
+          parseInt(s.SpecValue.replace(/\D/g, '')) <= parseInt(dpi)
+        )
+      );
+    }
+
+    if (resolution) {
+      result = result.filter((p) =>
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("độ phân giải") &&
+          s.SpecValue.toLowerCase().includes(resolution.toLowerCase())
+        )
+      );
+    }
+
+    if (panelType) {
+      result = result.filter((p) =>
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("tấm nền") &&
+          s.SpecValue.toLowerCase().includes(panelType.toLowerCase())
+        )
+      );
+    }
+
+    if (keyboardType) {
+      result = result.filter((p) =>
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("loại bàn phím") &&
+          s.SpecValue.toLowerCase().includes(keyboardType.toLowerCase())
+        )
+      );
+    }
+
+    if (layout) {
+      result = result.filter((p) =>
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("layout") &&
+          s.SpecValue.toLowerCase().includes(layout.toLowerCase())
+        )
+      );
+    }
+
+    if (psu) {
+      result = result.filter((p) =>
+        p.specs?.some((s) =>
+          s.SpecName.toLowerCase().includes("psu") &&
+          s.SpecValue.toLowerCase().includes(psu.toLowerCase())
+        )
+      );
+    }
 
     if (price) {
       const [min, max] = price.split("-").map(Number);
@@ -355,63 +869,22 @@ const CollectionPage = () => {
           {/* Sort bar */}
           <div className={styles.filterBar}>
             <section className={styles.filterWrap}>
-              <select name="category" value={filters.category} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">Bộ lọc (Danh mục)</option>
-                <option value="1">Laptop</option>
-                <option value="2">PC</option>
-                <option value="3">Màn hình</option>
-                <option value="4">Bàn phím</option>
-                <option value="5">Chuột</option>
-              </select>
-              <select name="price" value={filters.price} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">Giá</option>
-                <option value="0-5000000">Dưới 5 triệu</option>
-                <option value="5000000-10000000">5 - 10 triệu</option>
-                <option value="10000000-20000000">10 - 20 triệu</option>
-                <option value="20000000-999999999">Trên 20 triệu</option>
-              </select>
-              <select name="brand" value={filters.brand} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">Hãng</option>
-                <option value="dell">Dell</option>
-                <option value="asus">ASUS</option>
-                <option value="hp">HP</option>
-                <option value="lenovo">Lenovo</option>
-                <option value="acer">Acer</option>
-                <option value="viewsonic">Viewsonic</option>
-                <option value="keychron">Keychron</option>
-                <option value="logitech">Logitech</option>
-              </select>
-              <select name="cpu" value={filters.cpu} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">CPU</option>
-                <option value="intel i7">Intel i7</option>
-                <option value="amd ryzen 9">AMD Ryzen 9</option>
-                <option value="intel đời 13">Intel đời 13</option>
-              </select>
-              <select name="screenSize" value={filters.screenSize} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">Kích thước màn hình</option>
-                <option value="13 inch">13 inch</option>
-                <option value="15 inch">15 inch</option>
-                <option value="24 inch">24 inch</option>
-              </select>
-              <select name="usage" value={filters.usage} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">Nhu cầu sử dụng</option>
-                <option value="cao cấp">Cao cấp</option>
-                <option value="gaming">Gaming</option>
-                <option value="văn phòng">Văn phòng</option>
-              </select>
-              <select name="ram" value={filters.ram} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">RAM</option>
-                <option value="16gb">16GB</option>
-                <option value="ddr5">DDR5</option>
-              </select>
-              <select name="ssd" value={filters.ssd} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">SSD</option>
-                <option value="512 gb">512 GB</option>
-              </select>
-              <select name="vga" value={filters.vga} onChange={handleFilterChange} className={styles.filterSelect}>
-                <option value="">VGA</option>
-                <option value="rtx 5090">RTX 5090</option>
-              </select>
+              {activeFilterConfig.map((f) => (
+                <select
+                  key={f.key}
+                  name={f.key}
+                  value={filters[f.key]}
+                  onChange={handleFilterChange}
+                  className={styles.filterSelect}
+                >
+                  <option value="">{f.placeholder}</option>
+                  {f.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ))}
             </section>
 
             <section className={styles.collectionSortby}>

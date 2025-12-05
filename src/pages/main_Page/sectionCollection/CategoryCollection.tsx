@@ -27,7 +27,7 @@ export default function CategoryCollection() {
                     </div>
 
                     <div className={styles['item-icon']}>
-                        <Link href="/search?q=nàm hình">
+                        <Link href="/search?q=màn hình">
                             <img src="/images/product-catalog/man_hinh_catalog.jpg" alt="Màn hình" />
                             <p>Màn hình</p>
                         </Link>
