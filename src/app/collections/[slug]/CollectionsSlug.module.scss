@@ -1,6 +1,6 @@
 .mainCollections {
   padding: 0 10px;
-  max-width: 1200px;
+  // max-width: 1220px;
   margin: 0 auto;
 
   .breadcrumbWrap {
@@ -131,6 +131,7 @@
       font-size: 14px;
       color: #333;
       width: 100%; // Full width of wrapper
+      margin-top: 20px;
 
       &.active {
         background-color: #f0f0f0;
@@ -205,13 +206,14 @@
 .collectionsContainer {
   background-color: #fff;
   padding: 20px;
+  border-radius: 10px;
 }
 
 .productGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
-  margin-bottom: 20px; // Space before load more
+  margin-bottom: 20px;
 
   .notFoundProduct {
     grid-column: span 5; // Span full width
