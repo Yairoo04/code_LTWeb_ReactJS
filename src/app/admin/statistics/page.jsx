@@ -27,6 +27,28 @@ export default function StatisticsPage() {
     }
   }
 
+  function exportOrderCSV() {
+    // Lấy tháng hiện tại theo định dạng yyyy-MM
+    const now = new Date();
+    const month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    fetch(`http://localhost:4000/api/admin/orders/export?month=${month}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Không thể xuất báo cáo đơn hàng!');
+        return res.blob();
+      })
+      .then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', `doanhThuThang_${month}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      })
+      .catch(err => {
+        alert(err.message);
+      });
+  }
+
   const formatMoney = (amount) => {
     return new Intl.NumberFormat('vi-VN').format(amount);
   };
@@ -58,6 +80,13 @@ export default function StatisticsPage() {
         <div className={styles.headerContent}>
           <AdminPageTitle>Thống kê doanh thu</AdminPageTitle>
           <p>Xem doanh thu theo ngày, tuần hoặc tháng</p>
+          <button
+            className={styles.exportBtn}
+            style={{marginTop: 12, padding: '8px 18px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }}
+            onClick={exportOrderCSV}
+          >
+            Xuất báo cáo chi tiết đơn hàng tháng này
+          </button>
         </div>
         <div className={styles.viewTabs}>
           <button 

@@ -189,7 +189,7 @@ export default function SearchPage() {
           h2Title="⚡ FLASH SALE 10H MỖI NGÀY"
           showImg_Sale={true}
           showDotActive={false}
-          campaignCode="FS2025" // Thay bằng mã campaign bạn muốn hiển thị
+          campaignCode="GEAR_ARENA_WEEK" // Thay bằng mã campaign bạn muốn hiển thị
         />
       </main>
       <Footer />
