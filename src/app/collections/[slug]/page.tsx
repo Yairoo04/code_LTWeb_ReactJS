@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse, faSortDown } from "@fortawesome/free-solid-svg-icons";
 import ProductCard from "@/pages/main_Page/Product/ProductCard";
@@ -13,6 +13,7 @@ import RecentView from "@/pages/main_Page/RecentViewProducts/RecentView";
 import CategoryCollection from "@/pages/main_Page/sectionCollection/CategoryCollection";
 import classNames from "classnames";
 import { megaMenuData } from "@/lib/data";
+
 // -------------------------
 // TYPES
 // -------------------------
@@ -48,18 +49,18 @@ type FilterState = {
   brand: string;
   price: string;
   cpu: string;
-  usage: string;
+  usage: string | string[];
   series: string;
   screenSize: string;
   ram: string;
   ssd: string;
   vga: string;
-  dpi: string; // Cho Chuột
-  resolution: string; // Cho Màn hình
-  panelType: string; // Cho Màn hình
-  keyboardType: string; // Cho Bàn phím
-  layout: string; // Cho Bàn phím
-  psu: string; // Cho PC
+  dpi: string;
+  resolution: string;
+  panelType: string;
+  keyboardType: string;
+  layout: string;
+  psu: string;
 };
 
 type FilterKey = keyof FilterState;
@@ -200,6 +201,7 @@ const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
         { value: "văn phòng", label: "Văn phòng" },
         { value: "đồ họa", label: "Đồ họa" },
         { value: "mỏng nhẹ", label: "Mỏng nhẹ" },
+        { value: "học sinh", label: "Học sinh - Sinh viên" },
       ],
     },
   ],
@@ -467,6 +469,7 @@ const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
         { value: "8000", label: "≤ 8.000 DPI" },
         { value: "16000", label: "≤ 16.000 DPI" },
         { value: "25000", label: "≤ 25.000 DPI" },
+        { value: "30000", label: "≤ 30.000 DPI" },
       ],
     },
     {
@@ -482,10 +485,32 @@ const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
 };
 
 // -------------------------
+// BUILD PRESET MAP FROM MEGA MENU DATA
+// -------------------------
+const buildPresetMap = () => {
+  const map = new Map<string, Partial<FilterState>>();
+
+  megaMenuData.forEach((item) => {
+    item.subItems.forEach((sub) => {
+      sub.filters.forEach((f) => {
+        if (f.filters) {
+          map.set(f.href, f.filters);
+        }
+      });
+    });
+  });
+
+  return map;
+};
+
+const presetMap = buildPresetMap();
+
+// -------------------------
 // MAIN COMPONENT
 // -------------------------
 const CollectionPage = () => {
   const { slug } = useParams() as { slug: string };
+  const pathname = `/collections/${slug}`;
 
   const [products, setProducts] = useState<FrontendProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<FrontendProduct[]>([]);
@@ -521,10 +546,12 @@ const CollectionPage = () => {
   const activeFilterConfig = CATEGORY_FILTER_CONFIG[activeCategory] ?? CATEGORY_FILTER_CONFIG["1"];
 
   // -------------------------
-  // TITLE + FILTER PARSING
+  // TITLE + FILTER PRESETS
   // -------------------------
   useEffect(() => {
     if (!slug) return;
+
+    // 1. Title
     const s = slug.toLowerCase();
     setTitle(
       slug
@@ -532,7 +559,36 @@ const CollectionPage = () => {
         .replace(/\b\w/g, (c) => c.toUpperCase())
     );
 
-    const newFilters = { ...filters };
+    // 2. Nếu có preset trong megaMenuData → xài luôn
+    const preset = presetMap.get(pathname);
+
+    if (preset) {
+      setFilters((prev) => ({
+        ...prev,
+        ...preset,
+      }));
+      return; // khỏi cần đoán nữa
+    }
+
+    // 3. Không có preset → fallback qua logic suy luận từ slug
+    const newFilters: FilterState = {
+      category: "",
+      brand: "",
+      price: "",
+      cpu: "",
+      usage: "",
+      series: "",
+      screenSize: "",
+      ram: "",
+      ssd: "",
+      vga: "",
+      dpi: "",
+      resolution: "",
+      panelType: "",
+      keyboardType: "",
+      layout: "",
+      psu: "",
+    };
 
     // 1️⃣ Category
     if (s.includes("laptop")) newFilters.category = "1";
@@ -588,7 +644,7 @@ const CollectionPage = () => {
     if (foundSeries) newFilters.series = foundSeries;
 
     setFilters(newFilters);
-  }, [slug]);
+  }, [slug, pathname]);
 
   // -------------------------
   // FETCH PRODUCTS
@@ -685,12 +741,23 @@ const CollectionPage = () => {
         p.name.toLowerCase().includes(series.toLowerCase())
       );
 
-    if (usage)
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(usage.toLowerCase()) ||
-          p.description.toLowerCase().includes(usage.toLowerCase())
+    if (usage) {
+      const nameDescFilter = (p: FrontendProduct, keyword: string) => {
+        const kw = keyword.toLowerCase();
+        const name = p.name.toLowerCase();
+        const desc = p.description.toLowerCase();
+        return name.includes(kw) || desc.includes(kw);
+      };
+
+      const usageList = Array.isArray(usage)
+        ? usage.map((u) => u.toLowerCase())
+        : [usage.toLowerCase()];
+
+      result = result.filter((p) =>
+        usageList.some((u) => nameDescFilter(p, u))
       );
+    }
+
 
     if (screenSize)
       result = result.filter((p) =>
@@ -724,12 +791,42 @@ const CollectionPage = () => {
         ) || p.description.toLowerCase().includes(vga.toLowerCase())
       );
 
+    const extractMaxNumber = (value: string): number | null => {
+      const matches = value.match(/\d+/g); // lấy tất cả cụm số trong chuỗi
+      if (!matches) return null;
+
+      const nums = matches.map((n) => parseInt(n, 10));
+      return Math.max(...nums);
+    };
+
+    const extractMaxDpi = (value: string): number | null => {
+      // Bỏ dấu . và , trong số: 25.000 -> 25000, 30,000 -> 30000
+      const cleaned = value.replace(/[.,]/g, "");
+
+      const matches = cleaned.match(/\d+/g);
+      if (!matches) return null;
+
+      const nums = matches.map((n) => parseInt(n, 10));
+      return Math.max(...nums);
+    };
+
     if (dpi) {
+      const dpiLimit = parseInt(dpi, 10);
+
       result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("độ phân giải") &&
-          parseInt(s.SpecValue.replace(/\D/g, '')) <= parseInt(dpi)
-        )
+        p.specs?.some((s) => {
+          const specName = s.SpecName.toLowerCase();
+
+          // Chỉ xử lý những dòng liên quan tới DPI
+          if (!(specName.includes("độ phân giải") || specName.includes("dpi"))) {
+            return false;
+          }
+
+          const maxDpi = extractMaxDpi(s.SpecValue);
+          if (maxDpi == null) return false;
+
+          return maxDpi <= dpiLimit;
+        })
       );
     }
 
@@ -865,96 +962,99 @@ const CollectionPage = () => {
           </ContainerFluid>
         </div>
 
-        <div className={styles.collectionsContainer}>
-          {/* Sort bar */}
-          <div className={styles.filterBar}>
-            <section className={styles.filterWrap}>
-              {activeFilterConfig.map((f) => (
-                <select
-                  key={f.key}
-                  name={f.key}
-                  value={filters[f.key]}
-                  onChange={handleFilterChange}
-                  className={styles.filterSelect}
-                >
-                  <option value="">{f.placeholder}</option>
-                  {f.options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              ))}
-            </section>
+        <ContainerFluid>
 
-            <section className={styles.collectionSortby}>
-              <div className={styles.selectWrapper}>
-                <div
-                  className={classNames(styles.listboxButton, 'js-sort', { [styles.active]: isOpen })}
-                  onClick={() => setIsOpen(!isOpen)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    version="1.1"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 32 32"
-                    enableBackground="new 0 0 512 512"
+          <div className={styles.collectionsContainer}>
+            {/* Sort bar */}
+            <div className={styles.filterBar}>
+              <section className={styles.filterWrap}>
+                {activeFilterConfig.map((f) => (
+                  <select
+                    key={f.key}
+                    name={f.key}
+                    value={filters[f.key]}
+                    onChange={handleFilterChange}
+                    className={styles.filterSelect}
                   >
-                    <g>
-                      <path
-                        fill="#111111"
-                        fillRule="nonzero"
-                        d="M9 7v15.584l1.293-1.291 1.414 1.414L8 26.414l-3.707-3.707 1.414-1.414L7 22.584V7zm9 15v2h-5v-2zm3-5v2h-8v-2zm3-5v2H13v-2zm3-5v2H13V7z"
-                      />
-                    </g>
-                  </svg>
-                  <div className={styles.sortbyControl}>
-                    <span className={styles.listboxText}>Xếp theo:</span>
-                    <span className={`${styles.listboxValue} current-sort`}>{currentLabel}</span>
-                    <FontAwesomeIcon icon={faSortDown} className={styles.dropdownIcon} />
-                  </div>
-                </div>
-
-                {isOpen && (
-                  <ul className={styles.dropdownMenu}>
-                    {sortOptions.map((opt) => (
-                      <li
-                        key={opt.value}
-                        className={classNames(styles.dropdownItem, { [styles.selected]: opt.value === sortBy })}
-                        onClick={() => {
-                          handleSortChange(opt.value);
-                          setIsOpen(false);
-                        }}
-                      >
+                    <option value="">{f.placeholder}</option>
+                    {f.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
                         {opt.label}
-                      </li>
+                      </option>
                     ))}
-                  </ul>
-                )}
-              </div>
-            </section>
-          </div>
+                  </select>
+                ))}
+              </section>
 
-          {/* Product Grid */}
-          <div className={styles.productGrid}>
-            {filteredProducts.length > 0 ? (
-              filteredProducts.slice(0, visibleCount).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            ) : (
-              <p className={styles.notFoundProduct}>Không tìm thấy sản phẩm nào.</p>
+              <section className={styles.collectionSortby}>
+                <div className={styles.selectWrapper}>
+                  <div
+                    className={classNames(styles.listboxButton, 'js-sort', { [styles.active]: isOpen })}
+                    onClick={() => setIsOpen(!isOpen)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      version="1.1"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 32 32"
+                      enableBackground="new 0 0 512 512"
+                    >
+                      <g>
+                        <path
+                          fill="#111111"
+                          fillRule="nonzero"
+                          d="M9 7v15.584l1.293-1.291 1.414 1.414L8 26.414l-3.707-3.707 1.414-1.414L7 22.584V7zm9 15v2h-5v-2zm3-5v2h-8v-2zm3-5v2H13v-2zm3-5v2H13V7z"
+                        />
+                      </g>
+                    </svg>
+                    <div className={styles.sortbyControl}>
+                      <span className={styles.listboxText}>Xếp theo:</span>
+                      <span className={`${styles.listboxValue} current-sort`}>{currentLabel}</span>
+                      <FontAwesomeIcon icon={faSortDown} className={styles.dropdownIcon} />
+                    </div>
+                  </div>
+
+                  {isOpen && (
+                    <ul className={styles.dropdownMenu}>
+                      {sortOptions.map((opt) => (
+                        <li
+                          key={opt.value}
+                          className={classNames(styles.dropdownItem, { [styles.selected]: opt.value === sortBy })}
+                          onClick={() => {
+                            handleSortChange(opt.value);
+                            setIsOpen(false);
+                          }}
+                        >
+                          {opt.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            {/* Product Grid */}
+            <div className={styles.productGrid}>
+              {filteredProducts.length > 0 ? (
+                filteredProducts.slice(0, visibleCount).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
+              ) : (
+                <p className={styles.notFoundProduct}>Không tìm thấy sản phẩm nào.</p>
+              )}
+            </div>
+
+            {hasMore && filteredProducts.length > 0 && (
+              <div className={styles.loadMoreContainer}>
+                <button className={styles.loadMoreButton} onClick={loadMore}>
+                  Xem thêm sản phẩm
+                </button>
+              </div>
             )}
           </div>
-
-          {hasMore && filteredProducts.length > 0 && (
-            <div className={styles.loadMoreContainer}>
-              <button className={styles.loadMoreButton} onClick={loadMore}>
-                Xem thêm sản phẩm
-              </button>
-            </div>
-          )}
-        </div>
+        </ContainerFluid>
       </main>
 
       <RecentView />
