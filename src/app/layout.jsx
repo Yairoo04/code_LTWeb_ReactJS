@@ -15,8 +15,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="mdl-js">
+      <head>
+        <link rel="icon" type="image/x-icon" href="/images/logo_GTN.ico" />
+        <title>GTN - Technology Retail</title>
+        <meta name="description" content="GTN Technology Retail - Laptops, PCs, and Accessories" />
+      </head>
       <body suppressHydrationWarning={true}>
-          <Providers>{children}</Providers>
+        <Providers>{children}</Providers>
         {/* ✅ Gắn ChatBox ở cuối body để nổi trên mọi trang */}
         <ChatBox />
       </body>

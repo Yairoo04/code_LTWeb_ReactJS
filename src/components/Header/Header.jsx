@@ -210,7 +210,7 @@ export default function Header() {
         <ContainerFluid>
           <div className={styles.headerInner}>
             <Link href={config.routes.home} className={styles.logo}>
-              <img src="/images/logo.jpg" alt="GTN" />
+              <img src="/images/logo.png" alt="GTN" />
             </Link>
 
             <div className={styles.categoryMenu}>
