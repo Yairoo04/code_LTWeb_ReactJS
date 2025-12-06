@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './ProductDetail.module.scss';
 import Image from 'next/image';
+import MoMoQRPayment from '@/components/MoMoQRPayment/MoMoQRPayment';
 
 type Address = {
   AddressId: number;
@@ -51,6 +52,11 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<1 | 2 | 3>(1);
+
+  // MOMO QR
+  const [showMoMoQR, setShowMoMoQR] = useState(false);
+  const [payUrl, setPayUrl] = useState('');
+  const [currentOrderId, setCurrentOrderId] = useState<number | null>(null);
 
   const router = useRouter();
   const maxQty = Math.min(stock, 99);
@@ -130,6 +136,24 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
     }
   };
 
+  // MOMO Polling
+  useEffect(() => {
+    if (!currentOrderId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetchWithAuth(`http://localhost:4000/api/orders/${currentOrderId}`);
+        const data = await res.json();
+
+        if (data.data?.StatusId === 2) {
+          clearInterval(interval);
+          alert('Thanh toán MoMo thành công!');
+          router.replace(`/hoan-tat?orderId=${currentOrderId}&paid=1`);
+        }
+      } catch (e) { }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [currentOrderId]);
+
   // Phuong thuc thanh toan
   const handleBuyNow = async () => {
     if (!name.trim()) return alert('Vui lòng nhập họ tên!');
@@ -159,15 +183,57 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Đặt hàng thất bại');
+      const orderId = data.data?.orderId;
+      const amount = data.data?.totalAmount;
 
-      router.push(`/hoan-tat?orderId=${data.data?.orderId || data.orderId}`);
+      if (!orderId || !amount) {
+        throw new Error("Không lấy được thông tin đơn hàng");
+      }
+
+      // MOMO Payment
+      if (selectedPaymentMethod === 2) {
+        const momoRes = await fetch('http://localhost:4000/api/payment/momo/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId,
+            amount,
+            extraData: `realOrderId=${orderId}`
+          })
+
+        });
+
+        const momoData = await momoRes.json();
+
+        if (momoData.success && momoData.payUrl) {
+          setCurrentOrderId(orderId);
+          setPayUrl(momoData.payUrl);
+          setShowMoMoQR(true);
+          return;
+        } else {
+          throw new Error(momoData.error || 'Không tạo được thanh toán MoMo');
+        }
+      }
+
+      // COD
+      router.push(`/hoan-tat?orderId=${orderId}`);
     } catch (err: any) {
-      alert(err.message || 'Có lỗi xảy ra!');
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  if (showMoMoQR) {
+    return (
+      <MoMoQRPayment
+        payUrl={payUrl}
+        currentOrderId={currentOrderId}
+        totalAmount={0}
+        onBack={() => setShowMoMoQR(false)}
+      />
+    );
+  }
 
   if (stock <= 0) {
     return <button className={styles.outOfStockButton} disabled>HẾT HÀNG</button>;
