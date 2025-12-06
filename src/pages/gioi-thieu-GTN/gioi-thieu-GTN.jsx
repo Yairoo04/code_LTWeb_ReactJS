@@ -10,7 +10,7 @@ const GioiThieu = () => {
                     <h2 className={styles.title}>Giới thiệu về GTN</h2>
                     <div className={styles.introText}>
                         <p>
-                            GearVN là thương hiệu được sinh ra từ giấc mơ của một game thủ, phát triển bởi tập thể các
+                            GTN là thương hiệu được sinh ra từ giấc mơ của một game thủ, phát triển bởi tập thể các
                             game thủ đam mê để phục vụ cho cộng đồng game thủ Việt.
                         </p>
                         <p>
@@ -60,9 +60,9 @@ const GioiThieu = () => {
                         <div className={styles.region}>
                             <h4>Khu vực Miền Nam</h4>
                             <ul>
-                                <li>Showroom GearVN Hoàng Hoa Thám</li>
-                                <li>Showroom GearVN Kha Vạn Cân</li>
-                                <li>Showroom GearVN Trần Hưng Đạo</li>
+                                <li>Showroom GTN Hoàng Hoa Thám</li>
+                                <li>Showroom GTN Kha Vạn Cân</li>
+                                <li>Showroom GTN Trần Hưng Đạo</li>
                             </ul>
                         </div>
 

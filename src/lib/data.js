@@ -313,7 +313,7 @@ export const megaMenuData = [
         name: "A.I PC - gtn",
         nameHref: "/collections/ai-pc-gtn/",
         filters: [
-          { href: "/collections/pc-gearvn-powered-by-asus/", text: "PC GTN X ASUS - PBA", filters: { category: "2", brand: "asus", usage: "ai" } },
+          { href: "/collections/pc-gtn-powered-by-asus/", text: "PC GTN X ASUS - PBA", filters: { category: "2", brand: "asus", usage: "ai" } },
           { href: "/collections/pc-msi-powered-by-msi", text: "PC GTN X MSI", filters: { category: "2", brand: "msi", usage: "ai" } },
         ],
       },
@@ -892,7 +892,7 @@ export const megaMenuData = [
         name: "Thương hiệu lót chuột",
         nameHref: "/collections/mouse-pad",
         filters: [
-          { href: "/collections/mouse-pad?hang=gearvn", text: "GEARVN", filters: { category: "5", brand: "gearvn" } },
+          { href: "/collections/mouse-pad?hang=gtn", text: "GTN", filters: { category: "5", brand: "gtn" } },
           { href: "/collections/lot-chuot-asus", text: "ASUS", filters: { category: "5", brand: "asus" } },
           { href: "/collections/lot-chuot-steelseries", text: "Steelseries", filters: { category: "5", brand: "steelseries" } },
           { href: "/collections/lot-chuot-dare-u", text: "Dare-U", filters: { category: "5", brand: "dare-u" } },

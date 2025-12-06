@@ -47,6 +47,7 @@ export default function FlashSale({
     minutes: '00',
     seconds: '00',
   });
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const { addRecentView } = useRecentView(); // nếu sau này muốn log sản phẩm đã xem
 
@@ -56,6 +57,8 @@ export default function FlashSale({
   React.useEffect(() => {
     async function getFlashProducts() {
       try {
+        setIsLoading(true);
+
         const url = campaignCode
           ? `/api/flash-sale/${campaignCode}`
           : '/api/flash-sale';
@@ -75,6 +78,8 @@ export default function FlashSale({
         console.error('Lỗi fetch flash sale:', error);
         setProducts([]);
         setCampaign(null);
+      } finally {
+        setIsLoading(false);
       }
     }
     getFlashProducts();
@@ -127,6 +132,9 @@ export default function FlashSale({
     return () => clearInterval(timer);
   }, [campaign]);
 
+  // Giới hạn số sản phẩm truyền vào slider
+  const limitedProducts = limit ? products.slice(0, limit) : products;
+
   return (
     <ContainerFluid>
       <section className={className}>
@@ -172,13 +180,12 @@ export default function FlashSale({
             </div>
           )}
 
-          {/* {showTitle && (
-            <div className="flash-sale-title">
-              <span className="sale-title">Flash sale</span>
-            </div>
-          )} */}
-
-          <ProductSlider products={products} showDotActive={showDotActive} />
+          <ProductSlider
+            products={limitedProducts}
+            showDotActive={showDotActive}
+            isLoading={isLoading}    
+            skeletonCount={limit}  
+          />
 
           {showReadMore && (
             <div className="more-promotion">
