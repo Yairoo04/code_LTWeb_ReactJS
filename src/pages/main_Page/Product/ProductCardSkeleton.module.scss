@@ -1,0 +1,56 @@
+// src/pages/main_Page/Product/ProductCardSkeleton.module.scss
+
+.cardSkeleton {
+    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+  
+  .imageSkeleton,
+  .titleSkeleton,
+  .priceSkeleton,
+  .metaSkeleton {
+    border-radius: 4px;
+    background: linear-gradient(
+      90deg,
+      #e5e7eb 0%,
+      #f3f4f6 40%,
+      #e5e7eb 80%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.2s ease-in-out infinite;
+  }
+  
+  .imageSkeleton {
+    height: 180px;
+  }
+  
+  .titleSkeleton {
+    height: 16px;
+    width: 80%;
+  }
+  
+  .priceSkeleton {
+    height: 16px;
+    width: 50%;
+  }
+  
+  .metaSkeleton {
+    height: 14px;
+    width: 60%;
+  }
+  
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  
