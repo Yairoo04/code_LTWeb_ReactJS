@@ -137,9 +137,9 @@ export default function FlashSale({
                 <span id="days">{countdown.days}</span> ngày{' '}
               </>
             )}
-            <span id="hours">{countdown.hours}</span>:
-            <span id="minutes">{countdown.minutes}</span>:
-            <span id="seconds">{countdown.seconds}</span>
+            <span id="hours">{countdown.hours}</span> giờ :{' '}
+            <span id="minutes">{countdown.minutes}</span> phút :{' '}
+            <span id="seconds">{countdown.seconds}</span> giây
           </div>
           <h2>{h2Title ?? campaign?.Title ?? 'Flash Sale'}</h2>
         </div>
@@ -172,11 +172,11 @@ export default function FlashSale({
             </div>
           )}
 
-          {showTitle && (
+          {/* {showTitle && (
             <div className="flash-sale-title">
               <span className="sale-title">Flash sale</span>
             </div>
-          )}
+          )} */}
 
           <ProductSlider products={products} showDotActive={showDotActive} />
 

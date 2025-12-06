@@ -36,7 +36,7 @@
     "**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-, "src/pages/main_Page/MegaMenu/MegaMenu.jsx", "src/components/Header/Header.jsx"  ],
+, "src/pages/main_Page/MegaMenu/MegaMenu.tsx", "src/components/Header/Header.jsx"  ],
   "exclude": [
     "node_modules"
   ]
