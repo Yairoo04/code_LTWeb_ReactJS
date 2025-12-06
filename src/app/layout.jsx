@@ -7,10 +7,21 @@ import { RecentViewProvider } from "@/pages/main_Page/RecentViewProducts/RecentV
 
 config.autoAddCss = false;
 
+// export const metadata = {
+//   title: "GTN - Technology Retail",
+//   description: "GTN Technology Retail - Laptops, PCs, and Accessories",
+// };
+
 export const metadata = {
-  title: "GTN - Technology Retail",
+  title: "GTN shop",
   description: "GTN Technology Retail - Laptops, PCs, and Accessories",
+  icons: {
+    icon: "/images/logo_GTN.ico",      // favicon chính
+    shortcut: "/images/logo_GTN.ico",  // cho trình duyệt dùng làm shortcut icon
+    // apple: "/logoGTN-apple.png",             // nếu sau này có icon riêng cho iOS thì thêm
+  },
 };
+
 
 export default function RootLayout({ children }) {
   return (

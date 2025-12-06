@@ -69,6 +69,7 @@ export default function Complete() {
         const d = result.data;
         setOrderDetails({
           orderId: realOrderId,
+          status: d.StatusName,  
           recipientName: d.RecipientName || 'Khách lẻ',
           recipientPhone: d.RecipientPhone || '—',
           recipientAddress: d.RecipientAddress || '—',
@@ -163,15 +164,29 @@ export default function Complete() {
                   </div>
                 )}
                 {/* Success Header */}
+                {/* HEADER: TỰ NHẬN TRẠNG THÁI */}
                 <div className={styles.successHeader}>
                   <svg className={styles.successIcon} viewBox="0 0 80 80" fill="none">
                     <circle cx="40" cy="40" r="36" stroke="#E30019" strokeWidth="4" />
                     <path d="M24 40L34 50L56 28" stroke="#E30019" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <h1>ĐẶT HÀNG THÀNH CÔNG!</h1>
-                  <p>Cảm ơn bạn đã tin tưởng mua sắm tại shop</p>
+
+                  {/* Nếu đơn bị hủy → THẤT BẠI */}
+                  {orderDetails?.status === "Cancelled" ? (
+                    <>
+                      <h1 style={{ color: "red" }}>ĐẶT HÀNG THẤT BẠI</h1>
+                      <p>Thanh toán không thành công hoặc đã bị hủy.</p>
+                    </>
+                  ) : (
+                    <>
+                      <h1>ĐẶT HÀNG THÀNH CÔNG!</h1>
+                      <p>Cảm ơn bạn đã tin tưởng mua sắm tại shop.</p>
+                    </>
+                  )}
+
                   <p>Mã đơn hàng: <strong>#{realOrderId}</strong></p>
                 </div>
+
 
                 {loading ? (
                   <div className={styles.loadingCart}>
