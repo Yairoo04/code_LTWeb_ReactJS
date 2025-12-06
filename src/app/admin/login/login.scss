@@ -12,92 +12,532 @@
     background-position: 0% 50%;
   }
 }
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 .login-page {
+  position: relative;
   height: 100vh;
-  background: linear-gradient(120deg, #2b2d42, #8d99ae, #66a6ff, #ff357a);
-  background-size: 300% 300%;
-  animation: gradientMove 8s ease-in-out infinite;
+  background: linear-gradient(135deg, #0f172a 0%, #dc2626 50%, #0f172a 100%);
+  background-size: 400% 400%;
+  animation: gradientMove 20s ease infinite;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+
+  // Hiệu ứng blur circles
+  &::before {
+    content: "";
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.4), transparent);
+    filter: blur(100px);
+    animation: pulse 10s ease-in-out infinite;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 20%;
+    right: 20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(251, 113, 133, 0.4), transparent);
+    filter: blur(100px);
+    animation: pulse 10s ease-in-out infinite;
+    animation-delay: 1.5s;
+  }
 
   .login-box {
-    background: $light;
-    padding: 40px 35px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    width: 360px;
+    position: relative;
+    background: #ffffff;
+    padding: 50px 45px 45px;
+    border-radius: 28px;
+    box-shadow: 
+      0 25px 70px rgba(0, 0, 0, 0.35),
+      0 10px 25px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+    width: 440px;
     text-align: center;
-    animation: fadeIn 0.7s cubic-bezier(.36,.07,.19,.97);
-    .input-group {
-      position: relative;
+    animation: fadeIn 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    z-index: 10;
+
+    // Logo container
+    img {
+      width: 72px !important;
+      height: 72px !important;
+      border-radius: 18px !important;
+      padding: 14px;
+      background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+      box-shadow: 
+        0 10px 30px rgba(239, 68, 68, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      margin-bottom: 24px !important;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: float 3s ease-in-out infinite;
+
+      &:hover {
+        transform: scale(1.08) rotate(-5deg);
+        box-shadow: 
+          0 15px 40px rgba(239, 68, 68, 0.6),
+          0 6px 16px rgba(0, 0, 0, 0.25) !important;
+      }
     }
 
     h2 {
-      color: $dark;
-      margin-bottom: 25px;
-      font-weight: 600;
+      color: #0f172a;
+      margin: 0 0 6px;
+      font-weight: 800;
+      font-size: 34px;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #0f172a 0%, #dc2626 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p {
+      color: #f87171;
+      font-size: 15px;
+      margin-bottom: 35px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
     }
 
     .input-group {
-      margin-bottom: 15px;
+      position: relative;
+      margin-bottom: 22px;
+      text-align: left;
+
+      label {
+        display: block;
+        color: #f87171;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
 
       input {
         width: 100%;
-        padding: 12px 14px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
+        padding: 16px 20px;
+        padding-left: 52px;
+        border-radius: 14px;
+        border: 2px solid #fee2e2;
         font-size: 15px;
         outline: none;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #fef2f2;
+        color: #0f172a;
+        font-weight: 600;
+
+        &::placeholder {
+          color: #fca5a5;
+          font-weight: 500;
+        }
 
         &:focus {
-          border-color: $primary;
-          box-shadow: 0 0 6px rgba($primary, 0.4);
+          border-color: #ef4444;
+          background: #fff;
+          box-shadow: 
+            0 0 0 4px rgba(239, 68, 68, 0.12),
+            0 8px 20px rgba(239, 68, 68, 0.2);
+          transform: translateY(-2px);
+        }
+
+        &:disabled {
+          background: #f1f5f9;
+          cursor: not-allowed;
+          opacity: 0.6;
+          border-color: #e2e8f0;
+        }
+      }
+
+      // Icon SVG bên trái input
+      &::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        bottom: 16px;
+        width: 20px;
+        height: 20px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.6;
+        z-index: 1;
+        transition: opacity 0.3s ease;
+      }
+
+      &:has(input:focus)::before {
+        opacity: 1;
+      }
+
+      // Email icon
+      &:has(input[type="email"])::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'/%3E%3Cpolyline points='22,6 12,13 2,6'/%3E%3C/svg%3E");
+      }
+
+      // Password icon
+      &:has(input[type="password"])::before,
+      &:has(input[type="text"] + span)::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E");
+      }
+
+      // OTP icon
+      &:has(input[placeholder*="OTP"])::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4'/%3E%3C/svg%3E");
+      }
+
+      // Icon hiển thị/ẩn mật khẩu
+      span {
+        position: absolute;
+        right: 16px;
+        bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 2;
+        padding: 4px;
+        border-radius: 6px;
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.1);
+          transform: scale(1.1);
+          
+          svg {
+            stroke: #dc2626;
+          }
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+
+        svg {
+          display: block;
+          stroke: #f87171;
+          transition: stroke 0.3s ease;
+        }
+      }
+    }
+
+    // OTP Container - 6 ô riêng biệt
+    .otp-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 25px;
+
+      .otp-input {
+        width: 50px;
+        height: 56px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+        border: 2px solid #fee2e2;
+        border-radius: 12px;
+        background: #fef2f2;
+        color: #0f172a;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        caret-color: #ef4444;
+
+        &:focus {
+          border-color: #ef4444;
+          background: #fff;
+          box-shadow: 
+            0 0 0 4px rgba(239, 68, 68, 0.12),
+            0 8px 20px rgba(239, 68, 68, 0.2);
+          transform: scale(1.05);
+        }
+
+        &:not(:placeholder-shown) {
+          border-color: #ef4444;
+          background: #fff;
+        }
+      }
+    }
+
+    // Remember & Forgot password row
+    .remember-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      margin-top: 5px;
+
+      .remember-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        cursor: pointer;
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: #64748b;
+
+          input[type="checkbox"] {
+            border-color: #ef4444;
+          }
+        }
+
+        input[type="checkbox"] {
+          width: 20px;
+          height: 20px;
+          padding: 0;
+          margin: 0;
+          flex-shrink: 0;
+          accent-color: #ef4444;
+          cursor: pointer;
+          border: 2px solid #cbd5e1;
+          border-radius: 5px;
+          transition: all 0.3s ease;
+
+          &:checked {
+            background: #ef4444;
+          }
+        }
+
+        span {
+          line-height: 1;
+        }
+      }
+
+      .forgot-link {
+        color: #f87171;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        white-space: nowrap;
+        line-height: 1;
+
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: #ef4444;
+          transition: width 0.3s ease;
+        }
+
+        &:hover {
+          color: #dc2626;
+
+          &::after {
+            width: 100%;
+          }
         }
       }
     }
 
     button {
       width: 100%;
-      background: $primary;
+      background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
       border: none;
-      padding: 12px;
-      color: $light;
-      font-weight: 600;
-      border-radius: 8px;
+      padding: 16px 28px;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 15px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 16px;
+      box-shadow: 
+        0 6px 20px rgba(239, 68, 68, 0.45),
+        0 2px 6px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      letter-spacing: 0.3px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        transition: left 0.6s ease;
+      }
 
       &:hover:not(:disabled) {
-        background: color.adjust($primary, $lightness: -8%);
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 
+          0 10px 30px rgba(239, 68, 68, 0.6),
+          0 4px 12px rgba(0, 0, 0, 0.3);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(-1px) scale(0.99);
       }
 
       &:disabled {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      // Button gửi lại OTP
+      &[type="button"] {
+        background: #fff;
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        margin-top: 18px;
+        padding: 12px 24px;
+        font-size: 14px;
+        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+        text-shadow: none;
+        font-weight: 600;
+
+        &:hover {
+          background: #ef4444;
+          color: #fff;
+          border-color: #ef4444;
+          box-shadow: 
+            0 6px 20px rgba(239, 68, 68, 0.4),
+            0 2px 8px rgba(0, 0, 0, 0.2);
+        }
       }
     }
 
     .error-box {
-      background: rgba($error, 0.1);
-      color: $error;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 15px;
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      color: #dc2626;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 22px;
       font-size: 14px;
-      border: 1px solid rgba($error, 0.2);
+      border: 2px solid #fca5a5;
+      font-weight: 600;
+      box-shadow: 
+        0 4px 12px rgba(220, 38, 38, 0.2),
+        0 0 0 1px rgba(220, 38, 38, 0.05);
+      animation: slideDown 0.3s ease;
+      line-height: 1.5;
+    }
+
+    // Footer text với icon
+    & > div:last-child {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 30px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+
+      &::before {
+        content: "";
+        width: 16px;
+        height: 16px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
     }
 
     &.shake {
-      animation: shake 0.4s ease;
+      animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
     }
+  }
+
+  // Decorative blur circles behind form - Đẹp hơn
+  .login-box::before {
+    content: "";
+    position: absolute;
+    top: -15%;
+    left: -15%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.15), transparent);
+    filter: blur(50px);
+    animation: pulse 7s ease-in-out infinite;
+    z-index: -1;
+  }
+
+  .login-box::after {
+    content: "";
+    position: absolute;
+    bottom: -15%;
+    right: -15%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(251, 113, 133, 0.15), transparent);
+    filter: blur(50px);
+    animation: pulse 7s ease-in-out infinite;
+    animation-delay: 1s;
+    z-index: -1;
   }
 }
 
 @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-12px) rotate(-1deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(12px) rotate(1deg);
+  }
+}
+
+@keyframes slideDown {
   from {
     opacity: 0;
     transform: translateY(-15px);
@@ -108,8 +548,60 @@
   }
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-8px); }
-  40%, 80% { transform: translateX(8px); }
+// Responsive - Tối ưu hơn
+@media (max-width: 480px) {
+  .login-page {
+    padding: 20px;
+
+    .login-box {
+      width: 100%;
+      padding: 40px 30px 35px;
+      border-radius: 24px;
+
+      img {
+        width: 64px !important;
+        height: 64px !important;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 14px;
+        margin-bottom: 28px;
+      }
+
+      .input-group {
+        margin-bottom: 18px;
+
+        label {
+          font-size: 12px;
+          margin-bottom: 8px;
+        }
+
+        input {
+          padding: 14px 18px 14px 48px;
+          font-size: 14px;
+        }
+
+        &::before {
+          left: 16px;
+          bottom: 14px;
+          width: 18px;
+          height: 18px;
+        }
+
+        span {
+          right: 14px;
+          bottom: 13px;
+        }
+      }
+
+      button {
+        padding: 14px 24px;
+        font-size: 15px;
+      }
+    }
+  }
 }
