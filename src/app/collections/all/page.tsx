@@ -529,6 +529,7 @@ const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
         { value: "8000", label: "≤ 8.000 DPI" },
         { value: "16000", label: "≤ 16.000 DPI" },
         { value: "25000", label: "≤ 25.000 DPI" },
+        { value: "30000", label: "≤ 30.000 DPI" },
       ],
     },
     {
@@ -728,12 +729,32 @@ const CollectionsAll = () => {
         ) || p.description.toLowerCase().includes(vga.toLowerCase())
       );
 
+    const extractMaxDpi = (value: string): number | null => {
+      const cleaned = value.replace(/[.,]/g, "");
+
+      const matches = cleaned.match(/\d+/g);
+      if (!matches) return null;
+
+      const nums = matches.map((n) => parseInt(n, 10));
+      return Math.max(...nums);
+    };
+
     if (dpi) {
+      const dpiLimit = parseInt(dpi, 10);
+
       result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("độ phân giải") &&
-          parseInt(s.SpecValue.replace(/\D/g, "")) <= parseInt(dpi)
-        )
+        p.specs?.some((s) => {
+          const specName = s.SpecName.toLowerCase();
+
+          if (!(specName.includes("độ phân giải") || specName.includes("dpi"))) {
+            return false;
+          }
+
+          const maxDpi = extractMaxDpi(s.SpecValue);
+          if (maxDpi == null) return false;
+
+          return maxDpi <= dpiLimit;
+        })
       );
     }
 

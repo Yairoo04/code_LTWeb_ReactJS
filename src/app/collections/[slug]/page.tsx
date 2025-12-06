@@ -791,16 +791,7 @@ const CollectionPage = () => {
         ) || p.description.toLowerCase().includes(vga.toLowerCase())
       );
 
-    const extractMaxNumber = (value: string): number | null => {
-      const matches = value.match(/\d+/g); // lấy tất cả cụm số trong chuỗi
-      if (!matches) return null;
-
-      const nums = matches.map((n) => parseInt(n, 10));
-      return Math.max(...nums);
-    };
-
     const extractMaxDpi = (value: string): number | null => {
-      // Bỏ dấu . và , trong số: 25.000 -> 25000, 30,000 -> 30000
       const cleaned = value.replace(/[.,]/g, "");
 
       const matches = cleaned.match(/\d+/g);
@@ -817,7 +808,6 @@ const CollectionPage = () => {
         p.specs?.some((s) => {
           const specName = s.SpecName.toLowerCase();
 
-          // Chỉ xử lý những dòng liên quan tới DPI
           if (!(specName.includes("độ phân giải") || specName.includes("dpi"))) {
             return false;
           }
