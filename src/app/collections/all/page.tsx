@@ -1,84 +1,24 @@
+// app/collections/all/page.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse, faArrowDownWideShort, faSortDown } from "@fortawesome/free-solid-svg-icons";
-import ProductCard from '@/pages/main_Page/Product/ProductCard';
-import styles from './CollectionsAll.module.scss';
-import Footer from '@/components/Footer/Footer';
-import Header from '@/components/Header/Header';
-import ContainerFluid from '@/pages/main_Page/ContainerFluid/container-fluid';
-import RecentView from '@/pages/main_Page/RecentViewProducts/RecentView';
-import CategoryCollection from '@/pages/main_Page/sectionCollection/CategoryCollection';
-import classNames from 'classnames';
+import { faHouse, faSortDown } from "@fortawesome/free-solid-svg-icons";
+import classNames from "classnames";
 
-type ApiProduct = {
-  ProductId: number;
-  Name: string;
-  Description: string;
-  CategoryId: number | null;
-  SKU: string;
-  Price: number;
-  DiscountPrice: number | null;
-  Stock: number;
-  ImageUrl: string;
-  IsPublished: boolean;
-  CreatedAt: string;
-  UpdatedAt: string | null;
-};
+import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
+import ContainerFluid from "@/pages/main_Page/ContainerFluid/container-fluid";
+import RecentView from "@/pages/main_Page/RecentViewProducts/RecentView";
+import CategoryCollection from "@/pages/main_Page/sectionCollection/CategoryCollection";
+import ProductCard from "@/pages/main_Page/Product/ProductCard";
+import ProductCardSkeleton from "@/pages/main_Page/Product/ProductCardSkeleton";
 
-type FrontendProduct = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  discountPrice?: number | null;
-  categoryId?: number | null;
-  image_url?: string;
-  stock?: number;
-  specs?: { SpecName: string; SpecValue: string; Warranty: string }[];
-};
+import styles from "./CollectionsAll.module.scss";
 
-type FilterState = {
-  category: string;
-  brand: string;
-  price: string;
-  cpu: string;
-  usage: string;
-  series: string;
-  screenSize: string;
-  ram: string;
-  ssd: string;
-  vga: string;
-  dpi: string; // Cho Chuột
-  resolution: string; // Cho Màn hình
-  panelType: string; // Cho Màn hình
-  keyboardType: string; // Cho Bàn phím
-  layout: string; // Cho Bàn phím
-  psu: string; // Cho PC
-};
-
-type FilterKey = keyof FilterState;
-
-type FilterConfig = {
-  key: FilterKey;
-  label: string;
-  placeholder: string;
-  options: { value: string; label: string }[];
-};
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
-
-const mapToFrontendProduct = (apiProduct: ApiProduct): FrontendProduct => ({
-  id: apiProduct.ProductId,
-  name: apiProduct.Name,
-  description: apiProduct.Description,
-  price: apiProduct.Price,
-  discountPrice: apiProduct.DiscountPrice,
-  categoryId: apiProduct.CategoryId,
-  image_url: apiProduct.ImageUrl,
-  stock: apiProduct.Stock,
-});
+import { CATEGORY_FILTER_CONFIG } from "@/lib/products/filterConfig";
+import type { FilterState } from "@/lib/products/types";
+import { useCollectionProducts } from "@/hooks/useCollectionProducts";
 
 const sortOptions = [
   { value: "popular", label: "Nổi bật" },
@@ -86,753 +26,32 @@ const sortOptions = [
   { value: "price-desc", label: "Giá giảm dần" },
 ];
 
-const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
-  // Default for all
-  all: [
-    {
-      key: "category",
-      label: "Danh mục",
-      placeholder: "Bộ lọc (Danh mục)",
-      options: [
-        { value: "1", label: "Laptop" },
-        { value: "2", label: "PC" },
-        { value: "3", label: "Màn hình" },
-        { value: "4", label: "Bàn phím" },
-        { value: "5", label: "Chuột" },
-      ],
-    },
-    {
-      key: "price",
-      label: "Giá",
-      placeholder: "Giá",
-      options: [
-        { value: "0-5000000", label: "Dưới 5 triệu" },
-        { value: "5000000-10000000", label: "5 - 10 triệu" },
-        { value: "10000000-20000000", label: "10 - 20 triệu" },
-        { value: "20000000-999999999", label: "Trên 20 triệu" },
-      ],
-    },
-    {
-      key: "brand",
-      label: "Hãng",
-      placeholder: "Hãng",
-      options: [
-        { value: "dell", label: "Dell" },
-        { value: "asus", label: "ASUS" },
-        { value: "hp", label: "HP" },
-        { value: "lenovo", label: "Lenovo" },
-        { value: "acer", label: "Acer" },
-        { value: "viewsonic", label: "Viewsonic" },
-        { value: "keychron", label: "Keychron" },
-        { value: "logitech", label: "Logitech" },
-        { value: "gigabyte", label: "Gigabyte" },
-        { value: "msi", label: "MSI" },
-      ],
-    },
-    {
-      key: "usage",
-      label: "Nhu cầu sử dụng",
-      placeholder: "Nhu cầu sử dụng",
-      options: [
-        { value: "cao cấp", label: "Cao cấp" },
-        { value: "gaming", label: "Gaming" },
-        { value: "văn phòng", label: "Văn phòng" },
-        { value: "đồ họa", label: "Đồ họa" },
-        { value: "mỏng nhẹ", label: "Mỏng nhẹ" },
-      ],
-    },
-  ],
-  // Laptop (CategoryId: 1)
-  "1": [
-    {
-      key: "category",
-      label: "Danh mục",
-      placeholder: "Bộ lọc (Danh mục)",
-      options: [
-        { value: "1", label: "Laptop" },
-        { value: "2", label: "PC" },
-        { value: "3", label: "Màn hình" },
-        { value: "4", label: "Bàn phím" },
-        { value: "5", label: "Chuột" },
-      ],
-    },
-    {
-      key: "price",
-      label: "Giá",
-      placeholder: "Giá",
-      options: [
-        { value: "0-5000000", label: "Dưới 5 triệu" },
-        { value: "5000000-10000000", label: "5 - 10 triệu" },
-        { value: "10000000-20000000", label: "10 - 20 triệu" },
-        { value: "20000000-999999999", label: "Trên 20 triệu" },
-      ],
-    },
-    {
-      key: "brand",
-      label: "Hãng",
-      placeholder: "Hãng",
-      options: [
-        { value: "dell", label: "Dell" },
-        { value: "asus", label: "ASUS" },
-        { value: "hp", label: "HP" },
-        { value: "lenovo", label: "Lenovo" },
-        { value: "acer", label: "Acer" },
-        { value: "gigabyte", label: "Gigabyte" },
-        { value: "msi", label: "MSI" },
-      ],
-    },
-    {
-      key: "cpu",
-      label: "CPU",
-      placeholder: "CPU",
-      options: [
-        { value: "intel core i5", label: "Intel Core i5" },
-        { value: "intel core i7", label: "Intel Core i7" },
-        { value: "ryzen 5", label: "AMD Ryzen 5" },
-        { value: "ryzen 7", label: "AMD Ryzen 7" },
-        { value: "intel đời 13", label: "Core Intel 13th" },
-      ],
-    },
-    {
-      key: "screenSize",
-      label: "Kích thước màn hình",
-      placeholder: "Kích thước màn hình",
-      options: [
-        { value: '13"', label: '13"' },
-        { value: '14"', label: '14"' },
-        { value: '15.6"', label: '15.6"' },
-      ],
-    },
-    {
-      key: "ram",
-      label: "RAM",
-      placeholder: "RAM",
-      options: [
-        { value: "8gb", label: "8GB" },
-        { value: "16gb", label: "16GB" },
-        { value: "32gb", label: "32GB" },
-      ],
-    },
-    {
-      key: "ssd",
-      label: "SSD",
-      placeholder: "SSD",
-      options: [
-        { value: "512gb", label: "512GB" },
-        { value: "1tb", label: "1TB" },
-      ],
-    },
-    {
-      key: "vga",
-      label: "VGA",
-      placeholder: "VGA",
-      options: [
-        { value: "rtx 2050", label: "RTX 2050" },
-        { value: "rtx 3050", label: "RTX 3050" },
-        { value: "rtx 4060", label: "RTX 4060" },
-        { value: "intel iris xe", label: "Intel Iris Xe" },
-      ],
-    },
-    {
-      key: "usage",
-      label: "Nhu cầu sử dụng",
-      placeholder: "Nhu cầu sử dụng",
-      options: [
-        { value: "gaming", label: "Gaming" },
-        { value: "văn phòng", label: "Văn phòng" },
-        { value: "đồ họa", label: "Đồ họa" },
-        { value: "mỏng nhẹ", label: "Mỏng nhẹ" },
-      ],
-    },
-  ],
+const CollectionsAllPage = () => {
+  // All page: không cần useParams, tự cố định slug + pathname
+  const slug = "all";
+  const pathname = "/collections/all";
 
-  // PC (CategoryId: 2)
-  "2": [
-    {
-      key: "category",
-      label: "Danh mục",
-      placeholder: "Bộ lọc (Danh mục)",
-      options: [
-        { value: "1", label: "Laptop" },
-        { value: "2", label: "PC" },
-        { value: "3", label: "Màn hình" },
-        { value: "4", label: "Bàn phím" },
-        { value: "5", label: "Chuột" },
-      ],
-    },
-    {
-      key: "price",
-      label: "Giá",
-      placeholder: "Giá",
-      options: [
-        { value: "0-10000000", label: "Dưới 10 triệu" },
-        { value: "10000000-20000000", label: "10 - 20 triệu" },
-        { value: "20000000-30000000", label: "20 - 30 triệu" },
-        { value: "30000000-999999999", label: "Trên 30 triệu" },
-      ],
-    },
-    // {
-    //   key: "brand",
-    //   label: "Hãng",
-    //   placeholder: "Hãng",
-    //   options: [
-    //     { value: "asus", label: "ASUS" },
-    //     { value: "gigabyte", label: "Gigabyte" },
-    //     { value: "msi", label: "MSI" },
-    //   ],
-    // },
-    {
-      key: "cpu",
-      label: "CPU",
-      placeholder: "CPU",
-      options: [
-        { value: "amd ryzen 9", label: "AMD Ryzen 9" },
-        { value: "intel core i9", label: "Intel Core i9" },
-      ],
-    },
-    {
-      key: "ram",
-      label: "RAM",
-      placeholder: "RAM",
-      options: [
-        { value: "32gb", label: "32GB" },
-        { value: "64gb", label: "64GB" },
-        { value: "96gb", label: "96GB" },
-      ],
-    },
-    {
-      key: "ssd",
-      label: "SSD",
-      placeholder: "SSD",
-      options: [
-        { value: "1tb", label: "1TB" },
-        { value: "2tb", label: "2TB" },
-      ],
-    },
-    {
-      key: "vga",
-      label: "VGA",
-      placeholder: "VGA",
-      options: [
-        { value: "rtx 5090", label: "RTX 5090" },
-        { value: "rtx 3060", label: "RTX 3060" },
-      ],
-    },
-    {
-      key: "psu",
-      label: "Nguồn (PSU)",
-      placeholder: "Nguồn (PSU)",
-      options: [
-        { value: "1200w", label: "1200W" },
-        { value: "1000w", label: "1000W" },
-      ],
-    },
-    {
-      key: "usage",
-      label: "Nhu cầu sử dụng",
-      placeholder: "Nhu cầu sử dụng",
-      options: [
-        { value: "gaming", label: "Gaming" },
-        { value: "workstation", label: "Workstation" },
-      ],
-    },
-  ],
-
-  // Màn hình (CategoryId: 3)
-  "3": [
-    {
-      key: "category",
-      label: "Danh mục",
-      placeholder: "Bộ lọc (Danh mục)",
-      options: [
-        { value: "1", label: "Laptop" },
-        { value: "2", label: "PC" },
-        { value: "3", label: "Màn hình" },
-        { value: "4", label: "Bàn phím" },
-        { value: "5", label: "Chuột" },
-      ],
-    },
-    {
-      key: "price",
-      label: "Giá",
-      placeholder: "Giá",
-      options: [
-        { value: "0-2000000", label: "Dưới 2 triệu" },
-        { value: "2000000-5000000", label: "2 - 5 triệu" },
-        { value: "5000000-10000000", label: "5 - 10 triệu" },
-      ],
-    },
-    {
-      key: "brand",
-      label: "Hãng",
-      placeholder: "Hãng",
-      options: [
-        { value: "viewsonic", label: "Viewsonic" },
-        { value: "lg", label: "LG" },
-        { value: "asus", label: "ASUS" },
-      ],
-    },
-    {
-      key: "screenSize",
-      label: "Kích thước",
-      placeholder: "Kích thước",
-      options: [
-        { value: "23.8 inch", label: "23.8 inch" },
-        { value: "24 inch", label: "24 inch" },
-        { value: "27 inch", label: "27 inch" },
-      ],
-    },
-    {
-      key: "resolution",
-      label: "Độ phân giải",
-      placeholder: "Độ phân giải",
-      options: [
-        { value: "full hd", label: "Full HD (1920x1080)" },
-        { value: "2k", label: "2K (2560x1440)" },
-        { value: "4k", label: "4K (3840x2160)" },
-      ],
-    },
-    {
-      key: "panelType",
-      label: "Tấm nền",
-      placeholder: "Tấm nền",
-      options: [
-        { value: "va", label: "VA" },
-        { value: "ips", label: "IPS" },
-        { value: "oled", label: "OLED" },
-      ],
-    },
-    {
-      key: "usage",
-      label: "Nhu cầu sử dụng",
-      placeholder: "Nhu cầu sử dụng",
-      options: [
-        { value: "gaming", label: "Gaming" },
-        { value: "văn phòng", label: "Văn phòng" },
-      ],
-    },
-  ],
-
-  // Bàn phím (CategoryId: 4)
-  "4": [
-    {
-      key: "category",
-      label: "Danh mục",
-      placeholder: "Bộ lọc (Danh mục)",
-      options: [
-        { value: "1", label: "Laptop" },
-        { value: "2", label: "PC" },
-        { value: "3", label: "Màn hình" },
-        { value: "4", label: "Bàn phím" },
-        { value: "5", label: "Chuột" },
-      ],
-    },
-    {
-      key: "price",
-      label: "Giá",
-      placeholder: "Giá",
-      options: [
-        { value: "0-500000", label: "Dưới 500k" },
-        { value: "500000-1000000", label: "500k - 1 triệu" },
-        { value: "1000000-2000000", label: "1 - 2 triệu" },
-        { value: "2000000-5000000", label: "2 - 5 triệu" },
-      ],
-    },
-    {
-      key: "brand",
-      label: "Hãng",
-      placeholder: "Hãng",
-      options: [
-        { value: "corsair", label: "Corsair" },
-        { value: "dare-u", label: "Dare-U" },
-        { value: "filco", label: "Filco" },
-        { value: "keychron", label: "Keychron" },
-        { value: "razer", label: "Razer" },
-        { value: "royal", label: "Royal" },
-        { value: "logitech", label: "Logitech" },
-        { value: "akko", label: "AKKO" },
-      ],
-    },
-    {
-      key: "keyboardType",
-      label: "Loại bàn phím",
-      placeholder: "Loại bàn phím",
-      options: [
-        { value: "low-profile", label: "Low-Profile" },
-        { value: "mechanical", label: "Mechanical" },
-      ],
-    },
-    {
-      key: "layout",
-      label: "Layout",
-      placeholder: "Layout",
-      options: [
-        { value: "75%", label: "75%" },
-        { value: "fullsize", label: "Fullsize" },
-        { value: "tenkeyless", label: "Tenkeyless" },
-      ],
-    },
-    {
-      key: "usage",
-      label: "Nhu cầu sử dụng",
-      placeholder: "Nhu cầu sử dụng",
-      options: [
-        { value: "gaming", label: "Gaming" },
-        { value: "văn phòng", label: "Văn phòng" },
-      ],
-    },
-  ],
-
-  // Chuột (CategoryId: 5)
-  "5": [
-    {
-      key: "category",
-      label: "Danh mục",
-      placeholder: "Bộ lọc (Danh mục)",
-      options: [
-        { value: "1", label: "Laptop" },
-        { value: "2", label: "PC" },
-        { value: "3", label: "Màn hình" },
-        { value: "4", label: "Bàn phím" },
-        { value: "5", label: "Chuột" },
-      ],
-    },
-    {
-      key: "price",
-      label: "Giá",
-      placeholder: "Giá",
-      options: [
-        { value: "0-500000", label: "Dưới 500k" },
-        { value: "500000-1000000", label: "500k - 1 triệu" },
-        { value: "1000000-3000000", label: "1 - 3 triệu" },
-        { value: "2000000-5000000", label: "2 - 5 triệu" },
-      ],
-    },
-    {
-      key: "brand",
-      label: "Hãng",
-      placeholder: "Hãng",
-      options: [
-        { value: "asus", label: "Asus" },
-        { value: "corsair", label: "Corsair" },
-        { value: "dare-u", label: "Dare-U" },
-        { value: "razer", label: "Razer" },
-        { value: "logitech", label: "Logitech" },
-        { value: "viper", label: "Viper" },
-      ],
-    },
-    {
-      key: "dpi",
-      label: "DPI",
-      placeholder: "DPI",
-      options: [
-        { value: "8000", label: "≤ 8.000 DPI" },
-        { value: "16000", label: "≤ 16.000 DPI" },
-        { value: "25000", label: "≤ 25.000 DPI" },
-        { value: "30000", label: "≤ 30.000 DPI" },
-      ],
-    },
-    {
-      key: "usage",
-      label: "Nhu cầu sử dụng",
-      placeholder: "Nhu cầu sử dụng",
-      options: [
-        { value: "gaming", label: "Gaming" },
-        { value: "văn phòng", label: "Văn phòng" },
-      ],
-    },
-  ],
-};
-
-const CollectionsAll = () => {
-  const [products, setProducts] = useState<FrontendProduct[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<FrontendProduct[]>([]);
-  const [visibleCount, setVisibleCount] = useState(5);
-  const [hasMore, setHasMore] = useState(true);
-  const [sortBy, setSortBy] = useState("popular");
   const [isOpen, setIsOpen] = useState(false);
-  const prevCategoryRef = useRef<string>("");
 
-  const [filters, setFilters] = useState<FilterState>({
-    category: "",
-    brand: "",
-    price: "",
-    cpu: "",
-    usage: "",
-    series: "",
-    screenSize: "",
-    ram: "",
-    ssd: "",
-    vga: "",
-    dpi: "",
-    resolution: "",
-    panelType: "",
-    keyboardType: "",
-    layout: "",
-    psu: "",
-  });
+  const {
+    filteredProducts,
+    filters,
+    setFilters,
+    sortBy,
+    setSortBy,
+    visibleCount,
+    hasMore,
+    loadMore,
+    isLoading,
+  } = useCollectionProducts(slug, pathname);
 
+  // ✅ Fallback an toàn: all -> 1 -> []
   const activeCategory = filters.category || "all";
   const activeFilterConfig =
-    CATEGORY_FILTER_CONFIG[activeCategory] ?? CATEGORY_FILTER_CONFIG["all"];
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/products`);
-        const data = await res.json();
-        if (data.success) {
-          const mapped = data.data.map(mapToFrontendProduct);
-          const detailed = await Promise.all(
-            mapped.map(async (p) => {
-              const detailRes = await fetch(
-                `${API_BASE}/api/products?productId=${p.id}&details=true`
-              );
-              const detailData = await detailRes.json();
-              if (detailData.success) {
-                p.specs = detailData.data.specs;
-              }
-              return p;
-            })
-          );
-          setProducts(detailed);
-          setFilteredProducts(detailed);
-        }
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    if (filters.category !== prevCategoryRef.current) {
-      setFilters({
-        category: filters.category,
-        brand: "",
-        price: "",
-        cpu: "",
-        usage: "",
-        series: "",
-        screenSize: "",
-        ram: "",
-        ssd: "",
-        vga: "",
-        dpi: "",
-        resolution: "",
-        panelType: "",
-        keyboardType: "",
-        layout: "",
-        psu: "",
-      });
-      prevCategoryRef.current = filters.category;
-    }
-  }, [filters.category]);
-
-  useEffect(() => {
-    let result = [...products];
-    const {
-      category,
-      brand,
-      cpu,
-      price,
-      usage,
-      series,
-      screenSize,
-      ram,
-      ssd,
-      vga,
-      dpi,
-      resolution,
-      panelType,
-      keyboardType,
-      layout,
-      psu,
-    } = filters;
-
-    if (category) {
-      result = result.filter((p) => {
-        if (p.categoryId !== null && String(p.categoryId) === category) {
-          if (category === "2" && p.name.toLowerCase().includes("laptop")) return false;
-          return true;
-        }
-        let keyword = "";
-        if (category === "1") keyword = "laptop";
-        else if (category === "2") keyword = "pc";
-        else if (category === "3") keyword = "màn hình";
-        else if (category === "4") keyword = "bàn phím";
-        else if (category === "5") keyword = "chuột";
-        return (
-          keyword &&
-          (p.name.toLowerCase().includes(keyword) ||
-            p.description.toLowerCase().includes(keyword))
-        );
-      });
-    }
-
-    if (brand)
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(brand.toLowerCase()) ||
-          p.description.toLowerCase().includes(brand.toLowerCase())
-      );
-
-    if (cpu)
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("cpu") &&
-          s.SpecValue.toLowerCase().includes(cpu.toLowerCase())
-        ) || p.description.toLowerCase().includes(cpu.toLowerCase())
-      );
-
-    if (series)
-      result = result.filter((p) =>
-        p.name.toLowerCase().includes(series.toLowerCase())
-      );
-
-    if (usage)
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(usage.toLowerCase()) ||
-          p.description.toLowerCase().includes(usage.toLowerCase())
-      );
-
-    if (screenSize)
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          (s.SpecName.toLowerCase().includes("màn hình") || s.SpecName.toLowerCase().includes("screen") || s.SpecName.toLowerCase().includes("kích thước")) &&
-          s.SpecValue.toLowerCase().includes(screenSize.toLowerCase())
-        ) || p.description.toLowerCase().includes(screenSize.toLowerCase())
-      );
-
-    if (ram)
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("ram") &&
-          s.SpecValue.toLowerCase().includes(ram.toLowerCase())
-        ) || p.description.toLowerCase().includes(ram.toLowerCase())
-      );
-
-    if (ssd)
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          (s.SpecName.toLowerCase().includes("ssd") || s.SpecName.toLowerCase().includes("ổ cứng")) &&
-          s.SpecValue.toLowerCase().includes(ssd.toLowerCase())
-        ) || p.description.toLowerCase().includes(ssd.toLowerCase())
-      );
-
-    if (vga)
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("vga") &&
-          s.SpecValue.toLowerCase().includes(vga.toLowerCase())
-        ) || p.description.toLowerCase().includes(vga.toLowerCase())
-      );
-
-    const extractMaxDpi = (value: string): number | null => {
-      const cleaned = value.replace(/[.,]/g, "");
-
-      const matches = cleaned.match(/\d+/g);
-      if (!matches) return null;
-
-      const nums = matches.map((n) => parseInt(n, 10));
-      return Math.max(...nums);
-    };
-
-    if (dpi) {
-      const dpiLimit = parseInt(dpi, 10);
-
-      result = result.filter((p) =>
-        p.specs?.some((s) => {
-          const specName = s.SpecName.toLowerCase();
-
-          if (!(specName.includes("độ phân giải") || specName.includes("dpi"))) {
-            return false;
-          }
-
-          const maxDpi = extractMaxDpi(s.SpecValue);
-          if (maxDpi == null) return false;
-
-          return maxDpi <= dpiLimit;
-        })
-      );
-    }
-
-    if (resolution) {
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("độ phân giải") &&
-          s.SpecValue.toLowerCase().includes(resolution.toLowerCase())
-        )
-      );
-    }
-
-    if (panelType) {
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("tấm nền") &&
-          s.SpecValue.toLowerCase().includes(panelType.toLowerCase())
-        )
-      );
-    }
-
-    if (keyboardType) {
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("loại bàn phím") &&
-          s.SpecValue.toLowerCase().includes(keyboardType.toLowerCase())
-        )
-      );
-    }
-
-    if (layout) {
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("layout") &&
-          s.SpecValue.toLowerCase().includes(layout.toLowerCase())
-        )
-      );
-    }
-
-    if (psu) {
-      result = result.filter((p) =>
-        p.specs?.some((s) =>
-          s.SpecName.toLowerCase().includes("psu") &&
-          s.SpecValue.toLowerCase().includes(psu.toLowerCase())
-        )
-      );
-    }
-
-    if (price) {
-      const [min, max] = price.split("-").map(Number);
-      result = result.filter((p) => {
-        const realPrice = p.discountPrice || p.price;
-        return realPrice >= min && (max ? realPrice <= max : true);
-      });
-    }
-
-    if (sortBy === "price-asc") {
-      result.sort(
-        (a, b) =>
-          (a.discountPrice || a.price) - (b.discountPrice || b.price)
-      );
-    } else if (sortBy === "price-desc") {
-      result.sort(
-        (a, b) =>
-          (b.discountPrice || b.price) - (a.discountPrice || a.price)
-      );
-    }
-
-    setFilteredProducts(result);
-    setVisibleCount(5);
-    setHasMore(result.length > 5);
-  }, [filters, sortBy, products]);
-
-  const loadMore = () => {
-    const newCount = visibleCount + 5;
-    setVisibleCount(newCount);
-    setHasMore(newCount < filteredProducts.length);
-  };
+    CATEGORY_FILTER_CONFIG[activeCategory] ||
+    CATEGORY_FILTER_CONFIG["all"] ||
+    CATEGORY_FILTER_CONFIG["1"] ||
+    [];
 
   const handleSortChange = (newValue: string) => {
     setSortBy(newValue);
@@ -840,7 +59,10 @@ const CollectionsAll = () => {
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    setFilters((prev: FilterState) => ({
+      ...prev,
+      [name]: value,
+    }) as FilterState);
   };
 
   const currentLabel =
@@ -848,7 +70,10 @@ const CollectionsAll = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isOpen && !(event.target as HTMLElement).closest(`.${styles.selectWrapper}`)) {
+      if (
+        isOpen &&
+        !(event.target as HTMLElement).closest(`.${styles.selectWrapper}`)
+      ) {
         setIsOpen(false);
       }
     };
@@ -863,6 +88,7 @@ const CollectionsAll = () => {
       <Header />
 
       <main className={styles.mainCollections}>
+        {/* Breadcrumb */}
         <div className={styles.breadcrumbWrap}>
           <ContainerFluid>
             <div className={styles.breadcrumbList}>
@@ -879,105 +105,120 @@ const CollectionsAll = () => {
           </ContainerFluid>
         </div>
 
-        <div className={styles.collectionsContainer}>
-          {/* Filter Bar */}
-          <div className={styles.filterBar}>
-            <section className={styles.filterWrap}>
-              {activeFilterConfig.map((f) => (
-                <select
-                  key={f.key}
-                  name={f.key}
-                  value={filters[f.key]}
-                  onChange={handleFilterChange}
-                  className={styles.filterSelect}
-                >
-                  <option value="">{f.placeholder}</option>
-                  {f.options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              ))}
-            </section>
-
-            <section className={styles.collectionSortby}>
-              <div className={styles.selectWrapper}>
-                <div
-                  className={classNames(styles.listboxButton, "js-sort", {
-                    [styles.active]: isOpen,
-                  })}
-                  onClick={() => setIsOpen(!isOpen)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    version="1.1"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 32 32"
-                    enableBackground="new 0 0 512 512"
+        <ContainerFluid>
+          <div className={styles.collectionsContainer}>
+            {/* Filter + Sort bar */}
+            <div className={styles.filterBar}>
+              <section className={styles.filterWrap}>
+                {activeFilterConfig.map((f) => (
+                  <select
+                    key={f.key}
+                    name={f.key}
+                    value={
+                      typeof filters[f.key] === "string"
+                        ? (filters[f.key] as string)
+                        : ""
+                    }
+                    onChange={handleFilterChange}
+                    className={styles.filterSelect}
                   >
-                    <g>
-                      <path
-                        fill="#111111"
-                        fillRule="nonzero"
-                        d="M9 7v15.584l1.293-1.291 1.414 1.414L8 26.414l-3.707-3.707 1.414-1.414L7 22.584V7zm9 15v2h-5v-2zm3-5v2h-8v-2zm3-5v2H13v-2zm3-5v2H13V7z"
-                      />
-                    </g>
-                  </svg>
-                  <div className={styles.sortbyControl}>
-                    <span className={styles.listboxText}>Xếp theo:</span>
-                    <span className={`${styles.listboxValue} current-sort`}>
-                      {currentLabel}
-                    </span>
-                    <FontAwesomeIcon
-                      icon={faSortDown}
-                      className={styles.dropdownIcon}
-                    />
-                  </div>
-                </div>
-
-                {isOpen && (
-                  <ul className={styles.dropdownMenu}>
-                    {sortOptions.map((opt) => (
-                      <li
-                        key={opt.value}
-                        className={classNames(styles.dropdownItem, {
-                          [styles.selected]: opt.value === sortBy,
-                        })}
-                        onClick={() => {
-                          handleSortChange(opt.value);
-                          setIsOpen(false);
-                        }}
-                      >
+                    <option value="">{f.placeholder}</option>
+                    {f.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
                         {opt.label}
-                      </li>
+                      </option>
                     ))}
-                  </ul>
-                )}
-              </div>
-            </section>
-          </div>
+                  </select>
+                ))}
+              </section>
 
-          {/* Product Grid */}
-          <div className={styles.productGrid}>
-            {filteredProducts.length > 0 ? (
-              filteredProducts.slice(0, visibleCount).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            ) : (
-              <p className={styles.notFoundProduct}>Không tìm thấy sản phẩm nào.</p>
+              <section className={styles.collectionSortby}>
+                <div className={styles.selectWrapper}>
+                  <div
+                    className={classNames(styles.listboxButton, "js-sort", {
+                      [styles.active]: isOpen,
+                    })}
+                    onClick={() => setIsOpen((prev) => !prev)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 32 32"
+                    >
+                      <g>
+                        <path
+                          fill="#111111"
+                          fillRule="nonzero"
+                          d="M9 7v15.584l1.293-1.291 1.414 1.414L8 26.414l-3.707-3.707 1.414-1.414L7 22.584V7zm9 15v2h-5v-2zm3-5v2h-8v-2zm3-5v2H13v-2zm3-5v2H13V7z"
+                        />
+                      </g>
+                    </svg>
+                    <div className={styles.sortbyControl}>
+                      <span className={styles.listboxText}>Xếp theo:</span>
+                      <span
+                        className={`${styles.listboxValue} current-sort`}
+                      >
+                        {currentLabel}
+                      </span>
+                      <FontAwesomeIcon
+                        icon={faSortDown}
+                        className={styles.dropdownIcon}
+                      />
+                    </div>
+                  </div>
+
+                  {isOpen && (
+                    <ul className={styles.dropdownMenu}>
+                      {sortOptions.map((opt) => (
+                        <li
+                          key={opt.value}
+                          className={classNames(styles.dropdownItem, {
+                            [styles.selected]: opt.value === sortBy,
+                          })}
+                          onClick={() => {
+                            handleSortChange(opt.value);
+                            setIsOpen(false);
+                          }}
+                        >
+                          {opt.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            {/* Product Grid */}
+            <div className={styles.productGrid}>
+              {isLoading ? (
+                Array.from({ length: 10 }).map((_, idx) => (
+                  <ProductCardSkeleton key={idx} />
+                ))
+              ) : filteredProducts.length > 0 ? (
+                filteredProducts.slice(0, visibleCount).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
+              ) : (
+                <p className={styles.notFoundProduct}>
+                  Không tìm thấy sản phẩm nào.
+                </p>
+              )}
+            </div>
+
+            {!isLoading && hasMore && filteredProducts.length > 0 && (
+              <div className={styles.loadMoreContainer}>
+                <button
+                  className={styles.loadMoreButton}
+                  onClick={loadMore}
+                >
+                  Xem thêm sản phẩm
+                </button>
+              </div>
             )}
           </div>
-
-          {hasMore && filteredProducts.length > 0 && (
-            <div className={styles.loadMoreContainer}>
-              <button className={styles.loadMoreButton} onClick={loadMore}>
-                Xem thêm sản phẩm
-              </button>
-            </div>
-          )}
-        </div>
+        </ContainerFluid>
       </main>
 
       <RecentView />
@@ -987,4 +228,4 @@ const CollectionsAll = () => {
   );
 };
 
-export default CollectionsAll;
+export default CollectionsAllPage;
