@@ -8,7 +8,15 @@ export default function LoginPage() {
   const [username, setUser] = useState("");
   const [password, setPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const otpRefs = [
+    useState(null)[0],
+    useState(null)[0],
+    useState(null)[0],
+    useState(null)[0],
+    useState(null)[0],
+    useState(null)[0]
+  ];
   const [serverOtp, setServerOtp] = useState("");
   const [otpExpireTime, setOtpExpireTime] = useState(0);
   const [error, setError] = useState("");
@@ -17,7 +25,7 @@ export default function LoginPage() {
   const [shake, setShake] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockUntil, setLockUntil] = useState(null);
-  const [lockRemaining, setLockRemaining] = useState(0); // ⏱ Thời gian còn lại
+  const [lockRemaining, setLockRemaining] = useState(0);
   const [lastOtpTime, setLastOtpTime] = useState(0);
   const router = useRouter();
 
@@ -53,7 +61,7 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [lockUntil]);
 
-  //  Gửi OTP (giới hạn 1 phút/lần)
+  // 📧 Gửi OTP (giới hạn 1 phút/lần)
   const sendOtp = async () => {
     const now = Date.now();
     if (now - lastOtpTime < 60000) {
@@ -78,23 +86,23 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success) {
-        alert(" Mã OTP đã được gửi đến email admin!");
+        alert("✅ Mã OTP đã được gửi đến email admin!");
         setStep(2);
       } else {
-        setError("Gửi mail thất bại: " + data.error);
+        setError("❌ Gửi mail thất bại: " + data.error);
       }
     } catch (err) {
       setError("❌ Lỗi kết nối tới server!");
     }
   };
 
-  //  Xử lý đăng nhập bước 1
+  // 🔐 Xử lý đăng nhập bước 1
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
     if (lockUntil && Date.now() < lockUntil) {
-      return; // đang khóa thì không xử lý
+      return;
     }
 
     setSubmitting(true);
@@ -110,16 +118,13 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (data.success) {
-        // Lưu thông tin user vào sessionStorage
         sessionStorage.setItem('user', JSON.stringify(data.data));
         if (data.data.role === 'Admin') {
-          // Gửi OTP cho admin
           sendOtp();
         } else {
-          // Staff: đăng nhập thành công luôn
           Cookies.set("isLoggedIn", "true", { path: "/" });
           sessionStorage.setItem("isLoggedIn", "true");
-          alert(" Đăng nhập thành công!");
+          alert("✅ Đăng nhập thành công!");
           localStorage.removeItem("lockUntil");
           router.push("/admin/dashboard");
         }
@@ -145,21 +150,58 @@ export default function LoginPage() {
     }
   };
 
-  //  Xử lý xác minh OTP
+  // Xử lý nhập OTP từng ô
+  const handleOtpChange = (index, value) => {
+    // Chỉ cho phép số
+    if (value && !/^\d$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto focus ô tiếp theo
+    if (value && index < 5) {
+      const nextInput = document.querySelector(`input[name="otp-${index + 1}"]`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  // Xử lý phím Backspace
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const prevInput = document.querySelector(`input[name="otp-${index - 1}"]`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  // Xử lý paste OTP
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").slice(0, 6);
+    if (!/^\d+$/.test(pastedData)) return;
+
+    const newOtp = pastedData.split("").concat(Array(6).fill("")).slice(0, 6);
+    setOtp(newOtp);
+
+    // Focus ô cuối cùng có giá trị
+    const lastIndex = Math.min(pastedData.length, 5);
+    const lastInput = document.querySelector(`input[name="otp-${lastIndex}"]`);
+    if (lastInput) lastInput.focus();
+  };
+
+  // ✅ Xử lý xác minh OTP
   const handleVerify = (e) => {
     e.preventDefault();
 
     if (Date.now() > otpExpireTime) {
-      setError("Mã OTP đã hết hạn, vui lòng yêu cầu mã mới!");
+      setError("⏱️ Mã OTP đã hết hạn, vui lòng yêu cầu mã mới!");
       return;
     }
 
-    if (otp.trim() === serverOtp) {
+    if (otp.join("").trim() === serverOtp) {
       Cookies.set("isLoggedIn", "true", { path: "/" });
       sessionStorage.setItem("isLoggedIn", "true");
-      // User info đã được lưu từ bước login API
-
-      alert(" Đăng nhập thành công!");
+      alert("✅ Đăng nhập thành công!");
       localStorage.removeItem("lockUntil");
       router.push("/admin/dashboard");
     } else {
@@ -171,62 +213,76 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      <form
-        onSubmit={step === 1 ? handleLogin : handleVerify}
-        className={`login-box ${shake ? "shake" : ""}`}
-      >
-        <h2>Đăng nhập quản trị</h2>
+      <div className={`login-box ${shake ? "shake" : ""}`}>
+        {/* Logo */}
+        <img 
+          src="/images/logo.png" 
+          alt="GTN Logo"
+        />
 
+        {/* Title */}
+        <h2>Admin Portal</h2>
+        <p>Đăng nhập vào hệ thống quản trị</p>
+
+        {/* Error Message */}
         {error && (
           <div className="error-box">
             {error}
           </div>
         )}
 
+        {/* STEP 1: Login Form */}
         {step === 1 && (
           <>
             <div className="input-group">
+              <label>Email</label>
               <input
-                type="text"
-                placeholder="Tên đăng nhập"
+                type="email"
+                placeholder="admin@example.com"
                 value={username}
                 onChange={(e) => setUser(e.target.value)}
                 disabled={!!lockUntil}
               />
             </div>
 
-            <div className="input-group" style={{ position: 'relative' }}>
+            <div className="input-group">
+              <label>Mật khẩu</label>
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Mật khẩu"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPass(e.target.value)}
                 disabled={!!lockUntil}
-                style={{ paddingRight: '38px' }}
               />
               <span
                 onClick={() => setShowPassword((v) => !v)}
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  cursor: 'pointer',
-                  color: '#888',
-                  fontSize: '1.2em',
-                  userSelect: 'none',
-                }}
                 aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               >
                 {showPassword ? (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-5 0-9.27-3.11-10.74-7.5a10.05 10.05 0 0 1 2.54-3.73"/><path d="M1 1l22 22"/><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c.96 0 1.84-.36 2.5-.95"/><path d="M14.47 14.47A3.5 3.5 0 0 0 12 8.5c-.96 0-1.84.36-2.5.95"/></svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.06 10.06 0 0 1 12 19c-5 0-9.27-3.11-10.74-7.5a10.05 10.05 0 0 1 2.54-3.73"/>
+                    <path d="M1 1l22 22"/>
+                    <path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c.96 0 1.84-.36 2.5-.95"/>
+                    <path d="M14.47 14.47A3.5 3.5 0 0 0 12 8.5c-.96 0-1.84.36-2.5.95"/>
+                  </svg>
                 ) : (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.61 7 4.5 12 4.5s9.27 3.11 10.74 7.5C21.27 16.39 17 19.5 12 19.5S2.73 16.39 1 12z"/><circle cx="12" cy="12" r="3.5"/></svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12C2.73 7.61 7 4.5 12 4.5s9.27 3.11 10.74 7.5C21.27 16.39 17 19.5 12 19.5S2.73 16.39 1 12z"/>
+                    <circle cx="12" cy="12" r="3.5"/>
+                  </svg>
                 )}
               </span>
             </div>
 
-            <button type="submit" disabled={isSubmitting || !!lockUntil}>
+            <div className="remember-row">
+              <label className="remember-label">
+                <input type="checkbox" />
+                <span>Ghi nhớ đăng nhập</span>
+              </label>
+              <a href="#" className="forgot-link">Quên mật khẩu?</a>
+            </div>
+
+            <button onClick={handleLogin} disabled={isSubmitting || !!lockUntil}>
               {isSubmitting
                 ? "Đang xác thực..."
                 : lockUntil
@@ -236,44 +292,49 @@ export default function LoginPage() {
           </>
         )}
 
+        {/* STEP 2: OTP Verification */}
         {step === 2 && (
           <>
-            <p>Nhập mã OTP được gửi đến email admin</p>
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="Nhập mã OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
+            <p style={{ marginBottom: '25px', fontSize: '14px', color: '#64748b' }}>
+              Nhập mã OTP được gửi đến email admin
+            </p>
+
+            <div className="otp-container">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  name={`otp-${index}`}
+                  className="otp-input"
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                  onPaste={index === 0 ? handleOtpPaste : undefined}
+                  maxLength={1}
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+              ))}
             </div>
-            <button type="submit">Xác nhận OTP</button>
-            {error && error.includes('Mã OTP đã hết hạn') && (
+
+            <button onClick={handleVerify}>Xác nhận OTP</button>
+
+            {error && error.includes('hết hạn') && (
               <button
                 type="button"
-                style={{
-                  marginTop: 12,
-                  background: '#fff',
-                  color: '#d90429',
-                  border: '1px solid #d90429',
-                  borderRadius: 6,
-                  padding: '6px 16px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  transition: 'background 0.2s',
-                  display: 'block',
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                }}
                 onClick={sendOtp}
               >
-                Gửi lại mã OTP
+                📧 Gửi lại mã OTP
               </button>
             )}
           </>
         )}
-      </form>
+
+        {/* Footer */}
+        <div style={{ color: '#fda4af', fontSize: '13px', marginTop: '25px', fontWeight: 500 }}>
+           Bảo mật bởi SSL Encryption
+        </div>
+      </div>
     </div>
   );
 }

@@ -54,7 +54,7 @@ export function buildClientUrl(path: string) {
 export async function calculateGHNShippingFee({toAddress, weight = 5000, length = 20, width = 20, height = 20}) {
   const GHN_TOKEN = '3af78b24-ce07-11f0-9ca3-9e851f00bd99';
   const SHOP_ID = '6142292';
-  // Shop address (cố định, cần chỉnh đúng nếu thay đổi)
+  // Shop address 
   const fromDistrictId = 1616; // Quận 1, TP.HCM
   const fromWardCode = '20313'; // Phường Bến Nghé
 
