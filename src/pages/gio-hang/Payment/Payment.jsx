@@ -89,7 +89,7 @@ export default function Payment() {
           localStorage.removeItem('orderInfo');
           localStorage.removeItem('cartSelectedUniqueIds');
           alert('Thanh toán MoMo thành công!');
-          router.replace(`/hoan-tat?orderId=${realOrderId}&paid=1`);
+          router.replace(`/hoan-tat?orderId=${realOrderId}&paid=1&refresh=true`);
         }
       };
 
@@ -235,7 +235,7 @@ export default function Payment() {
         localStorage.removeItem('orderInfo');
         localStorage.removeItem('cartSelectedUniqueIds');
         alert(`Đặt hàng thành công! Mã đơn: #${orderId}`);
-        router.push(`/hoan-tat?orderId=${orderId}`);
+        router.push(`/hoan-tat?orderId=${orderId}&refresh=true`);
       }
     } catch (err) {
       alert('Lỗi: ' + err.message);

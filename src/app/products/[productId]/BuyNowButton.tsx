@@ -147,7 +147,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
         if (data.data?.StatusId === 2) {
           clearInterval(interval);
           alert('Thanh toán MoMo thành công!');
-          router.replace(`/hoan-tat?orderId=${currentOrderId}&paid=1`);
+          router.replace(`/hoan-tat?orderId=${currentOrderId}&paid=1&refresh=true`);
         }
       } catch (e) { }
     }, 3000);
@@ -216,7 +216,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
       }
 
       // COD
-      router.push(`/hoan-tat?orderId=${orderId}`);
+      router.push(`/hoan-tat?orderId=${orderId}&refresh=true`);
     } catch (err: any) {
       alert(err.message);
     } finally {

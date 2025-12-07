@@ -87,7 +87,6 @@ export default function DonHangDetailPage() {
         if (!res.ok) throw new Error(`Lỗi ${res.status}`);
         const data = await res.json();
         if (!data.success) throw new Error(data.message || "Không tìm thấy đơn hàng");
-
         setOrder(data.data);
       } catch (err) {
         setError(err.message);
@@ -102,9 +101,8 @@ export default function DonHangDetailPage() {
   // === HỦY ĐƠN HÀNG ===
   const handleCancelOrder = async () => {
     if (cancelling) return;
-
-    const confirm = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?");
-    if (!confirm) return;
+    const userConfirmed = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?");
+    if (!userConfirmed) return;
 
     setCancelling(true);
     try {
@@ -117,25 +115,28 @@ export default function DonHangDetailPage() {
         body: JSON.stringify({ orderId: Number(orderId) }),
       });
 
-      const result = await res.json();
-
-      if (!res.ok || !result.success) {
-        throw new Error(result.message || "Hủy đơn thất bại");
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Hủy đơn thất bại");
       }
 
-      // Cập nhật trạng thái đơn hàng
-      setOrder({
-        ...order,
-        orderInfo: { ...order.orderInfo, StatusName: 'Cancelled' }
+      const refreshRes = await fetch(`/api/orders/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
       });
+      const freshData = await refreshRes.json();
+      if (freshData.success) {
+        setOrder(freshData.data);
+      }
 
       alert("Đơn hàng đã được hủy thành công!");
     } catch (err) {
-      alert("Lỗi: " + err.message);
+      alert("Lỗi: " + (err.message || "Hủy đơn hàng thất bại"));
     } finally {
       setCancelling(false);
     }
   };
+
 
   if (loading) return <div className={styles.loading}>Đang tải...</div>;
   if (error) return <div className={styles.error}>Lỗi: {error}</div>;
