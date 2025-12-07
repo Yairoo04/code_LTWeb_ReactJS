@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import styles from './DonHangPage.module.scss';
 import { getAuth } from '../../../lib/auth';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 const STATUS_MAP = {
   Pending: "Chờ xử lý",
