@@ -27,10 +27,16 @@
 
       .breadcrumbArrow {
         display: flex;
+        align-items: center;
         flex-wrap: wrap;
         list-style: none;
         margin: 0;
         padding: 0;
+
+        .icon {
+          color: #2563eb;
+          margin-right: 4px;
+        }
 
         li {
           color: #6D6E72;
