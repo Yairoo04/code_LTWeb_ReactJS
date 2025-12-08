@@ -630,6 +630,361 @@
   }
 }
 
+.reviews {
+  margin-top: 32px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.reviewsSummary {
+  border-right: 1px solid #eee;
+  padding-right: 24px;
+}
+
+.reviewsSummaryMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.reviewsAverage {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.reviewsStars {
+  display: flex;
+  gap: 4px;
+  font-size: 18px;
+  color: #e30019;
+}
+
+.reviewsCount {
+  font-size: 14px;
+  color: #666;
+}
+
+.reviewsStarRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.reviewsBar {
+  flex: 1;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.reviewsBarInner {
+  height: 100%;
+  background: #ffce3d;
+}
+
+.reviewsForm {
+  margin-bottom: 16px;
+}
+
+.reviewsFormStars {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.reviewsFormStars button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.reviewsTextarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  resize: vertical;
+  font-size: 14px;
+}
+
+.reviewsSubmit {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #e30019;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reviewItem {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.reviewAuthor {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.reviewDate {
+  font-size: 12px;
+  color: #999;
+}
+
+.reviewStars {
+  display: flex;
+  gap: 4px;
+  font-size: 14px;
+  color: rgb(243, 206, 96);
+}
+
+.reviewComment {
+  margin: 10px 0px;
+  font-size: 16px;
+  white-space: pre-wrap;
+}
+
+
+.reviewsImageUpload {
+  margin-top: 12px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px dashed #d0d7de;
+  background: #fafbff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+
+    &::before {
+      font-size: 16px;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 400;
+      color: #777;
+    }
+  }
+
+  input[type="file"] {
+    width: 100%;
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      border-color: #e30019;
+      box-shadow: 0 0 0 1px rgba(227, 0, 25, 0.08);
+      background: #fff7f8;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #e30019;
+      box-shadow: 0 0 0 2px rgba(227, 0, 25, 0.15);
+    }
+
+    &::file-selector-button {
+      margin-right: 10px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #e30019;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+      &:hover {
+        background: #c10015;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.imagePreviews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.imagePreviewItem {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f5f7fb, #e9edf7);
+  border: 1px solid #e1e4e8;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.16);
+
+    .removeButton {
+      opacity: 1;
+      transform: translate(2px, -2px);
+    }
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.25), transparent);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+  }
+
+  .removeButton {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #e30019;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(227, 0, 25, 0.45);
+    opacity: 0;
+    transform: translate(4px, -4px);
+    transition: opacity 0.18s ease, transform 0.18s ease, background 0.15s ease;
+
+    &:hover {
+      background: #c10015;
+    }
+  }
+}
+
+.reviewImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+    background: #f5f5f5;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+    &:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.16);
+    }
+  }
+}
+
+.reviewAlert {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #f5c2c7;
+  background: #fff5f5;
+  font-size: 13px;
+  color: #b02a37;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reviewAlertText {
+  flex: 1 1 auto;
+  line-height: 1.4;
+}
+
+.reviewAlertButton {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #e30019; // màu nút có thể chỉnh theo theme
+  color: #fff;
+  white-space: nowrap;
+}
+
+.reviewAlertButton:hover {
+  opacity: 0.9;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -667,7 +1022,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 16px; 
+  padding: 13px 16px;
   border: 2px solid transparent;
   border-radius: 16px;
   background: #fcfcfc;
@@ -692,7 +1047,7 @@
     flex-shrink: 0;
     position: relative;
 
-  
+
     &::before {
       content: "";
       position: absolute;
@@ -733,7 +1088,7 @@
     font-weight: 600;
     color: #333;
     line-height: 1.3;
-    margin-left: 2px; 
+    margin-left: 2px;
   }
 
   .check {
@@ -755,5 +1110,796 @@
   &:hover:not(.selected):not(:has(input:checked)) {
     border-color: #ff9a6e;
     background: #fffaf7;
+  }
+}
+
+// Media queries cho tất cả các phần
+@media (max-width: 1024px) {
+  .productDetailPage {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .productHeader {
+    padding: 16px;
+    margin-bottom: 32px;
+
+    .productInfo {
+      padding-left: 24px;
+    }
+
+    .actions {
+      flex-wrap: wrap;
+      gap: 12px;
+
+      button {
+        flex: 1;
+        min-width: 140px;
+      }
+    }
+  }
+
+  .specs,
+  .description,
+  .related,
+  .reviews,
+  .viewed {
+    padding: 24px;
+    margin-top: 32px;
+  }
+
+  .specsTable {
+    font-size: 14px;
+
+    th,
+    td {
+      padding: 6px;
+    }
+  }
+
+  .related,
+  .viewed {
+    .carousel {
+      .productCard {
+        flex: 0 0 180px;
+      }
+    }
+  }
+
+  .reviews {
+    grid-template-columns: 1fr;
+    gap: 16px;
+
+    .reviewsSummary {
+      border-right: none;
+      padding-right: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 16px;
+    }
+  }
+
+  .quantityWrapper {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .quantityControls {
+    gap: 16px;
+  }
+
+  .confirmButton {
+    font-size: 18px;
+    padding: 18px;
+  }
+
+  .paymentOption {
+    padding: 12px 14px;
+    gap: 10px;
+
+    .paymentIcon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .label {
+      font-size: 14px;
+    }
+  }
+
+  .modalContent {
+    width: 90%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .productDetailPage {
+    padding: 0 12px;
+  }
+
+  .breadcrumbWrap {
+    padding: 10px 0;
+
+    .breadcrumbList {
+      font-size: 12px;
+    }
+  }
+
+  .productHeader {
+    flex-direction: column;
+    padding: 12px;
+    margin-bottom: 24px;
+
+    .productImages {
+      max-width: 100%;
+      margin-bottom: 16px;
+
+      .mainImageContainer {
+        .mainImage {
+          max-height: 400px;
+        }
+
+        .imageNav {
+          width: 32px;
+          height: 32px;
+          font-size: 20px;
+        }
+      }
+
+      .thumbnailsContainer {
+        .thumbnail {
+          width: 60px;
+          height: 60px;
+        }
+      }
+
+      .dotsContainer {
+        .dot {
+          width: 8px;
+          height: 8px;
+
+          &.active {
+            width: 10px;
+            height: 10px;
+          }
+        }
+      }
+    }
+
+    .productInfo {
+      max-width: 100%;
+      padding-left: 0;
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .price {
+        span {
+          font-size: 20px;
+        }
+
+        del {
+          font-size: 16px;
+        }
+      }
+
+      .actions {
+        flex-direction: column;
+        gap: 12px;
+
+        button {
+          width: 100%;
+          padding: 12px;
+          font-size: 15px;
+        }
+      }
+
+      .promotions,
+      .showrooms {
+        h3 {
+          font-size: 16px;
+        }
+
+        ul {
+          padding-left: 16px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .specs,
+  .description,
+  .related,
+  .reviews,
+  .viewed {
+    padding: 20px;
+    margin-top: 24px;
+
+    h2 {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .specsTable {
+    font-size: 13px;
+
+    th,
+    td {
+      padding: 4px;
+    }
+  }
+
+  .related,
+  .viewed {
+    .carousel {
+      .productCard {
+        flex: 0 0 150px;
+        margin-right: 12px;
+
+        p {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  .readMoreButton {
+    font-size: 15px;
+    padding: 8px 16px;
+  }
+
+  .modalOverlay {
+    align-items: flex-end;
+  }
+
+  .modalContent {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 8px 8px 0 0;
+    padding: 16px;
+  }
+
+  .inputField,
+  .textareaField {
+    padding: 14px 16px;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .quantitySection {
+    margin: 6px 0 10px;
+  }
+
+  .quantityWrapper {
+    padding: 14px 24px;
+    border-radius: 14px;
+  }
+
+  .quantityLabel {
+    font-size: 16px;
+  }
+
+  .quantityBtn {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .quantityValue {
+    font-size: 18px;
+    min-width: 60px;
+  }
+
+  .stockWarning {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .confirmButton {
+    font-size: 17px;
+    padding: 18px;
+    letter-spacing: 1.5px;
+    margin-top: 24px;
+  }
+
+  .reviews {
+    padding: 16px;
+    gap: 16px;
+
+    .reviewsSummaryMain {
+      gap: 8px;
+    }
+
+    .reviewsAverage {
+      font-size: 28px;
+    }
+
+    .reviewsStars {
+      font-size: 16px;
+    }
+
+    .reviewsCount {
+      font-size: 13px;
+    }
+
+    .reviewsStarRow {
+      font-size: 13px;
+      gap: 6px;
+    }
+
+    .reviewsBar {
+      height: 5px;
+    }
+  }
+
+  .reviewsFormStars {
+    font-size: 18px;
+    gap: 6px;
+  }
+
+  .reviewsTextarea {
+    font-size: 13px;
+    min-height: 70px;
+  }
+
+  .reviewsSubmit {
+    font-size: 14px;
+    padding: 7px 14px;
+  }
+
+  .reviewsList {
+    gap: 10px;
+  }
+
+  .reviewItem {
+    padding: 10px 0;
+  }
+
+  .reviewAuthor {
+    font-size: 13px;
+  }
+
+  .reviewDate {
+    font-size: 11px;
+  }
+
+  .reviewStars {
+    font-size: 13px;
+  }
+
+  .reviewComment {
+    font-size: 13px;
+  }
+
+  .reviewsImageUpload {
+    label {
+      font-size: 13px;
+    }
+
+    input[type="file"] {
+      font-size: 13px;
+    }
+  }
+
+  .imagePreviewItem {
+    width: 70px;
+    height: 70px;
+
+    button {
+      width: 18px;
+      height: 18px;
+      font-size: 11px;
+    }
+  }
+
+  .reviewImages {
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  .paymentSection .sectionTitle {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .paymentOption {
+    padding: 11px 14px;
+    gap: 10px;
+
+    input[type="radio"] {
+      width: 18px;
+      height: 18px;
+
+      &::before {
+        inset: 2.5px;
+      }
+    }
+
+    .paymentIcon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .label {
+      font-size: 14px;
+    }
+
+    .check {
+      font-size: 18px;
+      top: 6px;
+      right: 10px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .productDetailPage {
+    padding: 0 8px;
+  }
+
+  .breadcrumbWrap {
+    padding: 8px 0;
+
+    .breadcrumbList {
+      font-size: 11px;
+    }
+
+    .breadcrumbArrow li:not(:last-child)::after {
+      margin: 0 6px;
+    }
+  }
+
+  .productHeader {
+    padding: 8px;
+    margin-bottom: 16px;
+
+    .productImages {
+      .mainImageContainer {
+        .mainImage {
+          max-height: 300px;
+        }
+
+        .imageNav {
+          width: 28px;
+          height: 28px;
+          font-size: 18px;
+
+          &.imagePrev {
+            left: 5px;
+          }
+
+          &.imageNext {
+            right: 5px;
+          }
+        }
+      }
+
+      .thumbnailsContainer {
+        gap: 6px;
+
+        .thumbnail {
+          width: 50px;
+          height: 50px;
+        }
+      }
+
+      .dotsContainer {
+        gap: 6px;
+
+        .dot {
+          width: 7px;
+          height: 7px;
+
+          &.active {
+            width: 9px;
+            height: 9px;
+          }
+        }
+      }
+    }
+
+    .productInfo {
+      h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+
+      .price {
+        margin-top: 12px;
+        margin-bottom: 16px;
+
+        span {
+          font-size: 18px;
+        }
+
+        del {
+          font-size: 14px;
+        }
+      }
+
+      .actions {
+        gap: 10px;
+
+        button {
+          font-size: 14px;
+          padding: 10px;
+        }
+      }
+
+      .promotions,
+      .showrooms {
+        margin-top: 16px;
+
+        h3 {
+          font-size: 15px;
+        }
+
+        ul {
+          padding-left: 14px;
+          font-size: 13px;
+
+          li {
+            margin-bottom: 6px;
+          }
+        }
+      }
+    }
+  }
+
+  .specs,
+  .description,
+  .related,
+  .reviews,
+  .viewed {
+    padding: 16px;
+    margin-top: 16px;
+
+    h2 {
+      font-size: 18px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+  }
+
+  .specsTable {
+    font-size: 12px;
+
+    th,
+    td {
+      padding: 4px;
+      word-break: break-word;
+    }
+  }
+
+  .related,
+  .viewed {
+    .carousel {
+      .productCard {
+        flex: 0 0 120px;
+        margin-right: 10px;
+
+        p {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .readMoreButton {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  .modalContent {
+    padding: 12px;
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    input {
+      font-size: 14px;
+      padding: 6px;
+    }
+
+    .confirmBtn {
+      padding: 8px 16px;
+      font-size: 15px;
+    }
+
+    .closeBtn {
+      font-size: 18px;
+      top: 8px;
+      right: 8px;
+    }
+  }
+
+  .inputField,
+  .textareaField {
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .textareaField {
+    min-height: 90px;
+  }
+
+  .quantityWrapper {
+    padding: 12px 20px;
+    border-radius: 12px;
+  }
+
+  .quantityLabel {
+    font-size: 15px;
+  }
+
+  .quantityControls {
+    gap: 14px;
+  }
+
+  .quantityBtn {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+
+  .quantityValue {
+    font-size: 17px;
+    min-width: 50px;
+  }
+
+  .stockWarning {
+    font-size: 13px;
+  }
+
+  .confirmButton {
+    font-size: 16px;
+    padding: 16px;
+    letter-spacing: 1.2px;
+    margin-top: 20px;
+  }
+
+  .reviews {
+    padding: 12px;
+    gap: 12px;
+
+    .reviewsSummaryMain {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .reviewsAverage {
+      font-size: 24px;
+    }
+
+    .reviewsStars {
+      font-size: 14px;
+    }
+
+    .reviewsCount {
+      font-size: 12px;
+    }
+
+    .reviewsStarRow {
+      font-size: 12px;
+      gap: 4px;
+    }
+
+    .reviewsBar {
+      height: 4px;
+    }
+  }
+
+  .reviewsForm {
+    h3 {
+      font-size: 18px;
+    }
+  }
+
+  .reviewsFormStars {
+    font-size: 16px;
+    gap: 4px;
+  }
+
+  .reviewsTextarea {
+    font-size: 12px;
+    min-height: 60px;
+  }
+
+  .reviewsSubmit {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .reviewAuthor {
+    font-size: 12px;
+  }
+
+  .reviewDate {
+    font-size: 10px;
+  }
+
+  .reviewStars {
+    font-size: 12px;
+  }
+
+  .reviewComment {
+    font-size: 12px;
+  }
+
+  .reviewsImageUpload {
+    label {
+      font-size: 12px;
+    }
+
+    input[type="file"] {
+      font-size: 12px;
+    }
+  }
+
+  .imagePreviewItem {
+    width: 60px;
+    height: 60px;
+
+    button {
+      width: 16px;
+      height: 16px;
+      font-size: 10px;
+    }
+  }
+
+  .reviewImages {
+    img {
+      width: 70px;
+      height: 70px;
+    }
+  }
+
+  .paymentSection .sectionTitle {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .paymentOption {
+    padding: 10px 12px;
+    gap: 8px;
+
+    input[type="radio"] {
+      width: 16px;
+      height: 16px;
+
+      &::before {
+        inset: 2px;
+      }
+    }
+
+    .paymentIcon {
+      width: 28px;
+      height: 28px;
+    }
+
+    .label {
+      font-size: 13px;
+    }
+
+    .check {
+      font-size: 16px;
+      top: 4px;
+      right: 8px;
+    }
   }
 }
