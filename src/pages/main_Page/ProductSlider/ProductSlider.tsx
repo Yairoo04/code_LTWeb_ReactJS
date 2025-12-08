@@ -20,6 +20,8 @@ type FrontendProduct = {
   stock: number;
   image_url: string;
   created_at: string;
+  totalReviews?: number;
+  averageRating?: number;
 };
 
 type ProductSliderProps = {
@@ -44,6 +46,8 @@ function mapToFrontendProduct(backendProduct: BackendProduct): FrontendProduct {
     stock: backendProduct.Stock,
     image_url: backendProduct.ImageUrl,
     created_at: backendProduct.CreatedAt,
+    totalReviews: (backendProduct as any).totalReviews ?? 0,
+    averageRating: (backendProduct as any).averageRating ?? 0,
   };
 }
 

@@ -38,6 +38,8 @@ const mapToFrontendProduct = (apiProduct: ApiProduct): FrontendProduct => ({
   categoryId: apiProduct.CategoryId,
   image_url: apiProduct.ImageUrl,
   stock: apiProduct.Stock,
+  totalReviews: (apiProduct as any).totalReviews ?? 0,
+  averageRating: (apiProduct as any).averageRating ?? 0,
 });
 
 export const useCollectionProducts = (slug: string, pathname: string) => {

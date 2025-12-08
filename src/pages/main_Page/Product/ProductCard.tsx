@@ -72,6 +72,10 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
     }
   };
 
+  // Lấy số lượng đánh giá và điểm trung bình từ product nếu có
+  const averageRating = (product as any).averageRating ?? 0;
+  const totalReviews = (product as any).totalReviews ?? 0;
+
   return (
     <div className={styles['product-card']} onClick={handleClick} style={{ cursor: 'pointer' }}>
       <img
@@ -99,7 +103,9 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
             )}
           </div>
         </div>
-        <div className={styles['product-rating']}>0.0 (0 đánh giá)</div>
+        <div className={styles['product-rating']}>
+          {averageRating.toFixed(1)} ({totalReviews} đánh giá)
+        </div>
         <div className={`${styles['product-stock']} ${inStock ? styles.in : styles.out}`}>
           {inStock ? 'Còn hàng' : 'Hết hàng'}
         </div>
