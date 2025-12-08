@@ -9,6 +9,7 @@ import Footer from "@/components/Footer/Footer.jsx";
 import ContainerFluid from '@/pages/main_Page/ContainerFluid/container-fluid';
 import RecentView from '@/pages/main_Page/RecentViewProducts/RecentView';
 import SectionCollection from '@/pages/main_Page/sectionCollection/SectionCollection';
+import ProductReviews from './ProductReviews';
 
 import SpecsTable from './SpecsTable';
 import ProductImageGallery from './ProductImageGallery';
@@ -146,10 +147,7 @@ export default async function ProductDetailPage({
           ) : null}
         </section>
 
-        <section className={styles.reviews}>
-          <h2>Đánh giá từ khách hàng</h2>
-          <p>Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
-        </section>
+        <ProductReviews productId={productId} />
       </main>
 
       <RecentView />
