@@ -216,7 +216,7 @@ export default function LoginPage() {
       <div className={`login-box ${shake ? "shake" : ""}`}>
         {/* Logo */}
         <img 
-          src="/images/logo.png" 
+          src="/images/logo1.jpg" 
           alt="GTN Logo"
         />
 
