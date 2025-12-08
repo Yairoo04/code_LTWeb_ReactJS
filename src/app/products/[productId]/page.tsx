@@ -13,7 +13,7 @@ import ProductReviews from './ProductReviews';
 
 import SpecsTable from './SpecsTable';
 import ProductImageGallery from './ProductImageGallery';
-import ProductActions from './ProductActions'; // ← Import component client mới tạo
+import ProductActions from './ProductActions';
 
 async function fetchProduct(productId: string) {
   const apiUrl = process.env.NODE_ENV === 'production' 
@@ -42,6 +42,100 @@ function parseImages(imageUrl?: string): string[] {
   }
 }
 
+type ProductType = 'pc' | 'laptop' | 'mouse' | 'keyboard' | 'monitor';
+
+type ProductForType = {
+  Name?: string;
+  Description?: string | null;
+  CategoryId?: number | null;  
+};
+
+const CATEGORY_TYPE_BY_ID: Record<number, ProductType> = {
+  // 1: 'pc',
+  // 2: 'laptop',
+  // 3: 'mouse',
+  // 4: 'keyboard',
+  // 5: 'monitor',
+};
+
+function classifyProductType(product: ProductForType): ProductType | null {
+  const name = (product.Name ?? '').toLowerCase();
+  const desc = (product.Description ?? '').toLowerCase();
+
+  if (product.CategoryId != null) {
+    const t = CATEGORY_TYPE_BY_ID[product.CategoryId];
+    if (t) return t;
+  }
+
+  if (name.includes('pc') || desc.includes('pc') || name.includes('desktop') || desc.includes('desktop')) {
+    return 'pc';
+  }
+
+  if (name.includes('laptop') || desc.includes('laptop') || name.includes('notebook') || desc.includes('notebook')) {
+    return 'laptop';
+  }
+
+  if (
+    name.includes('chuột') || desc.includes('chuột') ||
+    name.includes('chuot') || desc.includes('chuot') ||
+    name.includes('mouse') || desc.includes('mouse')
+  ) {
+    return 'mouse';
+  }
+
+  if (
+    name.includes('bàn phím') || desc.includes('bàn phím') ||
+    name.includes('ban phim') || desc.includes('ban phim') ||
+    name.includes('keyboard') || desc.includes('keyboard')
+  ) {
+    return 'keyboard';
+  }
+
+  if (
+    name.includes('màn hình') || desc.includes('màn hình') ||
+    name.includes('man hinh') || desc.includes('man hinh') ||
+    name.includes('monitor') || desc.includes('monitor')
+  ) {
+    return 'monitor';
+  }
+
+  return null;
+}
+
+function getCollectionBreadcrumb(type: ProductType | null): { href: string; label: string } | null {
+  switch (type) {
+    case 'pc':
+      return { href: '/collections/pc', label: 'PC' };
+    case 'laptop':
+      return { href: '/collections/laptop', label: 'Laptop' };
+    case 'mouse':
+      return { href: '/collections/chuot-may-tinh', label: 'Chuột' };
+    case 'keyboard':
+      return { href: '/collections/ban-phim-may-tinh', label: 'Bàn phím' };
+    case 'monitor':
+      return { href: '/collections/man-hinh', label: 'Màn hình' };
+    default:
+      return null;
+  }
+}
+
+function getRelatedTitle(type: ProductType | null): string {
+  switch (type) {
+    case 'pc':
+      return 'PC Gaming tương tự';
+    case 'laptop':
+      return 'Laptop tương tự';
+    case 'mouse':
+      return 'Chuột gaming hot';
+    case 'keyboard':
+      return 'Bàn phím cơ hot';
+    case 'monitor':
+      return 'Màn hình cao cấp';
+    default:
+      return 'Sản phẩm liên quan';
+  }
+}
+
 export default async function ProductDetailPage({
   params,
 }: {
@@ -52,6 +146,10 @@ export default async function ProductDetailPage({
   const product = data.product;
   const specs = data.specs || [];
   const images = parseImages(product.ImageUrl);
+
+  const productType = classifyProductType(product);
+  const collection = getCollectionBreadcrumb(productType);
+  const relatedTitle = getRelatedTitle(productType);
 
   return (
     <>
@@ -65,7 +163,13 @@ export default async function ProductDetailPage({
               <ol className={styles.breadcrumbArrow}>
                 <FontAwesomeIcon icon={faHouse} className={styles.icon} />
                 <li><a href="/">Trang chủ</a></li>
-                <li><a href="/products">Sản phẩm</a></li>
+                <li>
+                  {collection ? (
+                    <a href={collection.href}>{collection.label}</a>
+                  ) : (
+                    <a href="/products">Sản phẩm</a>
+                  )}
+                </li>
                 <li>{product.Name}</li>
               </ol>
             </div>
@@ -94,10 +198,8 @@ export default async function ProductDetailPage({
               )}
             </div>
 
-            {/* Nút hành động + Modal trả góp (đã tách riêng thành Client Component) */}
             <ProductActions product={product} />
 
-            {/* Ưu đãi */}
             <div className={styles.promotions}>
               <h3>Ưu đãi đặc biệt</h3>
               <ul>
@@ -118,7 +220,7 @@ export default async function ProductDetailPage({
           </div>
         </section>
 
-        {/* Các phần còn lại giữ nguyên 100% */}
+        {/* Thông số kỹ thuật */}
         <section className={styles.specs}>
           <h2>Thông số kỹ thuật</h2>
           {specs.length > 0 ? (
@@ -134,17 +236,13 @@ export default async function ProductDetailPage({
         </section>
 
         <section className={styles.related}>
-          {product.Name.includes('PC') || product.Description?.includes('PC') ? (
-            <SectionCollection type="pc" title="PC Gaming tương tự" excludeProductId={productId} />
-          ) : product.Name.includes('Laptop') || product.Description?.includes('Laptop') ? (
-            <SectionCollection type="laptop" title="Laptop tương tự" excludeProductId={productId} />
-          ) : product.Name.includes('Chuột') ? (
-            <SectionCollection type="mouse" title="Chuột gaming hot" excludeProductId={productId} />
-          ) : product.Name.includes('Bàn phím') ? (
-            <SectionCollection type="keyboard" title="Bàn phím cơ hot" excludeProductId={productId} />
-          ) : product.Name.includes('Màn hình') ? (
-            <SectionCollection type="monitor" title="Màn hình cao cấp" excludeProductId={productId} />
-          ) : null}
+          {productType && (
+            <SectionCollection
+              type={productType}
+              title={relatedTitle}
+              excludeProductId={productId}
+            />
+          )}
         </section>
 
         <ProductReviews productId={productId} />

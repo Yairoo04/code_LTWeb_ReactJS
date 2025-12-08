@@ -1,3 +1,4 @@
+// pages/main/Page/Product/ProductCard.tsx (updated with stars for consistency with UI)
 'use client';
 
 import React from 'react';
@@ -5,6 +6,9 @@ import styles from './ProductCard.module.scss';
 import '../../../styles/globals.scss';
 import { useRecentView } from '../RecentViewProducts/RecentViewContext';
 import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 type FrontendProduct = {
   id: number;
@@ -16,6 +20,17 @@ type FrontendProduct = {
   stock?: number;
   image_url?: string;
   ImageUrl?: string;
+
+  // frontend mapping (camelCase)
+  averageRating?: number | null;
+  totalReviews?: number | null;
+
+  // dữ liệu trả thẳng từ API (PascalCase)
+  AverageRating?: number | null;
+  TotalReviews?: number | null;
+
+  // có thể còn các field khác (FlashPrice, ...)
+  FlashPrice?: number | null;
 };
 
 function formatVND(n?: number) {
@@ -53,18 +68,53 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
 
   const inStock = (product.stock ?? 0) > 0;
 
-  // Ưu tiên giá FlashPrice nếu có (giá sale flash sale)
-  const flashPrice = (product as any).FlashPrice ?? null;
-  const hasFlashSale = flashPrice !== null && typeof flashPrice === 'number' && flashPrice < product.price;
-  const displayPrice = hasFlashSale ? flashPrice : (product.discountPrice ?? null);
-  const hasDiscount = hasFlashSale || (displayPrice !== null && displayPrice < product.price);
-  const discountPercent = hasDiscount ? Math.round(((product.price - (hasFlashSale ? flashPrice : (product.discountPrice ?? product.price))) / product.price) * 100) : 0;
+  const flashPrice = product.FlashPrice ?? null;
+  const hasFlashSale =
+    flashPrice !== null &&
+    typeof flashPrice === 'number' &&
+    flashPrice < product.price;
+
+  const displayPrice = hasFlashSale ? flashPrice : product.discountPrice ?? null;
+  const hasDiscount =
+    hasFlashSale ||
+    (displayPrice !== null && displayPrice < product.price);
+
+  const discountPercent = hasDiscount
+    ? Math.round(
+        ((product.price -
+          (hasFlashSale
+            ? flashPrice
+            : product.discountPrice ?? product.price)) /
+          product.price) *
+          100,
+      )
+    : 0;
+
+  // ===== Rating: đọc cả camelCase và PascalCase =====
+  const rawAverageRating =
+    typeof product.averageRating === 'number'
+      ? product.averageRating
+      : typeof product.AverageRating === 'number'
+        ? product.AverageRating
+        : 0;
+
+  const rawTotalReviews =
+    typeof product.totalReviews === 'number'
+      ? product.totalReviews
+      : typeof product.TotalReviews === 'number'
+        ? product.TotalReviews
+        : 0;
+
+  const averageRating = Number.isFinite(rawAverageRating)
+    ? rawAverageRating
+    : 0;
+  const totalReviews = rawTotalReviews >= 0 ? rawTotalReviews : 0;
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
 
     try {
-      await addRecentView(product.id); // CHỜ POST + REFETCH
+      await addRecentView(product.id);
     } catch (err) {
       console.error('Lỗi addRecentView:', err);
     } finally {
@@ -73,7 +123,11 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
   };
 
   return (
-    <div className={styles['product-card']} onClick={handleClick} style={{ cursor: 'pointer' }}>
+    <div
+      className={styles['product-card']}
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }}
+    >
       <img
         src={imgSrc}
         alt={product.name || 'Unnamed product'}
@@ -83,25 +137,61 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
         }}
       />
       <div className={styles.info}>
-        <div className={styles['product-name']} title={product.name || 'Unknown'}>
+        <div
+          className={styles['product-name']}
+          title={product.name || 'Unknown'}
+        >
           {product.name || 'Unknown'}
         </div>
+
         <div className={styles['price-section']}>
           {hasDiscount && (
-            <span className={styles['original-price']}>{formatVND(product.price)}</span>
+            <span className={styles['original-price']}>
+              {formatVND(product.price)}
+            </span>
           )}
           <div className={styles['discount-container']}>
-            <span className={hasDiscount ? styles['discount-price'] : styles['current-price']}>
-              {formatVND(hasDiscount ? (hasFlashSale ? flashPrice : (product.discountPrice ?? product.price)) : product.price)}
+            <span
+              className={
+                hasDiscount
+                  ? styles['discount-price']
+                  : styles['current-price']
+              }
+            >
+              {formatVND(
+                hasDiscount
+                  ? hasFlashSale
+                    ? flashPrice
+                    : product.discountPrice ?? product.price
+                  : product.price,
+              )}
             </span>
             {hasDiscount && (
-              <span className={styles['discount-percent']}>-{discountPercent}%</span>
+              <span className={styles['discount-percent']}>
+                -{discountPercent}%
+              </span>
             )}
           </div>
         </div>
-        <div className={styles['product-rating']}>0.0 (0 đánh giá)</div>
-        <div className={`${styles['product-stock']} ${inStock ? styles.in : styles.out}`}>
-          {inStock ? 'Còn hàng' : 'Hết hàng'}
+
+        <div className={styles['product-rating']}>
+          {totalReviews > 0 ? (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span>{averageRating.toFixed(1)}</span>
+              <div style={{ marginLeft: '4px', display: 'flex' }}>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <FontAwesomeIcon
+                    key={s}
+                    icon={s <= Math.round(averageRating) ? faStarSolid : faStarRegular}
+                    style={{ marginRight: '2px' }}
+                  />
+                ))}
+              </div>
+              <span style={{ marginLeft: '4px' }}>({totalReviews} đánh giá)</span>
+            </div>
+          ) : (
+            'Chưa có đánh giá'
+          )}
         </div>
       </div>
     </div>
