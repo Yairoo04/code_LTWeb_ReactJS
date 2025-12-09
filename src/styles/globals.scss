@@ -576,11 +576,13 @@ footer {
 
 .flash-sale-2 .flash-sale-content {
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .flash-sale-2 .flash-sale-content .flash-sale-2-content-img img {
-  width: 400px;
-  height: 300px;
+  width: 400px !important;
+  height: 300px !important;
 }
 
 .flash-sale-2 .flash-sale-content-dots {

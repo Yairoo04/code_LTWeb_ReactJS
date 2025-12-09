@@ -16,10 +16,32 @@ import styles from "./SectionCollection.module.scss";
 import { Product as BackendProduct } from "@/lib/product";
 import CategoryCollection from "./CategoryCollection";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+
 interface SectionCollectionProps {
   type?: "pc" | "laptop" | "mouse" | "keyboard" | "monitor"; // Loại section cần hiển thị
   title?: string; // Tiêu đề tùy chỉnh (ví dụ: "Sản phẩm tương tự")
   excludeProductId?: string; // ID sản phẩm cần loại trừ (cho related products)
+}
+
+// Helper: filter theo CategoryId, fallback theo keyword trong tên/mô tả
+function filterByCategory(
+  products: BackendProduct[],
+  categoryId: number,
+  keywords: string[] = []
+): BackendProduct[] {
+  return products.filter((p) => {
+    const name = (p.Name ?? "").toLowerCase();
+    const desc = (p.Description ?? "").toLowerCase();
+
+    if (p.CategoryId === categoryId) return true;
+
+    if (keywords.length === 0) return false;
+
+    return keywords.some(
+      (kw) => name.includes(kw) || desc.includes(kw)
+    );
+  });
 }
 
 export default function SectionCollection({
@@ -33,7 +55,7 @@ export default function SectionCollection({
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch("http://localhost:4000/api/products", {
+        const res = await fetch(`${API_BASE}/api/products`, {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch products");
@@ -50,7 +72,7 @@ export default function SectionCollection({
     fetchProducts();
   }, []);
 
-  // Lọc sản phẩm dựa trên type
+  // Chọn filter + cate + title theo type
   let filteredProducts = allProducts;
   let categories: { title: string; href: string }[] = [];
   let defaultTitle = "";
@@ -58,63 +80,77 @@ export default function SectionCollection({
 
   switch (type) {
     case "pc":
-      filteredProducts = allProducts.filter((p) =>
-        p.Description.startsWith("PC")
-      );
+      // PC: CategoryId = 2
+      filteredProducts = filterByCategory(allProducts, 2, [
+        "pc",
+        "desktop",
+        "máy tính bàn",
+      ]);
       categories = categories_pc;
       defaultTitle = title || "PC bán chạy";
       subTitle = "Trả góp 0%";
       break;
     case "laptop":
-      filteredProducts = allProducts.filter((p) =>
-        p.Description.startsWith("Laptop")
-      );
+      // Laptop: CategoryId = 1
+      filteredProducts = filterByCategory(allProducts, 1, [
+        "laptop",
+        "notebook",
+        "macbook",
+      ]);
       categories = categories_laptop;
       defaultTitle = title || "Laptop bán chạy";
       subTitle = "Miễn phí giao hàng";
       break;
     case "mouse":
-      filteredProducts = allProducts.filter((p) =>
-        p.Description.startsWith("Chuột")
-      );
+      // Chuột: CategoryId = 5
+      filteredProducts = filterByCategory(allProducts, 5, [
+        "chuột",
+        "mouse",
+      ]);
       categories = categories_mouse;
       defaultTitle = title || "Chuột bán chạy";
       subTitle = "Giao hàng toàn quốc";
       break;
     case "keyboard":
-      filteredProducts = allProducts.filter((p) =>
-        p.Description.startsWith("Bàn phím")
-      );
+      // Bàn phím: CategoryId = 4
+      filteredProducts = filterByCategory(allProducts, 4, [
+        "bàn phím",
+        "ban phim",
+        "keyboard",
+        "keychron",
+        "bàn cơ",
+      ]);
       categories = categories_keyboard;
       defaultTitle = title || "Bàn phím bán chạy";
       subTitle = "Giao hàng toàn quốc";
       break;
     case "monitor":
-      filteredProducts = allProducts.filter((p) =>
-        p.Description.startsWith("Màn")
-      );
+      // Màn hình: CategoryId = 3
+      filteredProducts = filterByCategory(allProducts, 3, [
+        "màn hình",
+        "man hinh",
+        "monitor",
+        "display",
+      ]);
       categories = categories_monitor;
       defaultTitle = title || "Màn hình chính hãng";
       subTitle = "Bảo hành 1 đổi 1";
       break;
     default:
-      // Nếu không có type, hiển thị tất cả (như hiện tại)
+      // Không có type → xử lý bên dưới (render nhiều section)
       break;
   }
 
   // Loại trừ sản phẩm hiện tại nếu có excludeProductId
   if (excludeProductId) {
-    filteredProducts = filteredProducts.filter(
-      (p) => p.ProductId !== Number(excludeProductId)
-    );
+    const excludeIdNum = Number(excludeProductId);
+    if (!Number.isNaN(excludeIdNum)) {
+      filteredProducts = filteredProducts.filter(
+        (p) => p.ProductId !== excludeIdNum
+      );
+    }
   }
 
-  // ❌ BỎ đoạn này đi để vẫn render skeleton trong slider
-  // if (loading) {
-  //   return <p>Đang tải dữ liệu...</p>;
-  // }
-
-  // Hàm render một section duy nhất
   const renderSection = (
     sectionType: string,
     products: BackendProduct[],
@@ -125,26 +161,26 @@ export default function SectionCollection({
     let searchTerm = "";
     switch (sectionType) {
       case "pc":
-        searchTerm = "PC";
+        searchTerm = "pc-gaming";
         break;
       case "laptop":
-        searchTerm = "Laptop";
+        searchTerm = "laptop";
         break;
       case "mouse":
-        searchTerm = "Chuột";
+        searchTerm = "chuot-may-tinh";
         break;
       case "keyboard":
-        searchTerm = "Bàn phím";
+        searchTerm = "ban-phim-may-tinh";
         break;
       case "monitor":
-        searchTerm = "Màn hình";
+        searchTerm = "man-hinh-may-tinh";
         break;
       default:
         searchTerm = "";
     }
 
     const searchHref = searchTerm
-      ? `/search?q=${encodeURIComponent(searchTerm)}`
+      ? `/collections/${encodeURIComponent(searchTerm)}`
       : "#";
 
     return (
@@ -184,18 +220,14 @@ export default function SectionCollection({
 
           <div className={styles["section-content"]}>
             {loading ? (
-              // 🔥 Đang load → show skeleton trong slider
               <ProductSlider
                 products={[]}
                 showDotActive={false}
                 isLoading={true}
-                skeletonCount={8} // tùy chỉnh số skeleton
+                skeletonCount={8}
               />
             ) : products.length > 0 ? (
-              <ProductSlider
-                products={products}
-                showDotActive={true}
-              />
+              <ProductSlider products={products} showDotActive={true} />
             ) : (
               <p>Không có sản phẩm nào trong danh mục này.</p>
             )}
@@ -215,22 +247,34 @@ export default function SectionCollection({
       subTitle
     );
   } else {
-    // Render tất cả sections như hiện tại (trang chủ)
-    const pcProducts = allProducts.filter((p) =>
-      p.Description.startsWith("PC")
-    );
-    const laptopProducts = allProducts.filter((p) =>
-      p.Description.startsWith("Laptop")
-    );
-    const mouseProducts = allProducts.filter((p) =>
-      p.Description.startsWith("Chuột")
-    );
-    const keyboardProducts = allProducts.filter((p) =>
-      p.Description.startsWith("Bàn phím")
-    );
-    const monitorProducts = allProducts.filter((p) =>
-      p.Description.startsWith("Màn")
-    );
+    // Render tất cả sections (trang chủ)
+    const pcProducts = filterByCategory(allProducts, 2, [
+      "pc",
+      "desktop",
+      "máy tính bàn",
+    ]);
+    const laptopProducts = filterByCategory(allProducts, 1, [
+      "laptop",
+      "notebook",
+      "macbook",
+    ]);
+    const mouseProducts = filterByCategory(allProducts, 5, [
+      "chuột",
+      "mouse",
+    ]);
+    const keyboardProducts = filterByCategory(allProducts, 4, [
+      "bàn phím",
+      "ban phim",
+      "keyboard",
+      "keychron",
+      "bàn cơ",
+    ]);
+    const monitorProducts = filterByCategory(allProducts, 3, [
+      "màn hình",
+      "man hinh",
+      "monitor",
+      "display",
+    ]);
 
     return (
       <div className={styles["section-container"]}>

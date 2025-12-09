@@ -32,12 +32,13 @@
     }
 
     // Dấu : giữa các span
-    & > :not(span) { // Chọn text nodes như :, nhưng trong SCSS dùng pseudo hoặc điều chỉnh
+    &> :not(span) {
+      // Chọn text nodes như :, nhưng trong SCSS dùng pseudo hoặc điều chỉnh
       margin: 0 4px;
     }
 
     // Nếu có "ngày ", style nó trắng
-    & > span + span:not(#hours, #minutes, #seconds) {
+    &>span+span:not(#hours, #minutes, #seconds) {
       color: #ffffff;
       margin-left: 4px;
     }
@@ -52,9 +53,11 @@
 
 // Nếu cần override cho flash-sale-content, nhưng countdown ở header
 .flash-sale-content {
+
   // Các style hiện có của bạn
   .product-slider {
     .product-card {
+
       .product-name {
         font-weight: 600;
         font-size: 16px;

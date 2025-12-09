@@ -147,8 +147,6 @@ export default function Header() {
     updateCartCount();
   };
 
-
-
   // Load user khi mount
   useEffect(() => {
     const saved = localStorage.getItem('user');
@@ -163,7 +161,18 @@ export default function Header() {
     }
   }, []);
 
-  // Đăng xuất
+  const handleCategoryClick = () => {
+    const megaMenuElem = document.getElementById("mega-menu");
+
+    if (megaMenuElem) {
+      megaMenuElem.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.dispatchEvent(new Event("focus-mega-menu"));
+      return;
+    }
+
+    router.push("/#mega-menu");
+  };
+
   const confirmLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
@@ -213,7 +222,10 @@ export default function Header() {
               <img src="/images/logo.png" alt="GTN" />
             </Link>
 
-            <div className={styles.categoryMenu}>
+            <div
+              className={styles.categoryMenu}
+              onClick={handleCategoryClick}
+            >
               <FontAwesomeIcon icon={faBars} />
               <span>Danh mục</span>
             </div>

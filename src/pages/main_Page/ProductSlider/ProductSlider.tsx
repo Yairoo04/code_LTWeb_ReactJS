@@ -1,7 +1,7 @@
 // app/(components)/ProductSlider/ProductSlider.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import ProductCard from '../Product/ProductCard';
 import { Product as BackendProduct } from '@/lib/product';
 import styles from './ProductSlider.module.scss';
@@ -16,45 +16,69 @@ type FrontendProduct = {
   description: string;
   price: number;
   discountPrice?: number | null;
-  category: string | null;
-  stock: number;
-  image_url: string;
-  created_at: string;
-  totalReviews?: number;
-  averageRating?: number;
+  categoryId?: number | null;
+  stock?: number;
+  image_url?: string;
+  ImageUrl?: string;
+  created_at?: string;
+  averageRating?: number | null;
+  totalReviews?: number | null;
+  AverageRating?: number | null;
+  TotalReviews?: number | null;
+  FlashPrice?: number | null;
 };
 
 type ProductSliderProps = {
   products: BackendProduct[];
   showDotActive?: boolean;
-  desktopItems?: number; // Số sản phẩm hiển thị trên desktop (tùy chỉnh, default 4)
+  desktopItems?: number;
   className?: string;
   sliderId?: string;
   title?: string;
-  isLoading?: boolean;      // ✅ thêm prop loading
-  skeletonCount?: number;   // ✅ số skeleton muốn hiển thị khi loading
+  isLoading?: boolean;
+  skeletonCount?: number;
 };
 
 function mapToFrontendProduct(backendProduct: BackendProduct): FrontendProduct {
+  const anyProd = backendProduct as any;
+
+  const avgRating =
+    typeof anyProd.averageRating === 'number'
+      ? anyProd.averageRating
+      : typeof anyProd.AverageRating === 'number'
+        ? anyProd.AverageRating
+        : 0;
+
+  const totReviews =
+    typeof anyProd.totalReviews === 'number'
+      ? anyProd.totalReviews
+      : typeof anyProd.TotalReviews === 'number'
+        ? anyProd.TotalReviews
+        : 0;
+
   return {
     id: backendProduct.ProductId,
     name: backendProduct.Name,
-    description: backendProduct.Description,
+    description: backendProduct.Description ?? '',
     price: backendProduct.Price,
-    discountPrice: backendProduct.DiscountPrice,
-    category: backendProduct.CategoryId?.toString() || null,
-    stock: backendProduct.Stock,
+    discountPrice: backendProduct.DiscountPrice ?? null,
+    categoryId: backendProduct.CategoryId ?? null,
+    stock: backendProduct.Stock ?? 0,
+    ImageUrl: backendProduct.ImageUrl,
     image_url: backendProduct.ImageUrl,
-    created_at: backendProduct.CreatedAt,
-    totalReviews: (backendProduct as any).totalReviews ?? 0,
-    averageRating: (backendProduct as any).averageRating ?? 0,
+    created_at: (backendProduct as any).CreatedAt ?? '',
+    FlashPrice: anyProd.FlashPrice ?? null,
+    averageRating: avgRating,
+    totalReviews: totReviews,
+    AverageRating: avgRating,
+    TotalReviews: totReviews,
   };
 }
 
 export default function ProductSlider({
   products,
   showDotActive = true,
-  desktopItems = 4, // Default 4 sản phẩm trên desktop
+  desktopItems = 4,
   className = '',
   sliderId = 'default-slider',
   title,
@@ -62,49 +86,88 @@ export default function ProductSlider({
   skeletonCount,
 }: ProductSliderProps) {
   const frontendProducts = products.map(mapToFrontendProduct);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(desktopItems); // Khởi tạo với desktopItems
+  const productCount = frontendProducts.length;
+
+  const [itemsPerPage, setItemsPerPage] = useState(desktopItems);
+  const [currentIndex, setCurrentIndex] = useState(desktopItems); // index trong mảng extended
+  const [noTransition, setNoTransition] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false); // ← chặn spam click
+
   const { addRecentView } = useRecentView();
   const router = useRouter();
 
+  // Responsive: tính itemsPerPage theo width
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       let newItemsPerPage: number;
 
       if (width < 769) {
-        newItemsPerPage = 1; // Mobile luôn 1
+        newItemsPerPage = 1;
       } else if (width < 1025) {
         newItemsPerPage = desktopItems >= 5 ? 3 : 2;
       } else {
-        newItemsPerPage = desktopItems; // Desktop sử dụng giá trị tùy chỉnh
+        newItemsPerPage = desktopItems;
       }
 
-      setItemsPerPage(newItemsPerPage);
-
-      const newTotalSlides = Math.ceil(
-        (frontendProducts.length || 1) / newItemsPerPage
-      );
-      if (currentSlide >= newTotalSlides) {
-        setCurrentSlide(0);
+      if (productCount > 0) {
+        newItemsPerPage = Math.min(newItemsPerPage, productCount);
       }
+
+      setItemsPerPage((prev) => {
+        const next = newItemsPerPage;
+        return next !== prev ? next : prev;
+      });
     };
 
-    handleResize(); // Khởi tạo ban đầu
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [frontendProducts.length, currentSlide, desktopItems]);
+  }, [desktopItems, productCount]);
 
-  const totalSlides = Math.ceil(
-    (frontendProducts.length || 1) / itemsPerPage
+  // extendedProducts = [last K] + [all] + [first K]
+  const extendedProducts = useMemo(() => {
+    if (productCount === 0) return [];
+    const k = Math.min(itemsPerPage, productCount);
+    const lastK = frontendProducts.slice(-k);
+    const firstK = frontendProducts.slice(0, k);
+    return [...lastK, ...frontendProducts, ...firstK];
+  }, [frontendProducts, productCount, itemsPerPage]);
+
+  const effectiveItemsPerPage = Math.min(
+    itemsPerPage,
+    productCount || itemsPerPage,
   );
 
-  const handlePrev = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  };
+  const startIndex = productCount ? effectiveItemsPerPage : 0; // vị trí thật đầu tiên
+  const endIndex = productCount ? startIndex + productCount - 1 : 0;
+
+  // reset currentIndex khi số sp hoặc itemsPerPage đổi
+  useEffect(() => {
+    if (!productCount) {
+      setCurrentIndex(0);
+      return;
+    }
+    setCurrentIndex(startIndex);
+  }, [productCount, startIndex]);
+
+  // Tiến 1 sản phẩm (dùng cho auto + nút Next)
+  const advance = useCallback(() => {
+    if (!productCount || productCount <= effectiveItemsPerPage) return;
+    if (isAnimating) return; // đang animate thì bỏ
+    setIsAnimating(true);
+    setCurrentIndex((prev) => prev + 1);
+  }, [productCount, effectiveItemsPerPage, isAnimating]);
 
   const handleNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    advance();
+  };
+
+  const handlePrev = () => {
+    if (!productCount || productCount <= effectiveItemsPerPage) return;
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
   const handleProductClick = (productId: number) => {
@@ -112,8 +175,48 @@ export default function ProductSlider({
     router.push(`/products/${productId}`);
   };
 
-  // Nếu không có products và không loading → show message
-  if (!frontendProducts.length && !isLoading) {
+  // Auto slide 3s/lần, luôn đi tới
+  useEffect(() => {
+    if (!productCount || productCount <= effectiveItemsPerPage || isLoading) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      advance();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [productCount, effectiveItemsPerPage, isLoading, advance]);
+
+  // Khi transition kết thúc: nếu index nằm ngoài vùng thật → warp về
+  const handleTransitionEnd = () => {
+    if (!productCount || productCount <= effectiveItemsPerPage) {
+      setIsAnimating(false);
+      return;
+    }
+
+    // nằm ngoài [startIndex, endIndex] → đang ở vùng clone
+    if (currentIndex < startIndex || currentIndex > endIndex) {
+      setNoTransition(true);
+
+      const rawOffset = currentIndex - startIndex;
+      const mod =
+        ((rawOffset % productCount) + productCount) % productCount;
+
+      setCurrentIndex(startIndex + mod);
+    }
+
+    setIsAnimating(false);
+  };
+
+  // Bật lại transition sau khi warp nội bộ
+  useEffect(() => {
+    if (!noTransition) return;
+    const t = setTimeout(() => setNoTransition(false), 20);
+    return () => clearTimeout(t);
+  }, [noTransition]);
+
+  if (!productCount && !isLoading) {
     return (
       <div
         className={`${styles['product-slider__no-products']} ${className}`}
@@ -123,13 +226,41 @@ export default function ProductSlider({
     );
   }
 
-  // Tính toán width cho mỗi card (để hỗ trợ dynamic itemsPerPage)
-  const cardFlexBasis = `calc((100% - 20px - ${
-    (itemsPerPage - 1) * 10
-  }px) / ${itemsPerPage})`;
+  const cardFlexBasis = `calc(
+    (100% - 20px - ${(effectiveItemsPerPage - 1) * 10}px) / ${effectiveItemsPerPage}
+  )`;
 
-  // Số skeleton sẽ render khi loading
-  const skeletonItems = skeletonCount ?? itemsPerPage * 2;
+  const translatePercent =
+    effectiveItemsPerPage > 0
+      ? (currentIndex * 100) / effectiveItemsPerPage
+      : 0;
+
+  const skeletonItems = skeletonCount ?? effectiveItemsPerPage * 2;
+
+  const totalSlides =
+    productCount && effectiveItemsPerPage
+      ? Math.ceil(productCount / effectiveItemsPerPage)
+      : 0;
+
+  const activeDotIndex =
+    productCount && effectiveItemsPerPage
+      ? Math.floor(
+          (((currentIndex - startIndex + productCount) % productCount) ||
+            0) / effectiveItemsPerPage,
+        )
+      : 0;
+
+  const handleDotClick = (index: number) => {
+    if (!productCount || productCount <= effectiveItemsPerPage) return;
+    if (isAnimating) return;
+    const targetIndex = startIndex + index * effectiveItemsPerPage;
+    setIsAnimating(true);
+    setCurrentIndex(targetIndex);
+  };
+
+  const listToRender = extendedProducts.length
+    ? extendedProducts
+    : frontendProducts;
 
   return (
     <div className={`${styles['product-slider']} ${className}`} id={sliderId}>
@@ -139,7 +270,7 @@ export default function ProductSlider({
         className={styles['product-slider__prev']}
         onClick={handlePrev}
         aria-label="Previous slide"
-        disabled={totalSlides <= 1 || isLoading}
+        disabled={totalSlides <= 1 || isLoading || isAnimating}
       >
         &#10094;
       </button>
@@ -147,13 +278,13 @@ export default function ProductSlider({
       <div
         className={styles['product-slider__list']}
         style={{
-          transform: `translateX(-${currentSlide * 100}%)`,
-          transition: 'transform 0.5s ease-in-out',
+          transform: `translateX(-${translatePercent}%)`,
+          transition: noTransition ? 'none' : 'transform 0.5s ease-in-out',
         }}
+        onTransitionEnd={handleTransitionEnd}
       >
         {isLoading
-          ? // 🔹 Skeleton mode
-            Array.from({ length: skeletonItems }).map((_, idx) => (
+          ? Array.from({ length: skeletonItems }).map((_, idx) => (
               <div
                 className={styles['product-slider__card']}
                 key={`skeleton-${idx}`}
@@ -162,15 +293,14 @@ export default function ProductSlider({
                 <ProductCardSkeleton />
               </div>
             ))
-          : // 🔹 Normal mode
-            frontendProducts.map((product) => (
+          : listToRender.map((product, idx) => (
               <div
                 className={styles['product-slider__card']}
-                key={product.id}
+                key={`${product.id}-${idx}`}
                 onClick={() => handleProductClick(product.id)}
                 style={{ flex: `0 0 ${cardFlexBasis}` }}
               >
-                <ProductCard product={product} />
+                <ProductCard product={product as any} />
               </div>
             ))}
       </div>
@@ -179,7 +309,7 @@ export default function ProductSlider({
         className={styles['product-slider__next']}
         onClick={handleNext}
         aria-label="Next slide"
-        disabled={totalSlides <= 1 || isLoading}
+        disabled={totalSlides <= 1 || isLoading || isAnimating}
       >
         &#10095;
       </button>
@@ -193,13 +323,13 @@ export default function ProductSlider({
             <button
               key={index}
               className={`${styles['product-slider__dot']} ${
-                index === currentSlide
+                index === activeDotIndex
                   ? styles['product-slider__dot--active']
                   : ''
               }`}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => handleDotClick(index)}
               aria-label={`Go to slide ${index + 1}`}
-              aria-current={index === currentSlide}
+              aria-current={index === activeDotIndex}
             >
               <span className={styles['sr-only']}>Slide {index + 1}</span>
             </button>

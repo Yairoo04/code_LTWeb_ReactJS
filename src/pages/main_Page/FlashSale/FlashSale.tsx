@@ -20,6 +20,9 @@ type FlashSaleProps = {
 
   // Mã campaign để biết block này đang hiển thị flash sale nào
   campaignCode: string;
+
+  // ✅ thêm prop: số sản phẩm hiển thị trên desktop
+  desktopItems?: number;
 };
 
 type Countdown = {
@@ -38,6 +41,7 @@ export default function FlashSale({
   showDotActive = true,
   limit = 12,
   campaignCode,
+  desktopItems = 6, // ✅ CHỌN SỐ LỚN HƠN 4 ĐỂ CARD NHỎ LẠI (5 hoặc 6 tuỳ bạn)
 }: FlashSaleProps) {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [campaign, setCampaign] = React.useState<any | null>(null);
@@ -49,11 +53,9 @@ export default function FlashSale({
   });
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
-  const { addRecentView } = useRecentView(); // nếu sau này muốn log sản phẩm đã xem
+  const { addRecentView } = useRecentView();
 
-  // ==========================
   // 1. Fetch danh sách sản phẩm theo campaignCode
-  // ==========================
   React.useEffect(() => {
     async function getFlashProducts() {
       try {
@@ -85,13 +87,10 @@ export default function FlashSale({
     getFlashProducts();
   }, [campaignCode]);
 
-  // ==========================
-  // 2. Countdown theo thời gian campaign (EndTime) – có cả ngày
-  // ==========================
+  // 2. Countdown theo EndTime (có cả ngày)
   React.useEffect(() => {
     if (!campaign) return;
 
-    // Tùy MSSQL đặt tên cột, đề phòng EndTime / endTime
     const endTimeRaw = campaign.EndTime || campaign.endTime;
     if (!endTimeRaw) return;
 
@@ -183,8 +182,9 @@ export default function FlashSale({
           <ProductSlider
             products={limitedProducts}
             showDotActive={showDotActive}
-            isLoading={isLoading}    
-            skeletonCount={limit}  
+            isLoading={isLoading}
+            skeletonCount={limit}
+            desktopItems={desktopItems}  // ✅ TRUYỀN XUỐNG SLIDER
           />
 
           {showReadMore && (
