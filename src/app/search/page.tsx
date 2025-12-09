@@ -17,7 +17,8 @@ import FlashSale from '@/pages/main_Page/FlashSale/FlashSale';
 import { CATEGORY_FILTER_CONFIG } from '@/lib/products/filterConfig';
 import type { FilterState } from '@/lib/products/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
 // ===============================
 //  Kiểu dữ liệu sản phẩm
@@ -31,6 +32,10 @@ type BackendProduct = {
   DiscountPrice?: number | null;
   ImageUrl: string;
   Stock?: number;
+
+  // rating từ API
+  AverageRating?: number | null;
+  TotalReviews?: number | null;
 };
 
 type SpecItem = {
@@ -51,6 +56,12 @@ type FrontendProduct = {
   ImageUrl?: string;
   specs?: SpecItem[];
   created_at?: string;
+
+  // đồng bộ với ProductCard
+  averageRating?: number | null;
+  totalReviews?: number | null;
+  AverageRating?: number | null;
+  TotalReviews?: number | null;
 };
 
 // ===============================
@@ -75,6 +86,16 @@ const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => ({
   image_url: product.ImageUrl,
   stock: product.Stock ?? 0,
   categoryId: product.CategoryId ?? null,
+
+  // normalize rating
+  averageRating:
+    typeof product.AverageRating === 'number' ? product.AverageRating : null,
+  totalReviews:
+    typeof product.TotalReviews === 'number' ? product.TotalReviews : 0,
+  AverageRating:
+    typeof product.AverageRating === 'number' ? product.AverageRating : null,
+  TotalReviews:
+    typeof product.TotalReviews === 'number' ? product.TotalReviews : 0,
 });
 
 // normalize cho trường hợp lỡ sau này dùng string[]
@@ -102,7 +123,7 @@ const detectCategory = (products: FrontendProduct[], query: string): string => {
       const entries = Object.entries(counts);
       const [bestCat, bestCount] = entries.reduce(
         (best, cur) => (cur[1] > best[1] ? cur : best),
-        entries[0]
+        entries[0],
       );
       const ratio = bestCount / totalWithCategory;
       if (ratio >= 0.6) {
@@ -125,14 +146,14 @@ const detectCategory = (products: FrontendProduct[], query: string): string => {
   )
     return '2';
 
-  // 3) Không rõ thì coi như "all" (nhưng ta map về "" bên dưới)
+  // 3) Không rõ thì coi như "all"
   return 'all';
 };
 
 async function fetchSearchResults(query: string): Promise<BackendProduct[]> {
   if (!query) return [];
   const res = await fetch(
-    `${API_BASE}/api/products?keyword=${encodeURIComponent(query)}`
+    `${API_BASE}/api/products?keyword=${encodeURIComponent(query)}`,
   );
   if (!res.ok) throw new Error('Failed to fetch search results');
   const json = await res.json();
@@ -147,7 +168,9 @@ export default function SearchPage() {
   const query = searchParams?.get('q') || '';
 
   const [products, setProducts] = useState<FrontendProduct[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<FrontendProduct[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<FrontendProduct[]>(
+    [],
+  );
   const [visibleCount, setVisibleCount] = useState(4);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -175,7 +198,6 @@ export default function SearchPage() {
   });
 
   // Active category để lấy filter config
-  // ⚠️ lib filterConfig của bạn hiện KHÔNG có key "all" -> default về "1"
   const activeCategory = normalizeFilterValue(filters.category) || '1';
   const rawFilterConfig =
     CATEGORY_FILTER_CONFIG[activeCategory] ??
@@ -184,7 +206,7 @@ export default function SearchPage() {
 
   // Ẩn ô "Danh mục" khỏi UI
   const visibleFilterConfig = rawFilterConfig.filter(
-    (cfg) => cfg.key !== 'category'
+    (cfg) => cfg.key !== 'category',
   );
 
   // Fetch sản phẩm theo query
@@ -208,7 +230,7 @@ export default function SearchPage() {
           mapped.map(async (p) => {
             try {
               const detailRes = await fetch(
-                `${API_BASE}/api/products?productId=${p.id}&details=true`
+                `${API_BASE}/api/products?productId=${p.id}&details=true`,
               );
               const detailData = await detailRes.json();
               if (detailData.success) {
@@ -218,7 +240,7 @@ export default function SearchPage() {
               console.error('Error fetching product details:', err);
             }
             return p;
-          })
+          }),
         );
 
         setProducts(detailed);
@@ -265,7 +287,6 @@ export default function SearchPage() {
     const detected = detectCategory(products, query);
     setFilters((prev) => ({
       ...prev,
-      // nếu detect "all" thì để trống -> UI dùng default "1"
       category: detected === 'all' ? '' : detected,
     }));
   }, [products, query]);
@@ -321,7 +342,8 @@ export default function SearchPage() {
     if (category) {
       result = result.filter((p) => {
         if (p.categoryId !== null && String(p.categoryId) === category) {
-          if (category === '2' && p.name.toLowerCase().includes('laptop')) return false;
+          if (category === '2' && p.name.toLowerCase().includes('laptop'))
+            return false;
           return true;
         }
         let keyword = '';
@@ -342,7 +364,7 @@ export default function SearchPage() {
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(brand.toLowerCase()) ||
-          p.description.toLowerCase().includes(brand.toLowerCase())
+          p.description.toLowerCase().includes(brand.toLowerCase()),
       );
 
     if (cpu)
@@ -351,20 +373,20 @@ export default function SearchPage() {
           p.specs?.some(
             (s) =>
               s.SpecName.toLowerCase().includes('cpu') &&
-              s.SpecValue.toLowerCase().includes(cpu.toLowerCase())
-          ) || p.description.toLowerCase().includes(cpu.toLowerCase())
+              s.SpecValue.toLowerCase().includes(cpu.toLowerCase()),
+          ) || p.description.toLowerCase().includes(cpu.toLowerCase()),
       );
 
     if (series)
       result = result.filter((p) =>
-        p.name.toLowerCase().includes(series.toLowerCase())
+        p.name.toLowerCase().includes(series.toLowerCase()),
       );
 
     if (usage)
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(usage.toLowerCase()) ||
-          p.description.toLowerCase().includes(usage.toLowerCase())
+          p.description.toLowerCase().includes(usage.toLowerCase()),
       );
 
     if (screenSize)
@@ -375,8 +397,9 @@ export default function SearchPage() {
               (s.SpecName.toLowerCase().includes('màn hình') ||
                 s.SpecName.toLowerCase().includes('screen') ||
                 s.SpecName.toLowerCase().includes('kích thước')) &&
-              s.SpecValue.toLowerCase().includes(screenSize.toLowerCase())
-          ) || p.description.toLowerCase().includes(screenSize.toLowerCase())
+              s.SpecValue.toLowerCase().includes(screenSize.toLowerCase()),
+          ) ||
+          p.description.toLowerCase().includes(screenSize.toLowerCase()),
       );
 
     if (ram)
@@ -385,8 +408,8 @@ export default function SearchPage() {
           p.specs?.some(
             (s) =>
               s.SpecName.toLowerCase().includes('ram') &&
-              s.SpecValue.toLowerCase().includes(ram.toLowerCase())
-          ) || p.description.toLowerCase().includes(ram.toLowerCase())
+              s.SpecValue.toLowerCase().includes(ram.toLowerCase()),
+          ) || p.description.toLowerCase().includes(ram.toLowerCase()),
       );
 
     if (ssd)
@@ -396,8 +419,8 @@ export default function SearchPage() {
             (s) =>
               (s.SpecName.toLowerCase().includes('ssd') ||
                 s.SpecName.toLowerCase().includes('ổ cứng')) &&
-              s.SpecValue.toLowerCase().includes(ssd.toLowerCase())
-          ) || p.description.toLowerCase().includes(ssd.toLowerCase())
+              s.SpecValue.toLowerCase().includes(ssd.toLowerCase()),
+          ) || p.description.toLowerCase().includes(ssd.toLowerCase()),
       );
 
     if (vga)
@@ -406,8 +429,8 @@ export default function SearchPage() {
           p.specs?.some(
             (s) =>
               s.SpecName.toLowerCase().includes('vga') &&
-              s.SpecValue.toLowerCase().includes(vga.toLowerCase())
-          ) || p.description.toLowerCase().includes(vga.toLowerCase())
+              s.SpecValue.toLowerCase().includes(vga.toLowerCase()),
+          ) || p.description.toLowerCase().includes(vga.toLowerCase()),
       );
 
     const extractMaxDpi = (value: string): number | null => {
@@ -423,13 +446,17 @@ export default function SearchPage() {
       result = result.filter((p) =>
         p.specs?.some((s) => {
           const specName = s.SpecName.toLowerCase();
-          if (!(specName.includes('độ phân giải') || specName.includes('dpi'))) {
+          if (
+            !(
+              specName.includes('độ phân giải') || specName.includes('dpi')
+            )
+          ) {
             return false;
           }
           const maxDpi = extractMaxDpi(s.SpecValue);
           if (maxDpi == null) return false;
           return maxDpi <= dpiLimit;
-        })
+        }),
       );
     }
 
@@ -438,8 +465,8 @@ export default function SearchPage() {
         p.specs?.some(
           (s) =>
             s.SpecName.toLowerCase().includes('độ phân giải') &&
-            s.SpecValue.toLowerCase().includes(resolution.toLowerCase())
-        )
+            s.SpecValue.toLowerCase().includes(resolution.toLowerCase()),
+        ),
       );
     }
 
@@ -448,8 +475,8 @@ export default function SearchPage() {
         p.specs?.some(
           (s) =>
             s.SpecName.toLowerCase().includes('tấm nền') &&
-            s.SpecValue.toLowerCase().includes(panelType.toLowerCase())
-        )
+            s.SpecValue.toLowerCase().includes(panelType.toLowerCase()),
+        ),
       );
     }
 
@@ -458,8 +485,8 @@ export default function SearchPage() {
         p.specs?.some(
           (s) =>
             s.SpecName.toLowerCase().includes('loại bàn phím') &&
-            s.SpecValue.toLowerCase().includes(keyboardType.toLowerCase())
-        )
+            s.SpecValue.toLowerCase().includes(keyboardType.toLowerCase()),
+        ),
       );
     }
 
@@ -468,8 +495,8 @@ export default function SearchPage() {
         p.specs?.some(
           (s) =>
             s.SpecName.toLowerCase().includes('layout') &&
-            s.SpecValue.toLowerCase().includes(layout.toLowerCase())
-        )
+            s.SpecValue.toLowerCase().includes(layout.toLowerCase()),
+        ),
       );
     }
 
@@ -478,8 +505,8 @@ export default function SearchPage() {
         p.specs?.some(
           (s) =>
             s.SpecName.toLowerCase().includes('psu') &&
-            s.SpecValue.toLowerCase().includes(psu.toLowerCase())
-        )
+            s.SpecValue.toLowerCase().includes(psu.toLowerCase()),
+        ),
       );
     }
 
@@ -494,11 +521,11 @@ export default function SearchPage() {
     // Sort
     if (sortBy === 'price-asc') {
       result.sort(
-        (a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price)
+        (a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price),
       );
     } else if (sortBy === 'price-desc') {
       result.sort(
-        (a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price)
+        (a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price),
       );
     }
 
@@ -535,9 +562,7 @@ export default function SearchPage() {
 
             {/* Thanh filter + sort (ẩn ô danh mục) */}
             <div className={styles.filterBar}>
-              <div
-                className={styles.filterWrap}
-              >
+              <div className={styles.filterWrap}>
                 {visibleFilterConfig.map((f) => (
                   <select
                     key={f.key}

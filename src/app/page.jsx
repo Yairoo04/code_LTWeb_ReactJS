@@ -28,14 +28,16 @@ export default function Home() {
           showImg_Sale={false}
           showDotActive={false}
           campaignCode="FLASH_10H"
+          desktopItems={3}
         />
-        {/* <!-- Nhóm fsl 2 --> */}
+
         <FlashSale
           className="flash-sale-2"
           h2Title="⚡ GEAR ARENA WEEK"
           showTitle={false}
           showReadMore={false}
           campaignCode="GEAR_ARENA_WEEK"
+          desktopItems={3}
         />
 
         <MidBanner />

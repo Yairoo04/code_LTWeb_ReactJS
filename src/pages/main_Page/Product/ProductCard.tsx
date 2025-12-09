@@ -1,4 +1,4 @@
-// pages/main/Page/Product/ProductCard.tsx (updated with stars for consistency with UI)
+// pages/main_Page/Product/ProductCard.tsx
 'use client';
 
 import React from 'react';
@@ -110,6 +110,11 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
     : 0;
   const totalReviews = rawTotalReviews >= 0 ? rawTotalReviews : 0;
 
+  const filledStars = Math.max(
+    0,
+    Math.min(5, Math.round(averageRating || 0)),
+  );
+
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -121,10 +126,6 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
       router.push(`/products/${product.id}`);
     }
   };
-
-  // Lấy số lượng đánh giá và điểm trung bình từ product nếu có
-  const averageRating = (product as any).averageRating ?? 0;
-  const totalReviews = (product as any).totalReviews ?? 0;
 
   return (
     <div
@@ -177,12 +178,27 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
             )}
           </div>
         </div>
-        <div className={styles['product-rating']}>
-          {averageRating.toFixed(1)} ({totalReviews} đánh giá)
-        </div>
-        <div className={`${styles['product-stock']} ${inStock ? styles.in : styles.out}`}>
-          {inStock ? 'Còn hàng' : 'Hết hàng'}
 
+        <div className={styles['product-rating']}>
+          <span className={styles['rating-stars']}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <FontAwesomeIcon
+                key={star}
+                icon={star <= filledStars ? faStarSolid : faStarRegular}
+              />
+            ))}
+          </span>
+          <span className={styles['rating-text']}>
+            {averageRating.toFixed(1)} ({totalReviews} đánh giá)
+          </span>
+        </div>
+
+        <div
+          className={`${styles['product-stock']} ${
+            inStock ? styles.in : styles.out
+          }`}
+        >
+          {inStock ? 'Còn hàng' : 'Hết hàng'}
         </div>
       </div>
     </div>

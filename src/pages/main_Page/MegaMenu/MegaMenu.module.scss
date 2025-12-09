@@ -113,7 +113,7 @@
             }
 
             .megamenu-content {
-                display: none; // Ẩn mặc định, hiện khi hover
+                display: none;
                 position: absolute;
                 left: 100%;
                 top: 0;
@@ -121,7 +121,7 @@
                 background-color: rgba(255, 255, 255, 0.9);
                 border: 1px solid #ddd;
                 padding: 20px;
-                min-width: 1400px; // Chiều rộng mega menu
+                min-width: 1400px;
                 z-index: 1000;
 
                 .column {
@@ -138,19 +138,19 @@
                             font-weight: bold;
                             margin-bottom: 10px;
                             text-decoration: none;
-                            color: #ff0000; // Màu đỏ cho sub-name
-                            font-size: 20px; // Cỡ chữ cho sub-name
+                            color: #ff0000;
+                            font-size: 20px;
                             line-height: 22px;
                         }
 
                         .sub-megamenu-item-filter {
                             text-decoration: none;
-                            color: #666; // Màu xám cho filter
+                            color: #666;
                             margin-bottom: 5px;
-                            font-size: 18px; // Cỡ chữ nhỏ hơn cho filter
+                            font-size: 18px;
 
                             &:hover {
-                                color: #ff0000; // Màu đỏ khi hover filter
+                                color: #ff0000;
                             }
                         }
                     }
@@ -158,9 +158,59 @@
             }
 
             &:hover .megamenu-content {
-                display: block; // Hiện mega menu khi hover
+                display: block;
             }
         }
+    }
+}
+
+.megamenu-overlay {
+    position: fixed;
+    top: 120px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    animation: overlay-fade-in 0.25s ease-out forwards;
+}
+
+.megamenu-nav-container {
+    position: relative;
+    z-index: 999;
+    scroll-margin-top: 250px;
+    transform-origin: top left;
+}
+
+.megamenu-highlight {
+    border-radius: 8px;
+    animation: megamenu-pop-in 0.25s ease-out forwards;
+}
+
+@keyframes overlay-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes megamenu-pop-in {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(0) scale(1.02);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -192,4 +242,3 @@
         }
     }
 }
-
