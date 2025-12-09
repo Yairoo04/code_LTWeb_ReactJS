@@ -12,6 +12,9 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function AdminLayout({ children }) {
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotif, setShowNotif] = useState(false);
   const path = usePathname();
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
@@ -43,6 +46,21 @@ export default function AdminLayout({ children }) {
         router.replace("/admin/dashboard");
       }
     }
+
+    // Lấy thông báo đánh giá + đơn hàng mới ở trạng thái 'Pending' hoặc 'Chờ xác nhận'
+    async function fetchNotifications() {
+      try {
+        // Chỉ lấy thông báo từ bảng Notifications
+        const notifRes = await fetch("/api/admin/notifications");
+        const notifData = await notifRes.json();
+        const notifications = (notifData.data || []).sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
+        setNotificationCount(notifications.length);
+        setNotifications(notifications);
+      } catch {}
+    }
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000); // 15s refresh
+    return () => clearInterval(interval);
   }, [path, router]);
 
   const handleLogout = () => logout(router);
@@ -109,6 +127,9 @@ export default function AdminLayout({ children }) {
                 <Link href="/admin/statistics"> Thống kê</Link>
               </li>
             )}
+            <li className={path === "/admin/reviews" ? "active" : ""}>
+              <Link href="/admin/reviews"> Đánh giá</Link>
+            </li>
           </ul>
         </nav>
         <button className="logout-btn sidebar-logout" onClick={handleLogout}>
@@ -120,10 +141,61 @@ export default function AdminLayout({ children }) {
         <header className="admin-header">
           <span>Xin chào, {user?.fullName || user?.fullname || user?.username || "Admin"} {user?.role ? `(${user.role})` : ""}</span>
           <div className="header-actions">
-            <button className="icon-btn" title="Thông báo">
-              <BellIcon className="icon" />
-              <span className="badge">3</span>
-            </button>
+            <div style={{ position: "relative" }}>
+              <button className="icon-btn" title="Thông báo" onClick={() => setShowNotif(v => !v)}>
+                <BellIcon className="icon" />
+                <span className="badge">{notificationCount}</span>
+              </button>
+              {showNotif && (
+                <>
+                  {/* Overlay để bấm ra ngoài đóng popup */}
+                  <div
+                    style={{ position: "fixed", inset: 0, zIndex: 99 }}
+                    onClick={() => setShowNotif(false)}
+                  />
+                  <div
+                    style={{ position: "absolute", right: 0, top: 40, minWidth: 260, maxHeight: 350, overflowY: "auto", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", borderRadius: 8, zIndex: 100, padding: 12 }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <h4 style={{ margin: "0 0 8px 0", fontSize: 16 }}>Thông báo</h4>
+                    {notifications.length === 0 ? (
+                      <div style={{ color: "#888", fontSize: 14 }}>Không có thông báo mới.</div>
+                    ) : (
+                      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                        {notifications.map(n => (
+                          <li key={n.NotificationId} style={{ padding: "8px 0", borderBottom: "1px solid #eee", fontSize: 14 }}>
+                            {n.Type === "review" ? (
+                              <a
+                                href="/admin/reviews"
+                                style={{ color: "#1677ff", textDecoration: "none", cursor: "pointer" }}
+                                onClick={async () => {
+                                  setShowNotif(false);
+                                  await fetch("/api/admin/notifications", {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ notificationId: n.NotificationId })
+                                  });
+                                  setNotifications(notifications => notifications.filter(x => x.NotificationId !== n.NotificationId));
+                                  setNotificationCount(c => c > 0 ? c - 1 : 0);
+                                }}
+                              >
+                                <span style={{ fontWeight: 500 }}>Đánh giá mới:</span> {n.Message}
+                              </a>
+                            ) : (
+                              <span>
+                                <span style={{ fontWeight: 500 }}>Đơn hàng:</span> {n.Message}
+                              </span>
+                            )}
+                            <br />
+                            <span style={{ color: "#aaa", fontSize: 12 }}>{new Date(n.CreatedAt).toLocaleString()}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
             <button className="icon-btn" title="Tin nhắn">
               <ChatBubbleLeftRightIcon className="icon" />
               <span className="badge">5</span>

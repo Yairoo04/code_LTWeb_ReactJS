@@ -19,6 +19,7 @@ type Review = {
   authorName: string;
   rating: number;
   comment: string | null;
+  replyContent?: string | null;
   images?: string[];
   createdAt: string;
   updatedAt?: string | null;
@@ -361,6 +362,11 @@ export default function ProductReviews({ productId }: Props) {
                 {r.comment && (
                   <div className={styles.reviewComment}>{r.comment}</div>
                 )}
+                {r.replyContent && (
+                  <div className={styles.adminReplyBox}>
+                    <strong>Phản hồi từ shop:</strong> {r.replyContent}
+                  </div>
+                )}
                 {r.images && r.images.length > 0 && (
                   <div className={styles.reviewImages}>
                     {r.images.map((img, index) => (
@@ -373,6 +379,7 @@ export default function ProductReviews({ productId }: Props) {
                     ))}
                   </div>
                 )}
+                {/* Xóa đoạn lặp hiển thị phản hồi admin */}
               </article>
             ))}
           </div>

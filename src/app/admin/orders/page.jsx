@@ -235,6 +235,16 @@ export default function OrdersPage() {
     }
   };
 
+  function formatUTCDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.getUTCDate().toString().padStart(2, '0') + '/' +
+      (d.getUTCMonth() + 1).toString().padStart(2, '0') + '/' +
+      d.getUTCFullYear() + ' ' +
+      d.getUTCHours().toString().padStart(2, '0') + ':' +
+      d.getUTCMinutes().toString().padStart(2, '0') + ':' +
+      d.getUTCSeconds().toString().padStart(2, '0');
+  }
+
   return (
     <div className="admin-page">
       <AdminPageTitle>Đơn hàng</AdminPageTitle>
@@ -306,7 +316,7 @@ export default function OrdersPage() {
                   <td>
                     <span className={badgeClass(o.Status)}>{STATUS_VI[o.Status] || o.Status}</span>
                   </td>
-                  <td>{new Date(o.CreatedAt).toLocaleString("vi-VN")}</td>
+                  <td>{formatUTCDate(o.CreatedAt)}</td>
                   <td className={styles.actionsCell}>
                     <button className={styles.iconBtn} data-tooltip="Xem chi tiết đơn hàng" onClick={() => viewOrderDetails(o.OrderId)}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -405,7 +415,7 @@ export default function OrdersPage() {
                 </table>
               </section>
 
-              <div className={styles.miniInfo}>Tạo lúc: {new Date(selected.CreatedAt).toLocaleString("vi-VN")}</div>
+              <div className={styles.miniInfo}>Tạo lúc: {formatUTCDate(selected.CreatedAt)}</div>
             </div>
             <div className={styles.modalFooter}>
               <button className={styles.closePrimary} onClick={() => setSelected(null)}>Đóng</button>

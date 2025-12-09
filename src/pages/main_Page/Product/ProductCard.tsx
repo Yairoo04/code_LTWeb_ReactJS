@@ -122,9 +122,6 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
     }
   };
 
-  // Lấy số lượng đánh giá và điểm trung bình từ product nếu có
-  const averageRating = (product as any).averageRating ?? 0;
-  const totalReviews = (product as any).totalReviews ?? 0;
 
   return (
     <div

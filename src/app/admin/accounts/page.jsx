@@ -517,7 +517,7 @@ function AccountModal({ value, onClose, onSave }) {
             </ul>
             {!isEdit && (
               <p style={{ marginTop: "8px", fontSize: "13px", color: "#6b7280", fontStyle: "italic" }}>
-                💡 Mật khẩu mặc định: <strong>Username@123</strong> (chữ cái đầu viết hoa)
+                 Mật khẩu mặc định: <strong>Username@123</strong> (chữ cái đầu viết hoa)
                 <br />
                 <span style={{ marginLeft: "20px" }}>Ví dụ: <code>shipper01</code> → <code>Shipper01@123</code></span>
               </p>
