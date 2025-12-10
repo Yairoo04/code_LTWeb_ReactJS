@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { calculateGHNShippingFee } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import styles from './ProductDetail.module.scss';
 import Image from 'next/image';
@@ -52,6 +53,9 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<1 | 2 | 3>(1);
+  // Shipping fee
+  const [shippingFee, setShippingFee] = useState<number|null>(null);
+  const [loadingFee, setLoadingFee] = useState(false);
 
   // MOMO QR
   const [showMoMoQR, setShowMoMoQR] = useState(false);
@@ -128,13 +132,34 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
   const handleAddressChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedAddress(value);
-
     const selected = addresses.find(a => a.fullAddress === value);
     if (selected) {
       setName(selected.ReceiverName);
       setPhone(selected.PhoneNumber);
     }
   };
+
+  // Tính phí ship khi chọn/chỉnh địa chỉ hoặc số lượng
+  useEffect(() => {
+    async function fetchFee() {
+      if (!selectedAddress) { setShippingFee(null); return; }
+      setLoadingFee(true);
+      try {
+        const fee = await calculateGHNShippingFee({
+          toAddress: selectedAddress,
+          weight: 5000 * quantity,
+          length: 20,
+          width: 20,
+          height: 20,
+        });
+        setShippingFee(fee);
+      } catch (e) {
+        setShippingFee(null);
+      }
+      setLoadingFee(false);
+    }
+    fetchFee();
+  }, [selectedAddress, quantity]);
 
   // MOMO Polling
   useEffect(() => {
@@ -159,6 +184,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
     if (!name.trim()) return alert('Vui lòng nhập họ tên!');
     if (!/^\d{9,11}$/.test(phone.replace(/\D/g, ''))) return alert('Số điện thoại không hợp lệ!');
     if (!selectedAddress) return alert('Vui lòng chọn địa chỉ giao hàng!');
+    if (!shippingFee || shippingFee <= 0) return alert('Không lấy được phí ship, vui lòng kiểm tra lại địa chỉ!');
 
     const addr = addresses.find(a => a.fullAddress === selectedAddress);
     if (!addr) return alert('Địa chỉ không hợp lệ!');
@@ -179,6 +205,7 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
           recipientName: name.trim(),
           recipientPhone: phone.trim(),
           paymentMethodId: selectedPaymentMethod,
+          shippingFee,
         }),
       });
 
@@ -200,7 +227,6 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
             amount,
             extraData: `realOrderId=${orderId}`
           })
-
         });
 
         const momoData = await momoRes.json();
@@ -325,9 +351,13 @@ export default function BuyNowButton({ productId, stock, productName }: Props) {
               )}
             </div>
 
+            <div style={{margin: '12px 0'}}>
+              <strong>Phí vận chuyển (GHN): </strong>
+              {loadingFee ? 'Đang tính...' : (shippingFee ? `${shippingFee.toLocaleString()}đ` : 'Không có dữ liệu')}
+            </div>
             <button
               className={styles.confirmBtn}
-              disabled={loading || !selectedAddress}
+              disabled={loading || !selectedAddress || loadingFee || !shippingFee}
               onClick={handleBuyNow}
             >
               {loading ? 'Đang xử lý...' : `XÁC NHẬN MUA NGAY (${quantity} sản phẩm)`}
