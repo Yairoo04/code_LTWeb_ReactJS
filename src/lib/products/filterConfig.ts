@@ -2,7 +2,7 @@
 import type { FilterConfig } from "./types";
 
 export const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
-  // Laptop (CategoryId: 1)
+  // Laptop (1)
   "1": [
     {
       key: "category",
@@ -107,7 +107,7 @@ export const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
     },
   ],
 
-  // PC (CategoryId: 2)
+  // PC (2)
   "2": [
     {
       key: "category",
@@ -193,7 +193,7 @@ export const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
     },
   ],
 
-  // Màn hình (CategoryId: 3)
+  // Màn hình (3)
   "3": [
     {
       key: "category",
@@ -262,7 +262,7 @@ export const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
     },
   ],
 
-  // Bàn phím (CategoryId: 4)
+  // Bàn phím (4)
   "4": [
     {
       key: "category",
@@ -326,7 +326,7 @@ export const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
     },
   ],
 
-  // Chuột (CategoryId: 5)
+  // Chuột (5)
   "5": [
     {
       key: "category",
@@ -372,6 +372,176 @@ export const CATEGORY_FILTER_CONFIG: Record<string, FilterConfig[]> = {
       options: [
         { value: "gaming", label: "Gaming" },
         { value: "văn phòng", label: "Văn phòng" },
+      ],
+    },
+  ],
+
+  // Mainboard & VGA (6)
+  "6": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [{ value: "6", label: "Main, CPU, VGA" }],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-20000000", label: "Dưới 20 triệu" },
+        { value: "20000000-30000000", label: "20 - 30 triệu" },
+        { value: "30000000-40000000", label: "30 - 40 triệu" },
+        { value: "40000000-999999999", label: "Trên 40 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "asus", label: "ASUS" },
+        { value: "msi", label: "MSI" },
+        { value: "gigabyte", label: "Gigabyte" },
+      ],
+    },
+    {
+      key: "series",
+      label: "Series",
+      placeholder: "Series",
+      options: [
+        { value: "rtx 5060", label: "RTX 5060" },
+        { value: "rtx 5060 ti", label: "RTX 5060Ti" },
+        { value: "rtx 5070", label: "RTX 5070" },
+        { value: "rtx 5070 ti", label: "RTX 5070Ti" },
+        { value: "rtx 5080", label: "RTX 5080" },
+        { value: "rtx 5090", label: "RTX 5090" },
+        { value: "z790", label: "Z790" },
+        { value: "z890", label: "Z890" },
+      ],
+    },
+    {
+      key: "socket",
+      label: "Socket (cho Mainboard)",
+      placeholder: "Socket",
+      options: [
+        { value: "lga 1700", label: "LGA 1700" },
+        { value: "am5", label: "AM5" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "overclock", label: "Overclock" },
+      ],
+    },
+  ],
+
+  // Case, PSU, Cooling (7)
+  "7": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [{ value: "7", label: "Vỏ case, Nguồn, Tản nhiệt" }],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-2000000", label: "Dưới 2 triệu" },
+        { value: "2000000-5000000", label: "2 - 5 triệu" },
+        { value: "5000000-10000000", label: "5 - 10 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "corsair", label: "Corsair" },
+        { value: "lian li", label: "Lian Li" },
+        { value: "asus", label: "ASUS" },
+        { value: "deepcool", label: "Deepcool" },
+      ],
+    },
+    {
+      key: "watt",
+      label: "Công suất (PSU)",
+      placeholder: "Công suất",
+      options: [
+        { value: "850w", label: "850W" },
+        { value: "1000w", label: "1000W" },
+        { value: "1500w", label: "1500W" },
+        { value: "1600w", label: "1600W" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "workstation", label: "Workstation" },
+      ],
+    },
+  ],
+
+  // RAM & Storage (8)
+  "8": [
+    {
+      key: "category",
+      label: "Danh mục",
+      placeholder: "Bộ lọc (Danh mục)",
+      options: [{ value: "8", label: "RAM & Ổ cứng" }],
+    },
+    {
+      key: "price",
+      label: "Giá",
+      placeholder: "Giá",
+      options: [
+        { value: "0-1000000", label: "Dưới 1 triệu" },
+        { value: "1000000-3000000", label: "1 - 3 triệu" },
+        { value: "3000000-5000000", label: "3 - 5 triệu" },
+        { value: "5000000-999999999", label: "Trên 5 triệu" },
+      ],
+    },
+    {
+      key: "brand",
+      label: "Hãng",
+      placeholder: "Hãng",
+      options: [
+        { value: "corsair", label: "Corsair" },
+        { value: "kingston", label: "Kingston" },
+        { value: "samsung", label: "Samsung" },
+        { value: "wd", label: "WD" },
+        { value: "gigabyte", label: "Gigabyte" },
+      ],
+    },
+    {
+      key: "capacity",
+      label: "Dung lượng",
+      placeholder: "Dung lượng",
+      options: [
+        { value: "128gb", label: "128GB" },
+        { value: "500gb", label: "500GB" },
+        { value: "1tb", label: "1TB" },
+        { value: "2tb", label: "2TB" },
+        { value: "32gb", label: "32GB (RAM)" },
+        { value: "64gb", label: "64GB (RAM)" },
+      ],
+    },
+    {
+      key: "usage",
+      label: "Nhu cầu sử dụng",
+      placeholder: "Nhu cầu sử dụng",
+      options: [
+        { value: "gaming", label: "Gaming" },
+        { value: "workstation", label: "Workstation" },
       ],
     },
   ],

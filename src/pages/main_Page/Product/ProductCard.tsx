@@ -1,4 +1,3 @@
-// pages/main_Page/Product/ProductCard.tsx
 'use client';
 
 import React from 'react';
@@ -18,18 +17,16 @@ type FrontendProduct = {
   discountPrice?: number | null;
   categoryId?: number | null;
   stock?: number;
-  image_url?: string;
-  ImageUrl?: string;
 
-  // frontend mapping (camelCase)
+  // CHỈNH SỬA Ở ĐÂY
+  image_url?: string | string[];
+  ImageUrl?: string | string[];
+
   averageRating?: number | null;
   totalReviews?: number | null;
-
-  // dữ liệu trả thẳng từ API (PascalCase)
   AverageRating?: number | null;
   TotalReviews?: number | null;
 
-  // có thể còn các field khác (FlashPrice, ...)
   FlashPrice?: number | null;
 };
 
@@ -38,16 +35,25 @@ function formatVND(n?: number) {
   return new Intl.NumberFormat('vi-VN').format(n) + '₫';
 }
 
-function getFirstImage(imageUrl?: string): string {
+function getFirstImage(imageUrl?: string | string[]): string {
   if (!imageUrl) return '/images/placeholder.png';
+
+  // TH1: API trả mảng
+  if (Array.isArray(imageUrl)) {
+    return imageUrl[0] || '/images/placeholder.png';
+  }
+
+  // TH2: API trả string JSON
   try {
     const parsed = JSON.parse(imageUrl);
     if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
-    return imageUrl;
   } catch {
+    // TH3: API trả CSV
     const images = imageUrl.split(',').filter(Boolean);
-    return images[0] || imageUrl;
+    if (images.length > 0) return images[0];
   }
+
+  return imageUrl || '/images/placeholder.png';
 }
 
 export default function ProductCard({ product }: { product?: FrontendProduct }) {
@@ -62,7 +68,10 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
     );
   }
 
-  const imageField = product.ImageUrl || product.image_url;
+  // CHỈNH SỬA Ở ĐÂY
+  const imageField: string | string[] | undefined =
+    product.ImageUrl ?? product.image_url;
+
   const firstImage = getFirstImage(imageField);
   const imgSrc = firstImage.startsWith('http') ? firstImage : firstImage;
 
@@ -90,7 +99,6 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
       )
     : 0;
 
-  // ===== Rating: đọc cả camelCase và PascalCase =====
   const rawAverageRating =
     typeof product.averageRating === 'number'
       ? product.averageRating
@@ -126,7 +134,6 @@ export default function ProductCard({ product }: { product?: FrontendProduct }) 
       router.push(`/products/${product.id}`);
     }
   };
-
 
   return (
     <div

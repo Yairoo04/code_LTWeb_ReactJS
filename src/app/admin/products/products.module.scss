@@ -23,9 +23,12 @@
   border-radius: 8px;
   cursor: pointer;
   transition: transform .1s ease, box-shadow .2s ease;
-  box-shadow: 0 2px 6px rgba(37,99,235,.25);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, .25);
 }
-.addBtn:hover { transform: translateY(-1px); }
+
+.addBtn:hover {
+  transform: translateY(-1px);
+}
 
 .toolbar {
   position: sticky;
@@ -90,9 +93,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* giữ bo góc ảnh nhưng không chặn tooltip bên dưới */
+  overflow: hidden;
+  /* giữ bo góc ảnh nhưng không chặn tooltip bên dưới */
   border-radius: 12px 12px 0 0;
 }
+
 .imageWrap img {
   width: 100%;
   height: 100%;
@@ -109,6 +114,7 @@
   padding: 4px 6px;
   border-radius: 6px;
 }
+
 .badgeIn {
   position: absolute;
   top: 8px;
@@ -119,6 +125,7 @@
   padding: 4px 6px;
   border-radius: 6px;
 }
+
 .badgeOut {
   position: absolute;
   top: 8px;
@@ -143,6 +150,7 @@
 
 .card.inactive {
   opacity: 0.6;
+
   .imageWrap {
     filter: grayscale(0.5);
   }
@@ -193,8 +201,17 @@
   align-items: baseline;
   gap: 8px;
 }
-.finalPrice { color: #111827; font-weight: 700; }
-.originalPrice { color: #6b7280; text-decoration: line-through; font-size: 12px; }
+
+.finalPrice {
+  color: #111827;
+  font-weight: 700;
+}
+
+.originalPrice {
+  color: #6b7280;
+  text-decoration: line-through;
+  font-size: 12px;
+}
 
 .actions {
   margin-top: 4px;
@@ -210,6 +227,7 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
 .btnDanger {
   border: 1px solid #ef4444;
   background: #fff5f5;
@@ -232,20 +250,20 @@
   transition: all 0.2s;
   position: relative;
   color: #6b7280;
-  
+
   svg {
     transition: all 0.2s;
   }
-  
+
   &:hover {
     background: #f3f4f6;
     color: #111827;
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
-  
+
   &::after,
   &::before {
     pointer-events: none;
@@ -267,7 +285,7 @@
     opacity: 0;
     transition: opacity 0.18s ease, transform 0.18s ease;
     z-index: 50;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 
   &::before {
@@ -302,22 +320,24 @@
   transition: all 0.2s;
   position: relative;
   color: #dc2626;
-  
+
   svg {
     transition: all 0.2s;
   }
-  
+
   &:hover {
     background: #fee;
     color: #991b1b;
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
-  
+
   &::after,
-  &::before { pointer-events: none; }
+  &::before {
+    pointer-events: none;
+  }
 
   &::after {
     content: attr(data-tooltip);
@@ -335,7 +355,7 @@
     opacity: 0;
     transition: opacity 0.18s ease, transform 0.18s ease;
     z-index: 50;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 
   &::before {
@@ -352,7 +372,9 @@
   }
 
   &:hover::after,
-  &:hover::before { opacity: 1; }
+  &:hover::before {
+    opacity: 1;
+  }
 }
 
 // Modal Edit
@@ -404,7 +426,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  
+
   &:hover {
     background: #f3f4f6;
   }
@@ -424,7 +446,9 @@
     color: #374151;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid #d1d5db;
@@ -630,7 +654,9 @@
 }
 
 @keyframes spinImage {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // Specs Editor Styles
@@ -710,7 +736,7 @@
   padding: 12px 16px;
   background: #f3f4f6;
   border-bottom: 2px solid #e5e7eb;
-  
+
   .headerCell {
     font-size: 14px;
     font-weight: 600;
@@ -734,7 +760,7 @@
   padding: 8px;
   border-radius: 6px;
   transition: background 0.2s;
-  
+
   &:hover {
     background: #f9fafb;
   }
@@ -761,6 +787,32 @@
   }
 }
 
+.specInputTextarea {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: white;
+  resize: none; // không cho kéo tay
+  overflow: hidden; // tránh scrollbar
+  min-height: 40px;
+  line-height: 20px;
+  transition: height 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+    font-size: 13px;
+  }
+}
+
+
 .btnRemoveSpec {
   width: 32px;
   height: 32px;
@@ -786,4 +838,3 @@
     transform: scale(0.95);
   }
 }
-

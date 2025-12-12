@@ -1,4 +1,5 @@
 "use client";
+
 import { useMemo, useState, useEffect } from "react";
 import styles from "./products.module.scss";
 import AdminPageTitle from "@/components/AdminPageTitle";
@@ -6,7 +7,7 @@ import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
-function currency(v) {
+function currency(v: any) {
   try {
     return v?.toLocaleString("vi-VN") + "đ";
   } catch {
@@ -14,103 +15,133 @@ function currency(v) {
   }
 }
 
-// Specs templates cho từng danh mục
-const SPECS_TEMPLATES = {
+// Danh mục khớp với bảng dbo.Categories
+const CATEGORY_OPTIONS = [
+  { id: 1, name: "Laptop" },
+  { id: 2, name: "PC" },
+  { id: 3, name: "Màn hình" },
+  { id: 4, name: "Bàn phím" },
+  { id: 5, name: "Chuột" },
+  { id: 6, name: "Main, CPU, VGA" },
+  { id: 7, name: "Case, Nguồn, Tản" },
+  { id: 8, name: "Ổ cứng, RAM, Thẻ nhớ" },
+];
+
+// Specs templates cho từng danh mục (theo CategoryId)
+const SPECS_TEMPLATES: Record<number, { SpecName: string; SpecValue: string; Warranty: string }[]> = {
   1: [ // Laptop
-    { SpecName: 'CPU', SpecValue: '', Warranty: '' },
-    { SpecName: 'RAM', SpecValue: '', Warranty: '' },
-    { SpecName: 'VGA', SpecValue: '', Warranty: '' },
-    { SpecName: 'Ổ cứng', SpecValue: '', Warranty: '' },
-    { SpecName: 'Màn hình', SpecValue: '', Warranty: '' },
-    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
-    { SpecName: 'Trọng lượng', SpecValue: '', Warranty: '' },
+    { SpecName: "CPU", SpecValue: "", Warranty: "" },
+    { SpecName: "RAM", SpecValue: "", Warranty: "" },
+    { SpecName: "VGA", SpecValue: "", Warranty: "" },
+    { SpecName: "Ổ cứng", SpecValue: "", Warranty: "" },
+    { SpecName: "Màn hình", SpecValue: "", Warranty: "" },
+    { SpecName: "Pin", SpecValue: "", Warranty: "" },
+    { SpecName: "Trọng lượng", SpecValue: "", Warranty: "" },
   ],
   2: [ // PC
-    { SpecName: 'CPU', SpecValue: '', Warranty: '' },
-    { SpecName: 'Mainboard', SpecValue: '', Warranty: '' },
-    { SpecName: 'RAM', SpecValue: '', Warranty: '' },
-    { SpecName: 'VGA', SpecValue: '', Warranty: '' },
-    { SpecName: 'SSD', SpecValue: '', Warranty: '' },
-    { SpecName: 'HDD', SpecValue: '', Warranty: '' },
-    { SpecName: 'PSU', SpecValue: '', Warranty: '' },
-    { SpecName: 'Case', SpecValue: '', Warranty: '' },
-    { SpecName: 'Tản nhiệt', SpecValue: '', Warranty: '' },
+    { SpecName: "CPU", SpecValue: "", Warranty: "" },
+    { SpecName: "Mainboard", SpecValue: "", Warranty: "" },
+    { SpecName: "RAM", SpecValue: "", Warranty: "" },
+    { SpecName: "VGA", SpecValue: "", Warranty: "" },
+    { SpecName: "SSD", SpecValue: "", Warranty: "" },
+    { SpecName: "HDD", SpecValue: "", Warranty: "" },
+    { SpecName: "PSU", SpecValue: "", Warranty: "" },
+    { SpecName: "Case", SpecValue: "", Warranty: "" },
+    { SpecName: "Tản nhiệt", SpecValue: "", Warranty: "" },
   ],
   3: [ // Màn hình
-    { SpecName: 'Kích thước', SpecValue: '', Warranty: '' },
-    { SpecName: 'Độ phân giải', SpecValue: '', Warranty: '' },
-    { SpecName: 'Tấm nền', SpecValue: '', Warranty: '' },
-    { SpecName: 'Tần số quét', SpecValue: '', Warranty: '' },
-    { SpecName: 'Thời gian phản hồi', SpecValue: '', Warranty: '' },
-    { SpecName: 'Cổng kết nối', SpecValue: '', Warranty: '' },
+    { SpecName: "Kích thước", SpecValue: "", Warranty: "" },
+    { SpecName: "Độ phân giải", SpecValue: "", Warranty: "" },
+    { SpecName: "Tấm nền", SpecValue: "", Warranty: "" },
+    { SpecName: "Tần số quét", SpecValue: "", Warranty: "" },
+    { SpecName: "Thời gian phản hồi", SpecValue: "", Warranty: "" },
+    { SpecName: "Cổng kết nối", SpecValue: "", Warranty: "" },
   ],
-  4: [ // Chuột
-    { SpecName: 'Sensor', SpecValue: '', Warranty: '' },
-    { SpecName: 'DPI', SpecValue: '', Warranty: '' },
-    { SpecName: 'Kết nối', SpecValue: '', Warranty: '' },
-    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
-    { SpecName: 'Trọng lượng', SpecValue: '', Warranty: '' },
-    { SpecName: 'Số nút', SpecValue: '', Warranty: '' },
+  4: [ // Bàn phím
+    { SpecName: "Switch", SpecValue: "", Warranty: "" },
+    { SpecName: "Keycap", SpecValue: "", Warranty: "" },
+    { SpecName: "Layout", SpecValue: "", Warranty: "" },
+    { SpecName: "Kết nối", SpecValue: "", Warranty: "" },
+    { SpecName: "LED", SpecValue: "", Warranty: "" },
+    { SpecName: "Pin", SpecValue: "", Warranty: "" },
   ],
-  5: [ // Bàn phím
-    { SpecName: 'Switch', SpecValue: '', Warranty: '' },
-    { SpecName: 'Keycap', SpecValue: '', Warranty: '' },
-    { SpecName: 'Layout', SpecValue: '', Warranty: '' },
-    { SpecName: 'Kết nối', SpecValue: '', Warranty: '' },
-    { SpecName: 'LED', SpecValue: '', Warranty: '' },
-    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
+  5: [ // Chuột
+    { SpecName: "Sensor", SpecValue: "", Warranty: "" },
+    { SpecName: "DPI", SpecValue: "", Warranty: "" },
+    { SpecName: "Kết nối", SpecValue: "", Warranty: "" },
+    { SpecName: "Pin", SpecValue: "", Warranty: "" },
+    { SpecName: "Trọng lượng", SpecValue: "", Warranty: "" },
+    { SpecName: "Số nút", SpecValue: "", Warranty: "" },
   ],
-  6: [ // Tai nghe
-    { SpecName: 'Driver', SpecValue: '', Warranty: '' },
-    { SpecName: 'Kết nối', SpecValue: '', Warranty: '' },
-    { SpecName: 'Tần số', SpecValue: '', Warranty: '' },
-    { SpecName: 'Micro', SpecValue: '', Warranty: '' },
-    { SpecName: 'Pin', SpecValue: '', Warranty: '' },
+  6: [ // Main, CPU, VGA
+    { SpecName: "Mainboard", SpecValue: "", Warranty: "" },
+    { SpecName: "CPU", SpecValue: "", Warranty: "" },
+    { SpecName: "VGA", SpecValue: "", Warranty: "" },
+  ],
+  7: [ // Case, Nguồn, Tản
+    { SpecName: "Case", SpecValue: "", Warranty: "" },
+    { SpecName: "PSU", SpecValue: "", Warranty: "" },
+    { SpecName: "Tản nhiệt", SpecValue: "", Warranty: "" },
+  ],
+  8: [ // Ổ cứng, RAM, Thẻ nhớ
+    { SpecName: "SSD", SpecValue: "", Warranty: "" },
+    { SpecName: "HDD", SpecValue: "", Warranty: "" },
+    { SpecName: "RAM", SpecValue: "", Warranty: "" },
+    { SpecName: "Thẻ nhớ", SpecValue: "", Warranty: "" },
   ],
 };
 
 export default function ProductPage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | number>("all");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState("default");
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [specs, setSpecs] = useState([]); // State cho specs
-  const [loadingSpecs, setLoadingSpecs] = useState(false); // Loading state
-  const [formData, setFormData] = useState({
+  const [specs, setSpecs] = useState<any[]>([]);
+  const [loadingSpecs, setLoadingSpecs] = useState(false);
+  const [formData, setFormData] = useState<{
+    productName: string;
+    description: string;
+    price: any;
+    discountPrice: any;
+    stockQuantity: any;
+    categoryId: number | "";// số hoặc rỗng khi chưa chọn
+    images: { url: string; uploaded: boolean }[];
+    sku: string;
+  }>({
     productName: "",
     description: "",
     price: "",
     discountPrice: "",
     stockQuantity: "",
     categoryId: "",
-    images: [], // Đổi từ imageUrl sang images array
+    images: [],
     sku: "",
   });
 
-  // Helper function to get first image from ImageUrl
   function getFirstImageUrl(imageUrl) {
     if (!imageUrl) return "/images/products/keychron_k2.jpg";
-    
+
     try {
-      // Try parsing as JSON array
       const parsed = JSON.parse(imageUrl);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed[0];
-      }
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
       return imageUrl;
     } catch {
-      // If not JSON, try splitting by comma
-      const images = imageUrl.split(',').filter(Boolean);
+      const images = imageUrl.split(",").filter(Boolean);
       return images[0] || imageUrl;
     }
   }
 
-  // Fetch products từ API khi component mount
+
+  function autoResize(e) {
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -118,34 +149,33 @@ export default function ProductPage() {
   async function fetchProducts() {
     try {
       setLoading(true);
-      console.log("🔍 Fetching products from:", `${API_BASE}/api/admin/products`);
       const res = await fetch(`${API_BASE}/api/admin/products`);
       const data = await res.json();
-      console.log(" Products response:", data);
       if (data.success) {
-        console.log(" Products loaded:", data.data.length);
         setProducts(data.data);
       } else {
-        console.error("❌ API returned success=false:", data);
+        console.error("API returned success=false:", data);
       }
     } catch (error) {
-      console.error("❌ Failed to fetch products:", error);
+      console.error("Failed to fetch products:", error);
     } finally {
       setLoading(false);
     }
   }
 
-  const categories = useMemo(() => {
-    const set = new Set(["all", ...products.map((p) => p.CategoryName).filter(Boolean)]);
-    return Array.from(set);
-  }, [products]);
-
   const filtered = useMemo(() => {
     let list = products.filter((p) =>
       (p.ProductName || "").toLowerCase().includes(search.toLowerCase())
     );
-    if (category !== "all") list = list.filter((p) => p.CategoryName === category);
-    if (inStockOnly) list = list.filter((p) => (p.StockQuantity ?? 0) > 0);
+
+    if (categoryFilter !== "all") {
+      list = list.filter((p) => p.CategoryId === categoryFilter);
+    }
+
+    if (inStockOnly) {
+      list = list.filter((p) => (p.StockQuantity ?? 0) > 0);
+    }
+
     switch (sort) {
       case "priceAsc":
         list = [...list].sort(
@@ -160,22 +190,22 @@ export default function ProductPage() {
       default:
         break;
     }
-    return list;
-  }, [products, search, category, inStockOnly, sort]);
 
-  async function openEditModal(product) {
+    return list;
+  }, [products, search, categoryFilter, inStockOnly, sort]);
+
+  async function openEditModal(product: any) {
     setEditingProduct(product);
-    // Parse images từ ImageUrl (giả sử lưu dạng comma-separated hoặc JSON array)
-    let imagesList = [];
+
+    let imagesList: string[] = [];
     if (product.ImageUrl) {
       try {
-        // Thử parse JSON array trước
         imagesList = JSON.parse(product.ImageUrl);
       } catch {
-        // Nếu không phải JSON, coi như string đơn
-        imagesList = product.ImageUrl.split(',').filter(Boolean);
+        imagesList = product.ImageUrl.split(",").filter(Boolean);
       }
     }
+
     setFormData({
       productName: product.ProductName || "",
       description: product.Description || "",
@@ -183,32 +213,29 @@ export default function ProductPage() {
       discountPrice: product.DiscountPrice || "",
       stockQuantity: product.StockQuantity || "",
       categoryId: product.CategoryId || "",
-      images: imagesList.map(url => ({ url, uploaded: true })),
+      images: imagesList.map((url) => ({ url, uploaded: true })),
       sku: product.SKU || "",
     });
 
-    // Fetch specs cho sản phẩm
     setLoadingSpecs(true);
     try {
-      console.log(' Fetching specs for ProductId:', product.ProductId);
-      const res = await fetch(`${API_BASE}/api/products?productId=${product.ProductId}&details=true`);
+      const res = await fetch(
+        `${API_BASE}/api/products?productId=${product.ProductId}&details=true`
+      );
       const data = await res.json();
-      console.log(' API Response:', data);
-      
+
       if (data.success && data.data.specs) {
-        const loadedSpecs = data.data.specs.map(s => ({
-          SpecName: s.SpecName || '',
-          SpecValue: s.SpecValue || '',
-          Warranty: s.Warranty || ''
+        const loadedSpecs = data.data.specs.map((s: any) => ({
+          SpecName: s.SpecName || "",
+          SpecValue: s.SpecValue || "",
+          Warranty: s.Warranty || "",
         }));
-        console.log(' Loaded specs:', loadedSpecs);
         setSpecs(loadedSpecs);
       } else {
-        console.log(' No specs found in response');
         setSpecs([]);
       }
     } catch (error) {
-      console.error("❌ Failed to fetch specs:", error);
+      console.error("Failed to fetch specs:", error);
       setSpecs([]);
     } finally {
       setLoadingSpecs(false);
@@ -227,12 +254,13 @@ export default function ProductPage() {
       images: [],
       sku: "",
     });
+    setSpecs([]);
   }
 
   function closeModals() {
     setEditingProduct(null);
     setShowAddModal(false);
-    setSpecs([]); // Reset specs
+    setSpecs([]);
     setFormData({
       productName: "",
       description: "",
@@ -245,60 +273,57 @@ export default function ProductPage() {
     });
   }
 
-  // Specs management functions
-  function loadSpecsTemplate(categoryId) {
-    const template = SPECS_TEMPLATES[categoryId];
+  function loadSpecsTemplate(categoryIdValue: number | "") {
+    const id = typeof categoryIdValue === "string" ? Number(categoryIdValue) : categoryIdValue;
+    if (!id) {
+      console.log("No category id to load template");
+      return;
+    }
+
+    const template = SPECS_TEMPLATES[id];
     if (template) {
-      // Get existing SpecNames to avoid duplicates
-      const existingSpecNames = specs.map(s => s.SpecName.trim().toLowerCase());
-      
-      // Filter out template specs that already exist
-      const newSpecs = template.filter(t => 
-        !existingSpecNames.includes(t.SpecName.trim().toLowerCase())
+      const existingSpecNames = specs.map((s) =>
+        (s.SpecName || "").trim().toLowerCase()
       );
-      
-      // Merge existing specs with new template specs
-      setSpecs([...specs, ...newSpecs.map(t => ({ ...t }))]);
-      
-      console.log('📋 Merged specs template for category:', categoryId, '- Added', newSpecs.length, 'new specs');
-    } else {
-      console.log('⚠️ No template for category:', categoryId);
+      const newSpecs = template.filter(
+        (t) => !existingSpecNames.includes(t.SpecName.trim().toLowerCase())
+      );
+      setSpecs([...specs, ...newSpecs.map((t) => ({ ...t }))]);
     }
   }
 
   function addSpec() {
-    setSpecs([...specs, { SpecName: '', SpecValue: '', Warranty: '' }]);
+    setSpecs([...specs, { SpecName: "", SpecValue: "", Warranty: "" }]);
   }
 
-  function updateSpec(index, field, value) {
+  function updateSpec(index: number, field: "SpecName" | "SpecValue" | "Warranty", value: string) {
     const newSpecs = [...specs];
     newSpecs[index][field] = value;
     setSpecs(newSpecs);
   }
 
-  function removeSpec(index) {
+  function removeSpec(index: number) {
     setSpecs(specs.filter((_, i) => i !== index));
   }
 
-  async function saveSpecs(productId) {
+  async function saveSpecs(productId: number) {
     try {
       const res = await fetch(`${API_BASE}/api/admin/product-specs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, specs })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, specs }),
       });
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.message || 'Failed to save specs');
+        throw new Error(data.message || "Failed to save specs");
       }
-      console.log('✅ Specs saved:', data.count);
-    } catch (error) {
-      console.error('❌ Error saving specs:', error);
-      alert('Lỗi lưu thông số kỹ thuật: ' + error.message);
+    } catch (error: any) {
+      console.error("Error saving specs:", error);
+      alert("Lỗi lưu thông số kỹ thuật: " + error.message);
     }
   }
 
-  async function handleImageUpload(e) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
@@ -322,11 +347,11 @@ export default function ProductPage() {
       });
 
       const uploadedImages = await Promise.all(uploadPromises);
-      setFormData(prev => ({ 
-        ...prev, 
-        images: [...prev.images, ...uploadedImages] 
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...uploadedImages],
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to upload image:", error);
       alert("Upload ảnh thất bại: " + error.message);
     } finally {
@@ -334,19 +359,18 @@ export default function ProductPage() {
     }
   }
 
-  function deleteImage(index) {
-    setFormData(prev => ({
+  function deleteImage(index: number) {
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
     }));
   }
 
   async function saveProduct() {
     if (!editingProduct) return;
     try {
-      // Chuyển images array thành JSON string để lưu vào DB
-      const imageUrlString = JSON.stringify(formData.images.map(img => img.url));
-      
+      const imageUrlString = JSON.stringify(formData.images.map((img) => img.url));
+
       const res = await fetch(`${API_BASE}/api/admin/products`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -354,16 +378,14 @@ export default function ProductPage() {
           productId: editingProduct.ProductId,
           data: {
             ...formData,
-            imageUrl: imageUrlString, // Backend vẫn nhận imageUrl
+            categoryId: formData.categoryId ? Number(formData.categoryId) : null,
+            imageUrl: imageUrlString,
           },
         }),
       });
       const data = await res.json();
       if (data.success) {
-        // Save specs sau khi save product thành công
         await saveSpecs(editingProduct.ProductId);
-        
-        // Refresh lại danh sách
         await fetchProducts();
         closeModals();
         alert("Cập nhật sản phẩm và thông số kỹ thuật thành công!");
@@ -380,19 +402,19 @@ export default function ProductPage() {
       return;
     }
     try {
-      const imageUrlString = JSON.stringify(formData.images.map(img => img.url));
-      
+      const imageUrlString = JSON.stringify(formData.images.map((img) => img.url));
+
       const res = await fetch(`${API_BASE}/api/admin/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          categoryId: formData.categoryId ? Number(formData.categoryId) : null,
           imageUrl: imageUrlString,
         }),
       });
       const data = await res.json();
       if (data.success) {
-        // Refresh lại danh sách
         await fetchProducts();
         closeModals();
         alert("Thêm sản phẩm thành công!");
@@ -403,16 +425,15 @@ export default function ProductPage() {
     }
   }
 
-  async function togglePublished(productId) {
+  async function togglePublished(productId: number) {
     try {
       const res = await fetch(`${API_BASE}/api/admin/products`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, action: "togglePublished" })
+        body: JSON.stringify({ productId, action: "togglePublished" }),
       });
       const data = await res.json();
       if (data.success) {
-        // Cập nhật state local
         setProducts((prev) =>
           prev.map((p) =>
             p.ProductId === productId ? { ...p, IsPublished: p.IsPublished ? 0 : 1 } : p
@@ -425,15 +446,19 @@ export default function ProductPage() {
     }
   }
 
-  async function deleteProduct(productId) {
-    if (!confirm("Cẩn trọng: Việc xóa sản phẩm này sẽ xóa toàn bộ dữ liệu liên quan (đơn hàng, giỏ hàng, thông số, doanh thu, ...). Bạn có chắc chắn muốn xóa?")) return;
+  async function deleteProduct(productId: number) {
+    if (
+      !confirm(
+        "Cẩn trọng: Việc xóa sản phẩm này sẽ xóa toàn bộ dữ liệu liên quan (đơn hàng, giỏ hàng, thông số, doanh thu, ...). Bạn có chắc chắn muốn xóa?"
+      )
+    )
+      return;
     try {
       const res = await fetch(`${API_BASE}/api/admin/products?productId=${productId}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
       const data = await res.json();
       if (data.success) {
-        // Xóa khỏi state local
         setProducts((prev) => prev.filter((p) => p.ProductId !== productId));
       }
     } catch (error) {
@@ -462,12 +487,16 @@ export default function ProductPage() {
         </div>
         <select
           className={styles.select}
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={categoryFilter === "all" ? "all" : String(categoryFilter)}
+          onChange={(e) => {
+            const v = e.target.value;
+            setCategoryFilter(v === "all" ? "all" : Number(v));
+          }}
         >
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c === "all" ? "Tất cả danh mục" : c}
+          <option value="all">Tất cả danh mục</option>
+          {CATEGORY_OPTIONS.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
             </option>
           ))}
         </select>
@@ -491,7 +520,7 @@ export default function ProductPage() {
       </div>
 
       {loading ? (
-        <LoadingSpinner message="Đang tải sản phẩm..." minHeight={200} cute={true} />
+        <LoadingSpinner message="Đang tải sản phẩm..." minHeight={200} />
       ) : (
         <div className={styles.grid}>
           {filtered.map((p) => {
@@ -503,8 +532,8 @@ export default function ProductPage() {
             const outOfStock = (p.StockQuantity ?? 0) <= 0;
             const isUnpublished = !p.IsPublished;
             return (
-              <div 
-                key={p.ProductId} 
+              <div
+                key={p.ProductId}
                 className={`${styles.card} ${isUnpublished ? styles.inactive : ""}`}
               >
                 <div className={styles.imageWrap}>
@@ -524,14 +553,13 @@ export default function ProductPage() {
                     alt={p.ProductName}
                     loading="lazy"
                     onError={(e) => {
-                      e.currentTarget.src = "/images/products/keychron_k2.jpg";
+                      (e.currentTarget as HTMLImageElement).src =
+                        "/images/products/keychron_k2.jpg";
                     }}
                   />
                 </div>
                 <div className={styles.content}>
-                  <div className={styles.title}>
-                    {p.ProductName}
-                  </div>
+                  <div className={styles.title}>{p.ProductName}</div>
                   <div className={styles.metaRow}>
                     <span className={styles.categoryChip}>{p.CategoryName || "Khác"}</span>
                     <span className={styles.skuChip}>SKU: {p.SKU || "N/A"}</span>
@@ -543,39 +571,75 @@ export default function ProductPage() {
                     ) : null}
                   </div>
                   <div className={styles.actions}>
-                    <button 
+                    <button
                       className={styles.iconBtn}
                       data-tooltip="Sửa sản phẩm"
                       onClick={() => openEditModal(p)}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                       </svg>
                     </button>
-                    <button 
+                    <button
                       className={styles.iconBtn}
                       data-tooltip={p.IsPublished ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
                       onClick={() => togglePublished(p.ProductId)}
                     >
                       {p.IsPublished ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                           <line x1="1" y1="1" x2="23" y2="23"></line>
                         </svg>
                       ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                           <circle cx="12" cy="12" r="3"></circle>
                         </svg>
                       )}
                     </button>
-                    <button 
+                    <button
                       className={styles.iconBtnDanger}
                       data-tooltip="Xóa sản phẩm"
                       onClick={() => deleteProduct(p.ProductId)}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                       </svg>
@@ -594,7 +658,9 @@ export default function ProductPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>Sửa sản phẩm #{editingProduct.ProductId}</h3>
-              <button className={styles.closeBtn} onClick={closeModals}>✕</button>
+              <button className={styles.closeBtn} onClick={closeModals}>
+                ✕
+              </button>
             </div>
             <div className={styles.modalBody}>
               <div className={styles.formGroup}>
@@ -602,14 +668,18 @@ export default function ProductPage() {
                 <input
                   type="text"
                   value={formData.productName}
-                  onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, productName: e.target.value })
+                  }
                 />
               </div>
               <div className={styles.formGroup}>
                 <label>Mô tả sản phẩm</label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder="Nhập mô tả chi tiết về sản phẩm..."
                 />
               </div>
@@ -623,11 +693,25 @@ export default function ProductPage() {
                     onChange={handleImageUpload}
                     disabled={uploading}
                   />
-                  <svg className={styles.uploadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  <svg
+                    className={styles.uploadIcon}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
                   </svg>
-                  <div className={styles.uploadText}>Nhấp để chọn hoặc kéo thả ảnh vào đây</div>
-                  <div className={styles.uploadHint}>Hỗ trợ: JPG, PNG, GIF (Tối đa 5MB mỗi ảnh)</div>
+                  <div className={styles.uploadText}>
+                    Nhấp để chọn hoặc kéo thả ảnh vào đây
+                  </div>
+                  <div className={styles.uploadHint}>
+                    Hỗ trợ: JPG, PNG, GIF (Tối đa 5MB mỗi ảnh)
+                  </div>
                 </div>
                 {uploading && (
                   <div className={styles.uploadingIndicator}>Đang upload ảnh...</div>
@@ -655,27 +739,31 @@ export default function ProductPage() {
                   <input
                     type="text"
                     value={formData.sku}
-                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sku: e.target.value })
+                    }
                     placeholder="VD: DELL-XPS13"
                   />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Danh mục *</label>
                   <select
-                    value={formData.categoryId}
-                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                    value={formData.categoryId === "" ? "" : String(formData.categoryId)}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        categoryId: e.target.value
+                          ? Number(e.target.value)
+                          : "",
+                      })
+                    }
                   >
                     <option value="">-- Chọn danh mục --</option>
-                    {categories
-                      .filter((c) => c !== "all")
-                      .map((catName) => {
-                        const cat = products.find((p) => p.CategoryName === catName);
-                        return cat ? (
-                          <option key={cat.CategoryId} value={cat.CategoryId}>
-                            {catName}
-                          </option>
-                        ) : null;
-                      })}
+                    {CATEGORY_OPTIONS.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -685,7 +773,9 @@ export default function ProductPage() {
                   <input
                     type="number"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -693,7 +783,9 @@ export default function ProductPage() {
                   <input
                     type="number"
                     value={formData.discountPrice}
-                    onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discountPrice: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -702,7 +794,9 @@ export default function ProductPage() {
                 <input
                   type="number"
                   value={formData.stockQuantity}
-                  onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, stockQuantity: e.target.value })
+                  }
                 />
               </div>
 
@@ -710,13 +804,13 @@ export default function ProductPage() {
               <div className={styles.specsSection}>
                 <div className={styles.specsHeader}>
                   <label>Thông số kỹ thuật</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      type="button" 
-                      className={styles.btnLoadTemplate} 
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      type="button"
+                      className={styles.btnLoadTemplate}
                       onClick={() => {
                         if (!formData.categoryId) {
-                          alert('Vui lòng chọn danh mục trước!');
+                          alert("Vui lòng chọn danh mục trước!");
                           return;
                         }
                         loadSpecsTemplate(formData.categoryId);
@@ -724,29 +818,50 @@ export default function ProductPage() {
                     >
                       📋 Tải mẫu theo danh mục
                     </button>
-                    <button type="button" className={styles.btnAddSpec} onClick={addSpec}>
+                    <button
+                      type="button"
+                      className={styles.btnAddSpec}
+                      onClick={addSpec}
+                    >
                       + Thêm thông số
                     </button>
                   </div>
                 </div>
                 {loadingSpecs ? (
-                  <p style={{ color: '#2563eb', textAlign: 'center', padding: '20px', margin: 0 }}>
+                  <p
+                    style={{
+                      color: "#2563eb",
+                      textAlign: "center",
+                      padding: "20px",
+                      margin: 0,
+                    }}
+                  >
                     ⏳ Đang tải thông số...
                   </p>
                 ) : specs.length === 0 ? (
-                  <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px', margin: 0 }}>
+                  <p
+                    style={{
+                      color: "#9ca3af",
+                      textAlign: "center",
+                      padding: "20px",
+                      margin: 0,
+                    }}
+                  >
                     Chưa có thông số. Nhấn "Thêm thông số" để bắt đầu.
                   </p>
                 ) : (
                   <div className={styles.specsTable}>
-                    {/* Table Header */}
                     <div className={styles.specsTableHeader}>
                       <div className={styles.headerCell}>Linh kiện</div>
-                      <div className={styles.headerCell} style={{ flex: 2 }}>Chi tiết</div>
+                      <div className={styles.headerCell} style={{ flex: 2 }}>
+                        Chi tiết
+                      </div>
                       <div className={styles.headerCell}>Bảo hành</div>
-                      <div className={styles.headerCell} style={{ width: '50px' }}></div>
+                      <div
+                        className={styles.headerCell}
+                        style={{ width: "50px" }}
+                      ></div>
                     </div>
-                    {/* Table Body */}
                     <div className={styles.specsList}>
                       {specs.map((spec, index) => (
                         <div key={index} className={styles.specRow}>
@@ -754,22 +869,38 @@ export default function ProductPage() {
                             type="text"
                             placeholder="VD: CPU"
                             value={spec.SpecName}
-                            onChange={(e) => updateSpec(index, 'SpecName', e.target.value)}
+                            onChange={(e) =>
+                              updateSpec(index, "SpecName", e.target.value)
+                            }
                             className={styles.specInput}
                           />
-                          <input
+                          {/* <input
                             type="text"
                             placeholder="VD: Intel Core i5-1335U (10 nhân 12 luồng)"
                             value={spec.SpecValue}
-                            onChange={(e) => updateSpec(index, 'SpecValue', e.target.value)}
+                            onChange={(e) =>
+                              updateSpec(index, "SpecValue", e.target.value)
+                            }
                             className={styles.specInput}
                             style={{ flex: 2 }}
+                          /> */}
+                          <textarea
+                            placeholder="VD: Intel Core i5-1335U (10 nhân 12 luồng)"
+                            value={spec.SpecValue}
+                            onChange={(e) => {
+                              updateSpec(index, "SpecValue", e.target.value);
+                              autoResize(e);
+                            }}
+                            onInput={autoResize}
+                            className={styles.specInputTextarea}
                           />
                           <input
                             type="text"
                             placeholder="VD: 24 tháng"
                             value={spec.Warranty}
-                            onChange={(e) => updateSpec(index, 'Warranty', e.target.value)}
+                            onChange={(e) =>
+                              updateSpec(index, "Warranty", e.target.value)
+                            }
                             className={styles.specInput}
                           />
                           <button
@@ -805,7 +936,9 @@ export default function ProductPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>Thêm sản phẩm mới</h3>
-              <button className={styles.closeBtn} onClick={closeModals}>✕</button>
+              <button className={styles.closeBtn} onClick={closeModals}>
+                ✕
+              </button>
             </div>
             <div className={styles.modalBody}>
               <div className={styles.formGroup}>
@@ -813,7 +946,9 @@ export default function ProductPage() {
                 <input
                   type="text"
                   value={formData.productName}
-                  onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, productName: e.target.value })
+                  }
                   placeholder="Nhập tên sản phẩm..."
                 />
               </div>
@@ -821,7 +956,9 @@ export default function ProductPage() {
                 <label>Mô tả sản phẩm</label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder="Nhập mô tả chi tiết về sản phẩm..."
                 />
               </div>
@@ -842,12 +979,24 @@ export default function ProductPage() {
                     </div>
                   ) : (
                     <>
-                      <svg className={styles.uploadIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      <svg
+                        className={styles.uploadIcon}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
                       </svg>
                       <div>
                         <div>Nhấp để chọn hoặc kéo thả ảnh vào đây</div>
-                        <div className={styles.uploadHint}>Hỗ trợ nhiều ảnh, tối đa 5MB mỗi file</div>
+                        <div className={styles.uploadHint}>
+                          Hỗ trợ nhiều ảnh, tối đa 5MB mỗi file
+                        </div>
                       </div>
                     </>
                   )}
@@ -876,27 +1025,31 @@ export default function ProductPage() {
                   <input
                     type="text"
                     value={formData.sku}
-                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sku: e.target.value })
+                    }
                     placeholder="VD: DELL-XPS13"
                   />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Danh mục *</label>
                   <select
-                    value={formData.categoryId}
-                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                    value={formData.categoryId === "" ? "" : String(formData.categoryId)}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        categoryId: e.target.value
+                          ? Number(e.target.value)
+                          : "",
+                      })
+                    }
                   >
                     <option value="">-- Chọn danh mục --</option>
-                    {categories
-                      .filter((c) => c !== "all")
-                      .map((catName) => {
-                        const cat = products.find((p) => p.CategoryName === catName);
-                        return cat ? (
-                          <option key={cat.CategoryId} value={cat.CategoryId}>
-                            {catName}
-                          </option>
-                        ) : null;
-                      })}
+                    {CATEGORY_OPTIONS.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -906,7 +1059,9 @@ export default function ProductPage() {
                   <input
                     type="number"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
                     placeholder="VD: 25000000"
                   />
                 </div>
@@ -915,7 +1070,9 @@ export default function ProductPage() {
                   <input
                     type="number"
                     value={formData.discountPrice}
-                    onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discountPrice: e.target.value })
+                    }
                     placeholder="VD: 22000000"
                   />
                 </div>
@@ -925,7 +1082,9 @@ export default function ProductPage() {
                 <input
                   type="number"
                   value={formData.stockQuantity}
-                  onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, stockQuantity: e.target.value })
+                  }
                   placeholder="VD: 10"
                 />
               </div>

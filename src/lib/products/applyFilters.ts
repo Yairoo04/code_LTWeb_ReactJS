@@ -1,8 +1,7 @@
-// src/lib/products/applyFilters.ts
 import type { FrontendProduct, FilterState } from "./types";
 
 const extractMaxDpi = (value: string): number | null => {
-  const cleaned = value.replace(/[.,]/g, "");
+  const cleaned = (value ?? "").replace(/[.,]/g, "");
   const matches = cleaned.match(/\d+/g);
   if (!matches) return null;
   const nums = matches.map((n) => parseInt(n, 10));
@@ -15,6 +14,9 @@ export const applyFiltersAndSort = (
   sortBy: string
 ): FrontendProduct[] => {
   let result = [...products];
+
+  const safe = (v: any) => (typeof v === "string" ? v : "").toLowerCase();
+  const safeVal = (v: any) => (typeof v === "string" ? v : "");
 
   const {
     category,
@@ -33,15 +35,19 @@ export const applyFiltersAndSort = (
     keyboardType,
     layout,
     psu,
+    socket,
+    watt,
+    capacity,
   } = filters;
 
-  // Category
+  // CATEGORY
   if (category) {
     result = result.filter((p) => {
+      const name = safe(p.name);
+      const desc = safe(p.description);
+
       if (p.categoryId !== null && String(p.categoryId) === category) {
-        if (category === "2" && p.name.toLowerCase().includes("laptop")) {
-          return false;
-        }
+        if (category === "2" && name.includes("laptop")) return false;
         return true;
       }
 
@@ -52,114 +58,109 @@ export const applyFiltersAndSort = (
       else if (category === "4") keyword = "bàn phím";
       else if (category === "5") keyword = "chuột";
 
-      const name = p.name.toLowerCase();
-      const desc = p.description.toLowerCase();
       return keyword && (name.includes(keyword) || desc.includes(keyword));
     });
   }
 
-  // Brand
+  // BRAND
   if (brand) {
-    const b = brand.toLowerCase();
+    const b = safe(brand);
     result = result.filter((p) => {
-      const name = p.name.toLowerCase();
-      const desc = p.description.toLowerCase();
+      const name = safe(p.name);
+      const desc = safe(p.description);
       return name.includes(b) || desc.includes(b);
     });
   }
 
   // CPU
   if (cpu) {
-    const c = cpu.toLowerCase();
+    const c = safe(cpu);
     result = result.filter(
       (p) =>
         p.specs?.some(
           (s) =>
-            s.SpecName.toLowerCase().includes("cpu") &&
-            s.SpecValue.toLowerCase().includes(c)
-        ) || p.description.toLowerCase().includes(c)
+            safe(s.SpecName).includes("cpu") &&
+            safe(s.SpecValue).includes(c)
+        ) || safe(p.description).includes(c)
     );
   }
 
-  // Series
+  // SERIES
   if (series) {
-    const s = series.toLowerCase();
-    result = result.filter((p) => p.name.toLowerCase().includes(s));
+    const s = safe(series);
+    result = result.filter((p) => safe(p.name).includes(s));
   }
 
-  // Usage
+  // USAGE
   if (usage) {
-    const nameDescFilter = (p: FrontendProduct, keyword: string) => {
-      const kw = keyword.toLowerCase();
-      const name = p.name.toLowerCase();
-      const desc = p.description.toLowerCase();
-      return name.includes(kw) || desc.includes(kw);
-    };
-
     const usageList = Array.isArray(usage)
-      ? usage.map((u) => u.toLowerCase())
-      : [usage.toLowerCase()];
+      ? usage.map((u) => safe(u))
+      : [safe(usage)];
 
-    result = result.filter((p) => usageList.some((u) => nameDescFilter(p, u)));
+    result = result.filter((p) => {
+      const name = safe(p.name);
+      const desc = safe(p.description);
+      return usageList.some((u) => name.includes(u) || desc.includes(u));
+    });
   }
 
-  // Screen size
+  // SCREEN SIZE
   if (screenSize) {
-    const size = screenSize.toLowerCase();
+    const size = safe(screenSize);
     result = result.filter(
       (p) =>
         p.specs?.some((s) => {
-          const name = s.SpecName.toLowerCase();
-          const value = s.SpecValue.toLowerCase();
+          const name = safe(s.SpecName);
+          const value = safe(s.SpecValue);
           return (
             (name.includes("màn hình") ||
               name.includes("screen") ||
               name.includes("kích thước")) &&
             value.includes(size)
           );
-        }) || p.description.toLowerCase().includes(size)
+        }) || safe(p.description).includes(size)
     );
   }
 
   // RAM
   if (ram) {
-    const r = ram.toLowerCase();
+    const r = safe(ram);
     result = result.filter(
       (p) =>
         p.specs?.some(
           (s) =>
-            s.SpecName.toLowerCase().includes("ram") &&
-            s.SpecValue.toLowerCase().includes(r)
-        ) || p.description.toLowerCase().includes(r)
+            safe(s.SpecName).includes("ram") &&
+            safe(s.SpecValue).includes(r)
+        ) || safe(p.description).includes(r)
     );
   }
 
   // SSD
   if (ssd) {
-    const ssdVal = ssd.toLowerCase();
+    const ssdVal = safe(ssd);
     result = result.filter(
       (p) =>
         p.specs?.some((s) => {
-          const name = s.SpecName.toLowerCase();
-          const value = s.SpecValue.toLowerCase();
+          const name = safe(s.SpecName);
+          const value = safe(s.SpecValue);
           return (
             (name.includes("ssd") || name.includes("ổ cứng")) &&
             value.includes(ssdVal)
           );
-        }) || p.description.toLowerCase().includes(ssdVal)
+        }) || safe(p.description).includes(ssdVal)
     );
   }
 
   // VGA
   if (vga) {
-    const v = vga.toLowerCase();
+    const v = safe(vga);
     result = result.filter(
       (p) =>
         p.specs?.some(
           (s) =>
-            s.SpecName.toLowerCase().includes("vga") &&
-            s.SpecValue.toLowerCase().includes(v)
-        ) || p.description.toLowerCase().includes(v)
+            safe(s.SpecName).includes("vga") &&
+            safe(s.SpecValue).includes(v)
+        ) || safe(p.description).includes(v)
     );
   }
 
@@ -168,78 +169,117 @@ export const applyFiltersAndSort = (
     const dpiLimit = parseInt(dpi, 10);
     result = result.filter((p) =>
       p.specs?.some((s) => {
-        const specName = s.SpecName.toLowerCase();
+        const specName = safe(s.SpecName);
         if (!(specName.includes("độ phân giải") || specName.includes("dpi"))) {
           return false;
         }
-        const maxDpi = extractMaxDpi(s.SpecValue);
-        if (maxDpi == null) return false;
-        return maxDpi <= dpiLimit;
+        const maxDpi = extractMaxDpi(safeVal(s.SpecValue));
+        return maxDpi != null && maxDpi <= dpiLimit;
       })
     );
   }
 
-  // Resolution
+  // RESOLUTION
   if (resolution) {
-    const res = resolution.toLowerCase();
+    const res = safe(resolution);
     result = result.filter((p) =>
       p.specs?.some(
         (s) =>
-          s.SpecName.toLowerCase().includes("độ phân giải") &&
-          s.SpecValue.toLowerCase().includes(res)
+          safe(s.SpecName).includes("độ phân giải") &&
+          safe(s.SpecValue).includes(res)
       )
     );
   }
 
-  // Panel type
+  // PANEL TYPE
   if (panelType) {
-    const panel = panelType.toLowerCase();
+    const panel = safe(panelType);
     result = result.filter((p) =>
       p.specs?.some(
         (s) =>
-          s.SpecName.toLowerCase().includes("tấm nền") &&
-          s.SpecValue.toLowerCase().includes(panel)
+          safe(s.SpecName).includes("tấm nền") &&
+          safe(s.SpecValue).includes(panel)
       )
     );
   }
 
-  // Keyboard type
+  // KEYBOARD TYPE
   if (keyboardType) {
-    const k = keyboardType.toLowerCase();
+    const k = safe(keyboardType);
     result = result.filter((p) =>
       p.specs?.some(
         (s) =>
-          s.SpecName.toLowerCase().includes("loại bàn phím") &&
-          s.SpecValue.toLowerCase().includes(k)
+          safe(s.SpecName).includes("loại bàn phím") &&
+          safe(s.SpecValue).includes(k)
       )
     );
   }
 
-  // Layout
+  // LAYOUT
   if (layout) {
-    const l = layout.toLowerCase();
+    const l = safe(layout);
     result = result.filter((p) =>
       p.specs?.some(
         (s) =>
-          s.SpecName.toLowerCase().includes("layout") &&
-          s.SpecValue.toLowerCase().includes(l)
+          safe(s.SpecName).includes("layout") &&
+          safe(s.SpecValue).includes(l)
       )
     );
   }
 
   // PSU
   if (psu) {
-    const pVal = psu.toLowerCase();
+    const pVal = safe(psu);
     result = result.filter((p) =>
       p.specs?.some(
         (s) =>
-          s.SpecName.toLowerCase().includes("psu") &&
-          s.SpecValue.toLowerCase().includes(pVal)
+          safe(s.SpecName).includes("psu") &&
+          safe(s.SpecValue).includes(pVal)
       )
     );
   }
 
-  // Price
+  // SOCKET
+  if (socket) {
+    const sock = safe(socket);
+    result = result.filter(
+      (p) =>
+        p.specs?.some(
+          (s) =>
+            safe(s.SpecName).includes("socket") &&
+            safe(s.SpecValue).includes(sock)
+        ) || safe(p.description).includes(sock)
+    );
+  }
+
+  // WATT
+  if (watt) {
+    const w = safe(watt);
+    result = result.filter(
+      (p) =>
+        p.specs?.some(
+          (s) =>
+            safe(s.SpecName).includes("công suất") &&
+            safe(s.SpecValue).includes(w)
+        ) || safe(p.description).includes(w)
+    );
+  }
+
+  // CAPACITY
+  if (capacity) {
+    const cap = safe(capacity);
+    result = result.filter(
+      (p) =>
+        p.specs?.some(
+          (s) =>
+            (safe(s.SpecName).includes("dung lượng") ||
+              safe(s.SpecName).includes("capacity")) &&
+            safe(s.SpecValue).includes(cap)
+        ) || safe(p.description).includes(cap)
+    );
+  }
+
+  // PRICE
   if (price) {
     const [min, max] = price.split("-").map(Number);
     result = result.filter((p) => {
@@ -248,7 +288,7 @@ export const applyFiltersAndSort = (
     });
   }
 
-  // Sort
+  // SORT
   if (sortBy === "price-asc") {
     result.sort(
       (a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price)

@@ -27,20 +27,38 @@ const emptyFilters: FilterState = {
   keyboardType: "",
   layout: "",
   psu: "",
+  socket: "",
+  watt: "",
+  capacity: "",
 };
 
-const mapToFrontendProduct = (apiProduct: ApiProduct): FrontendProduct => ({
-  id: apiProduct.ProductId,
-  name: apiProduct.Name,
-  description: apiProduct.Description,
-  price: apiProduct.Price,
-  discountPrice: apiProduct.DiscountPrice,
-  categoryId: apiProduct.CategoryId,
-  image_url: apiProduct.ImageUrl,
-  stock: apiProduct.Stock,
-  totalReviews: (apiProduct as any).totalReviews ?? 0,
-  averageRating: (apiProduct as any).averageRating ?? 0,
-});
+const mapToFrontendProduct = (apiProduct: ApiProduct): FrontendProduct => {
+  let images: string[] = [];
+
+  try {
+    const parsed = JSON.parse(apiProduct.ImageUrl ?? "[]");
+    if (Array.isArray(parsed)) images = parsed;
+  } catch {
+    images = (apiProduct.ImageUrl ?? "")
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean);
+  }
+
+  return {
+    id: apiProduct.ProductId,
+    name: apiProduct.Name,
+    description: apiProduct.Description,
+    price: apiProduct.Price,
+    discountPrice: apiProduct.DiscountPrice,
+    categoryId: apiProduct.CategoryId,
+    image_url: images,   // ← CHUẨN: luôn là array
+    stock: apiProduct.Stock,
+    totalReviews: (apiProduct as any).totalReviews ?? 0,
+    averageRating: (apiProduct as any).averageRating ?? 0,
+  };
+};
+
 
 export const useCollectionProducts = (slug: string, pathname: string) => {
   const [products, setProducts] = useState<FrontendProduct[]>([]);
@@ -53,13 +71,11 @@ export const useCollectionProducts = (slug: string, pathname: string) => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Set filters từ slug + preset
   useEffect(() => {
     if (!slug) return;
 
     const s = slug.toLowerCase();
 
-    // 1. preset từ mega menu nếu có
     const preset = presetMap.get(pathname);
     if (preset) {
       setFilters((prev) => ({
@@ -69,17 +85,21 @@ export const useCollectionProducts = (slug: string, pathname: string) => {
       return;
     }
 
-    // 2. fallback suy luận từ slug
     const nf: FilterState = { ...emptyFilters };
 
-    // Category
     if (s.includes("laptop")) nf.category = "1";
     else if (s.includes("pc")) nf.category = "2";
     else if (s.includes("man-hinh")) nf.category = "3";
     else if (s.includes("ban-phim")) nf.category = "4";
     else if (s.includes("chuot")) nf.category = "5";
+    else if (s.includes("mainboard") || s.includes("bo-mach-chu")) nf.category = "6";
+    else if (s.includes("vga") || s.includes("card-man-hinh")) nf.category = "6";
+    else if (s.includes("case") || s.includes("vo-may-tinh")) nf.category = "7";
+    else if (s.includes("psu") || s.includes("nguon")) nf.category = "7";
+    else if (s.includes("cooling") || s.includes("tan-nhiet")) nf.category = "7";
+    else if (s.includes("ram")) nf.category = "8";
+    else if (s.includes("storage") || s.includes("o-cung")) nf.category = "8";
 
-    // Brand
     const brands = [
       "asus",
       "acer",
@@ -92,6 +112,13 @@ export const useCollectionProducts = (slug: string, pathname: string) => {
       "viewsonic",
       "keychron",
       "logitech",
+      "corsair",
+      "lian li",
+      "deepcool",
+      "samsung",
+      "wd",
+      "v-color",
+      "kingston",
     ];
     const foundBrand = brands.find((b) => s.includes(b));
     if (foundBrand) nf.brand = foundBrand;
@@ -110,6 +137,7 @@ export const useCollectionProducts = (slug: string, pathname: string) => {
     else if (s.includes("do-hoa")) nf.usage = "đồ họa";
     else if (s.includes("mong-nhe")) nf.usage = "mỏng nhẹ";
     else if (s.includes("gaming")) nf.usage = "gaming";
+    else if (s.includes("workstation")) nf.usage = "workstation";
 
     // Series
     const seriesKeywords = [
@@ -121,9 +149,35 @@ export const useCollectionProducts = (slug: string, pathname: string) => {
       "rog",
       "tuf",
       "pavilion",
+      "rtx 5060",
+      "rtx 5060 ti",
+      "rtx 5070",
+      "rtx 5070 ti",
+      "rtx 5080",
+      "rtx 5090",
+      "z790",
+      "z890",
+      "dominator",
+      "fury beast",
+      "aorus",
     ];
     const foundSeries = seriesKeywords.find((k) => s.includes(k));
     if (foundSeries) nf.series = foundSeries;
+
+    // Socket
+    const sockets = ["lga 1700", "am5"];
+    const foundSocket = sockets.find((sk) => s.includes(sk.toLowerCase()));
+    if (foundSocket) nf.socket = foundSocket;
+
+    // Watt for PSU
+    const watts = ["850w", "1000w", "1500w", "1600w"];
+    const foundWatt = watts.find((w) => s.includes(w));
+    if (foundWatt) nf.watt = foundWatt;
+
+    // Capacity for RAM/Storage
+    const capacities = ["128gb", "500gb", "1tb", "2tb", "32gb", "64gb"];
+    const foundCapacity = capacities.find((c) => s.includes(c));
+    if (foundCapacity) nf.capacity = foundCapacity;
 
     setFilters(nf);
   }, [slug, pathname]);
