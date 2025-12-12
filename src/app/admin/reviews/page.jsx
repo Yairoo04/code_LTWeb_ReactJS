@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import styles from "./reviews.module.scss";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
@@ -126,7 +128,7 @@ export default function AdminReviewsPage() {
 
       {/* ===== CONTENT ===== */}
       {loading ? (
-        <div>Đang tải...</div>
+        <LoadingSpinner message="Đang tải đánh giá..." />
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>

@@ -372,6 +372,11 @@ export default function OrdersPage() {
                   <div className={styles.field}><span>Họ tên:</span><b>{selected.RecipientName}</b></div>
                   <div className={styles.field}><span>SĐT:</span><b>{selected.RecipientPhone || "Chưa có"}</b></div>
                   <div className={styles.field}><span>Email:</span><b>{selected.CustomerEmail || "N/A"}</b></div>
+                  <div className={styles.field}><span>Địa chỉ:</span><b>{
+                    selected.Street || selected.City || selected.Province
+                      ? [selected.Street, selected.City, selected.Province].filter(Boolean).join(", ")
+                      : (selected.Address || selected.RecipientAddress || "Chưa có")
+                  }</b></div>
                 </div>
                 <div>
                   <h4>Thanh toán</h4>
@@ -379,6 +384,7 @@ export default function OrdersPage() {
                     <span>Phương thức:</span>
                     <b>{selected.PaymentMethod || 'Chưa xác định'}</b>
                   </div>
+                  <div className={styles.field}><span>Phí ship:</span><b>{selected.ShippingFee !== undefined ? currency(selected.ShippingFee) : '—'}</b></div>
                   <div className={styles.field}><span>Tổng tiền:</span><b className={styles.totalPrice}>{currency(selected.TotalAmount)}</b></div>
                 </div>
               </section>

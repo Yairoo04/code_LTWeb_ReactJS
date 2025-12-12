@@ -9,7 +9,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"
 
 function currency(v: any) {
   try {
-    return v?.toLocaleString("vi-VN") + "đ";
+    return v?.toLocaleString("vi-VN") + "đ"; // nếu là số thì chuyển thành chuối + đ
   } catch {
     return v + "đ";
   }
@@ -136,6 +136,7 @@ export default function ProductPage() {
     }
   }
 
+<<<<<<< HEAD:src/app/admin/products/page.tsx
 
   function autoResize(e) {
     e.target.style.height = "auto";
@@ -143,10 +144,14 @@ export default function ProductPage() {
   }
 
   useEffect(() => {
+=======
+  // Fetch products từ API khi component mount
+  useEffect(() => { // tự động chạy khi vào trang 
+>>>>>>> 9d319008518c50b3d560e4d20f4e2fcc2fdebd4f:src/app/admin/products/page.jsx
     fetchProducts();
   }, []);
 
-  async function fetchProducts() {
+  async function fetchProducts() { // hàm lấy danh sách sản phẩm
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE}/api/admin/products`);
@@ -163,6 +168,14 @@ export default function ProductPage() {
     }
   }
 
+<<<<<<< HEAD:src/app/admin/products/page.tsx
+=======
+  const categories = useMemo(() => { // ghi nhớ kết quả, tính lại khi products thay đổi
+    const set = new Set(["all", ...products.map((p) => p.CategoryName).filter(Boolean)]);
+    return Array.from(set);
+  }, [products]);
+
+>>>>>>> 9d319008518c50b3d560e4d20f4e2fcc2fdebd4f:src/app/admin/products/page.jsx
   const filtered = useMemo(() => {
     let list = products.filter((p) =>
       (p.ProductName || "").toLowerCase().includes(search.toLowerCase())
@@ -179,12 +192,12 @@ export default function ProductPage() {
     switch (sort) {
       case "priceAsc":
         list = [...list].sort(
-          (a, b) => (a.DiscountPrice ?? a.Price) - (b.DiscountPrice ?? b.Price)
+          (a, b) => (a.DiscountPrice ?? a.Price) - (b.DiscountPrice ?? b.Price) // tăng dần
         );
         break;
       case "priceDesc":
         list = [...list].sort(
-          (a, b) => (b.DiscountPrice ?? b.Price) - (a.DiscountPrice ?? a.Price)
+          (a, b) => (b.DiscountPrice ?? b.Price) - (a.DiscountPrice ?? a.Price) // giảm dần
         );
         break;
       default:

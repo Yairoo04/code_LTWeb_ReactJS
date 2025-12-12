@@ -82,7 +82,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
 
       const userData = {
         id: data.user?.id,
-        userId: data.user?.userId, // 👈 Thêm dòng này
+        userId: data.user?.userId, // Thêm dòng này
         fullname: data.user?.fullname || data.user?.username || "Người dùng Google",
         email: data.user?.email,
         phone: data.user?.phone || "",
@@ -135,6 +135,12 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onLogi
             {loading ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
           </button>
         </form>
+        <p
+          className={styles.link}
+          onClick={() => window.location.href = "/forgot-password"}
+        >
+          Quên mật khẩu?
+        </p>
 
         <div className={styles.socialLogin}>
           <p>hoặc đăng nhập bằng Google</p>

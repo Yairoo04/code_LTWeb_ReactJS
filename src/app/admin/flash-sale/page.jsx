@@ -1,7 +1,9 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import styles from './flash-sale-admin.module.scss';
+
 import AdminPageTitle from "@/components/AdminPageTitle";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 function FlashSaleAdminPage() {
     // Modal state for product management
     const [productModal, setProductModal] = useState({ open: false, campaign: null });
@@ -213,7 +215,7 @@ function FlashSaleAdminPage() {
         {editingId && <button type="button" onClick={() => { setEditingId(null); setForm({ Code: '', Title: '', StartTime: '', EndTime: '', BannerImageUrl: '', IsActive: true }); }}>Hủy</button>}
       </form>
       <hr />
-      {loading ? <p>Đang tải...</p> : (
+      {loading ? <LoadingSpinner message="Đang tải dữ liệu flash sale..." /> : (
         <table className={styles.table}>
           <thead>
             <tr>
@@ -294,7 +296,7 @@ function FlashSaleAdminPage() {
                               {itemEditId && <button type="button" onClick={() => { setItemEditId(null); setItemForm({ ProductId: '', FlashPrice: '', percent: '' }); }} style={{ background: '#bdbdbd', color: '#333', border: 'none', borderRadius: 6, padding: '7px 18px', fontWeight: 600 }}>Hủy</button>}
                             </form>
                             <div style={{ maxHeight: 320, overflowY: 'auto', border: '1px solid #f8bbd0', borderRadius: 8, background: '#fff6f6', padding: 8 }}>
-                              {itemLoading ? <div>Đang tải...</div> : (
+                              {itemLoading ? <LoadingSpinner message="Đang tải sản phẩm..." /> : (
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                   <thead>
                                     <tr style={{ background: '#fbe9e7' }}>

@@ -2,7 +2,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "./login.scss";
+
 import Cookies from "js-cookie";
+import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function LoginPage() {
   const [username, setUser] = useState("");
