@@ -128,7 +128,22 @@
   color: #374151;
 }
 
-.tableWrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.tableWrap {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow-y: auto;
+  max-height: 60vh;
+  overflow-x: auto;
+}
+
+/* Sticky table header in scrollable tableWrap */
+.tableWrap .table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f0baba;
+}
 .table {
   width: 100%;
   border-collapse: collapse;

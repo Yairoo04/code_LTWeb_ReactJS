@@ -26,8 +26,11 @@ export default function AdminLayout({ children }) {
     setLoggedIn(check);
     setUser(getCurrentUser());
 
-    // Nếu chưa login mà không ở trang login → chuyển hướng
-    if (!check && path !== "/admin/login") {
+    // Nếu chưa login mà không ở trang login, forgot-password, reset-password → chuyển hướng
+    if (
+      !check &&
+      !["/admin/login", "/admin/forgot-password", "/admin/reset-password"].includes(path)
+    ) {
       router.push("/admin/login");
       return;
     }
@@ -81,8 +84,9 @@ export default function AdminLayout({ children }) {
     localStorage.setItem("adminTheme", next ? "dark" : "light");
   };
 
-  // Nếu đang ở /admin/login → KHÔNG render sidebar
-  if (path === "/admin/login") {
+
+  // Nếu đang ở /admin/login, /admin/forgot-password, /admin/reset-password → KHÔNG render sidebar, KHÔNG render loading
+  if (["/admin/login", "/admin/forgot-password", "/admin/reset-password"].includes(path)) {
     return <>{children}</>;
   }
 

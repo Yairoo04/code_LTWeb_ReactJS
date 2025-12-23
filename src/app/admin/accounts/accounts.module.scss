@@ -105,7 +105,22 @@
   }
 }
 
-.tableWrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.tableWrap {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow-y: auto;
+  max-height: 60vh;
+  overflow-x: auto;
+}
+
+/* Sticky table header in scrollable tableWrap */
+.tableWrap .table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f0baba;
+}
 .table { width: 100%; border-collapse: collapse; }
 .table thead th { background: #f0baba; color: #d32f2f; text-align: left; padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb; }
 .table tbody td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }

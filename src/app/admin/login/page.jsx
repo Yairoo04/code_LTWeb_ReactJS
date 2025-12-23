@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import LoadingSpinner from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function LoginPage() {
-  const [username, setUser] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -114,7 +114,7 @@ export default function LoginPage() {
       const res = await fetch(`${API_BASE}/api/admin/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -238,13 +238,16 @@ export default function LoginPage() {
           <>
             <div className="input-group">
               <label>Email</label>
-              <input
+              {
+               <input
                 type="email"
                 placeholder="admin@example.com"
-                value={username}
-                onChange={(e) => setUser(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={!!lockUntil}
-              />
+              /> 
+              
+              }
             </div>
 
             <div className="input-group">
@@ -281,7 +284,7 @@ export default function LoginPage() {
                 <input type="checkbox" />
                 <span>Ghi nhớ đăng nhập</span>
               </label>
-              <a href="#" className="forgot-link">Quên mật khẩu?</a>
+              <a href="/admin/forgot-password" className="forgot-link">Quên mật khẩu?</a>
             </div>
 
             <button onClick={handleLogin} disabled={isSubmitting || !!lockUntil}>

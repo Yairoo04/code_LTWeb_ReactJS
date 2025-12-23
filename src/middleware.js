@@ -7,8 +7,12 @@
 //   // Lấy cookie "isLoggedIn" (true/false)
 //   const isLoggedIn = req.cookies.get("isLoggedIn")?.value === "true";
 
-//   // 1️⃣ Nếu chưa đăng nhập mà truy cập bất kỳ trang admin nào (trừ /admin/login)
-//   if (pathname.startsWith("/admin") && pathname !== "/admin/login" && !isLoggedIn) {
+//   // 1️⃣ Nếu chưa đăng nhập mà truy cập bất kỳ trang admin nào (trừ /admin/login, /admin/forgot-password, /admin/reset-password)
+//   if (
+//     pathname.startsWith("/admin") &&
+//     !["/admin/login", "/admin/forgot-password", "/admin/reset-password"].includes(pathname) &&
+//     !isLoggedIn
+//   ) {
 //     const loginUrl = req.nextUrl.clone();
 //     loginUrl.pathname = "/admin/login";
 //     return NextResponse.redirect(loginUrl);
@@ -64,8 +68,12 @@ export function middleware(req) {
     return NextResponse.redirect(url);
   }
 
-  // Nếu chưa login mà truy cập bất kỳ trang /admin/*
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login" && !isLoggedIn) {
+  // Nếu chưa login mà truy cập bất kỳ trang /admin/* (trừ /admin/login, /admin/forgot-password, /admin/reset-password)
+  if (
+    pathname.startsWith("/admin") &&
+    !["/admin/login", "/admin/forgot-password", "/admin/reset-password"].includes(pathname) &&
+    !isLoggedIn
+  ) {
     const url = req.nextUrl.clone();
     url.pathname = "/admin/login";
     return NextResponse.redirect(url);

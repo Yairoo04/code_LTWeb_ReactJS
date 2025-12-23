@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [topProducts, setTopProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [revenueByCategory, setRevenueByCategory] = useState([]);
+  const [reviewStats, setReviewStats] = useState([]);
 
   //  FETCH DỮ LIỆU TỪ API
   useEffect(() => {
@@ -84,6 +85,10 @@ export default function DashboardPage() {
         const categoryData = await categoryRes.json();
         if (categoryData.success) setRevenueByCategory(categoryData.data);
 
+        // 7. Số lượt đánh giá 10 ngày gần nhất
+        const reviewStatsRes = await fetch(`${API_BASE}/api/admin/review-stats?view=day`);
+        const reviewStatsData = await reviewStatsRes.json();
+        if (reviewStatsData.data) setReviewStats(reviewStatsData.data);
       } catch (error) {
         console.error('Fetch error:', error);
       } finally {
@@ -93,6 +98,38 @@ export default function DashboardPage() {
 
     fetchData();
   }, []);
+
+  // DỮ LIỆU BIỂU ĐỒ 4: Số lượt đánh giá 10 ngày gần nhất
+  const reviewStatsChartData = {
+    labels: reviewStats.map(d => {
+      const date = new Date(d.period);
+      return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    }),
+    datasets: [
+      {
+        label: "Số lượt đánh giá",
+        data: reviewStats.map(d => Math.round(d.reviewCount)),
+        backgroundColor: "#f59e0b",
+        borderColor: "#f59e0b",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Options cho biểu đồ số lượt đánh giá: luôn là số nguyên
+  const reviewStatsChartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+          callback: function(value) {
+            return Number.isInteger(value) ? value : '';
+          }
+        }
+      }
+    }
+  };
 
   // 
   // 🔹 FORMAT SỐ TIỀN
@@ -286,6 +323,14 @@ export default function DashboardPage() {
           <h3>Tỷ lệ đơn hàng theo trạng thái</h3>
           {orderStatus.length > 0 ? (
             <Pie data={orderStatusData} options={pieOptions} />
+          ) : (
+            <p>Chưa có dữ liệu</p>
+          )}
+        </div>
+        <div className="chart-box">
+          <h3>Số lượt đánh giá 10 ngày gần nhất</h3>
+          {reviewStats.length > 0 ? (
+            <Bar data={reviewStatsChartData} options={reviewStatsChartOptions} />
           ) : (
             <p>Chưa có dữ liệu</p>
           )}

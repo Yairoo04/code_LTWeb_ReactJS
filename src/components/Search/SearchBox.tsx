@@ -23,12 +23,15 @@ const API_URL = 'http://localhost:4000/api/products/search'; // Sử dụng URL 
 
 const mapToFrontendProduct = (product: BackendProduct): FrontendProduct => {
   let imageUrls: string[] = [];
-  try {
-    imageUrls = JSON.parse(product.ImageUrl); // Parse string thành array
-  } catch (error) {
-    console.error('Error parsing ImageUrl:', error);
+  if (typeof product.ImageUrl === 'string') {
+    try {
+      imageUrls = JSON.parse(product.ImageUrl);
+      if (!Array.isArray(imageUrls)) throw new Error('Not array');
+    } catch (error) {
+      // Nếu không phải JSON, fallback split(',')
+      imageUrls = product.ImageUrl.split(',').map(x => x.trim()).filter(Boolean);
+    }
   }
-
   return {
     id: product.ProductId,
     name: product.Name,

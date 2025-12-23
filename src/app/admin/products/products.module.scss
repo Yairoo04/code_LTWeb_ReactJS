@@ -32,7 +32,7 @@
 
 .toolbar {
   position: sticky;
-  top: 0;
+  top: 56px;
   z-index: 100;
   display: grid;
   grid-template-columns: 1fr repeat(3, max-content);

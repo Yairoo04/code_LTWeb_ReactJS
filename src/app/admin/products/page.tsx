@@ -136,18 +136,13 @@ export default function ProductPage() {
     }
   }
 
-<<<<<<< HEAD:src/app/admin/products/page.tsx
-
   function autoResize(e) {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
   }
 
-  useEffect(() => {
-=======
   // Fetch products từ API khi component mount
   useEffect(() => { // tự động chạy khi vào trang 
->>>>>>> 9d319008518c50b3d560e4d20f4e2fcc2fdebd4f:src/app/admin/products/page.jsx
     fetchProducts();
   }, []);
 
@@ -168,14 +163,10 @@ export default function ProductPage() {
     }
   }
 
-<<<<<<< HEAD:src/app/admin/products/page.tsx
-=======
   const categories = useMemo(() => { // ghi nhớ kết quả, tính lại khi products thay đổi
     const set = new Set(["all", ...products.map((p) => p.CategoryName).filter(Boolean)]);
     return Array.from(set);
   }, [products]);
-
->>>>>>> 9d319008518c50b3d560e4d20f4e2fcc2fdebd4f:src/app/admin/products/page.jsx
   const filtered = useMemo(() => {
     let list = products.filter((p) =>
       (p.ProductName || "").toLowerCase().includes(search.toLowerCase())

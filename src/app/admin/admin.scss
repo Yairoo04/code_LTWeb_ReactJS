@@ -9,7 +9,7 @@ $error: #e63946;
 
 .admin-container {
   display: flex;
-  height: 100vh;
+  /* height: 100vh; */
   font-family: "Segoe UI", sans-serif;
 
   .admin-sidebar {
@@ -87,6 +87,9 @@ $error: #e63946;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
 
       .header-actions {
         display: flex;

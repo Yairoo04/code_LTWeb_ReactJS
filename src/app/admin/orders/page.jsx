@@ -151,15 +151,24 @@ export default function OrdersPage() {
 
   const filtered = useMemo(() => {
     let list = orders.filter((o) => {
+      // Hỗ trợ tìm theo mã đơn có tiền tố DH hoặc chỉ số
+      let qNorm = q.trim().toLowerCase();
+      let orderIdStr = o.OrderId.toString();
+      let orderIdWithPrefix = "dh" + orderIdStr;
+      // Nếu nhập DHxxxx thì so sánh với cả chuỗi DHxxxx và số
+      if (qNorm.startsWith("dh")) {
+        qNorm = qNorm.replace(/^dh/, "");
+        return orderIdStr.includes(qNorm);
+      }
+      // So sánh với mã đơn, tên, email, SĐT
       const hay = (
-        o.OrderId +
+        orderIdWithPrefix +
+        orderIdStr +
         (o.CustomerName || "") +
         (o.CustomerEmail || "") +
         (o.RecipientPhone || "")
-      )
-        .toString()
-        .toLowerCase();
-      return hay.includes(q.toLowerCase());
+      ).toString().toLowerCase();
+      return hay.includes(qNorm);
     });
     if (status !== "all") list = list.filter((o) => o.Status === status);
     // Lọc theo ngày tạo (từ/đến)
