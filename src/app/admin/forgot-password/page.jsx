@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "./forgot-password.scss";
 
+
+
 export default function AdminForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -34,23 +36,31 @@ export default function AdminForgotPassword() {
   };
 
   return (
-    <div className="admin-forgot-password-page">
-      <h2>Quên mật khẩu Admin</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Đang gửi..." : "Gửi yêu cầu"}
-        </button>
-      </form>
-      {message && <div className="message">{message}</div>}
-      <div style={{ marginTop: 16 }}>
-        <Link href="/admin/login">Quay lại đăng nhập</Link>
+    <div className="login-page forgot-bg">
+      <div className="login-box forgot-box">
+        <h2>Quên mật khẩu</h2>
+        <p style={{color:'#64748b', marginBottom: 18, fontWeight: 500}}>Nhập email tài khoản admin hoặc staff để nhận hướng dẫn đặt lại mật khẩu.</p>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              placeholder="Nhập email của bạn"
+              autoFocus
+            />
+          </div>
+          <button type="submit" disabled={loading}>
+            {loading ? "Đang gửi..." : "Gửi yêu cầu"}
+          </button>
+        </form>
+        {message && <div className="message" style={{marginTop:12}}>{message}</div>}
+        <div style={{ marginTop: 24 }}>
+          <Link href="/admin/login" className="forgot-link">Quay lại đăng nhập</Link>
+        </div>
       </div>
     </div>
   );

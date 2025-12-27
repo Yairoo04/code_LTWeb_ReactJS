@@ -43,30 +43,41 @@ export default function AdminResetPassword() {
   };
 
   return (
-    <div className="admin-forgot-password-page">
-      <h2>Đặt lại mật khẩu Admin</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Mật khẩu mới</label>
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <label>Xác nhận mật khẩu</label>
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
-        </button>
-      </form>
-      {message && <div className="message">{message}</div>}
-      <div style={{ marginTop: 16 }}>
-        <Link href="/admin/login">Quay lại đăng nhập</Link>
+    <div className="login-page forgot-bg">
+      <div className="login-box forgot-box">
+        <h2>Đặt lại mật khẩu Admin</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="password">Mật khẩu mới</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              placeholder="Nhập mật khẩu mới"
+              autoFocus
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Nhập lại mật khẩu"
+            />
+          </div>
+          <button type="submit" disabled={loading}>
+            {loading ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
+          </button>
+        </form>
+        {message && <div className="message" style={{marginTop:12}}>{message}</div>}
+        <div style={{ marginTop: 24 }}>
+          <Link href="/admin/login" className="forgot-link">Quay lại đăng nhập</Link>
+        </div>
       </div>
     </div>
   );
